@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from AbstractOperation import Operation
+from core.operations.AbstractOperation import Operation
 
-class ValidOperation(Operation):
+class Valid(Operation):
     @abstractmethod
     def isValid(self):
         pass

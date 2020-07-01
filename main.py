@@ -1,70 +1,39 @@
-import time
-
-from pysat.formula import CNF
-from pysat.solvers import Glucose3
-
 from core.models.VariabilityModel import VariabilityModel
 from core.transformations.ModelToModel import ModelToModelTransformation
 from fm_metamodel.model.FeatureModel import Feature, FeatureModel, Relation
+from pysat_metamodel.model.PySATModel import PySATModel
+from pysat_metamodel.transformations.fm_to_pysat import Fm_to_pysat
+from pysat_metamodel.operations.Glucose3Valid import Glucose3Valid
+from pysat_metamodel.operations.Glucose3Products import Glucose3Products
 
-
-class SAT(VariabilityModel):
-
-    def __init__(self):
-        self.cnf = CNF()
-
-    def add_constraint(self, constraint):
-        cnf.append(constraint)
-
-    def is_valid(self) -> bool:
-        g = Glucose3()
-        for clause in self.cnf:  # AC es conjunto de conjuntos
-            g.add_clause(clause)  # añadimos la constraint
-        starttime = time.time()
-        sol = g.solve()
-        reqtime = time.time() - starttime
-        return sol
-
-    def products(self):  # TODO
-        return None
-
-
-class Test2SAT(ModelToModelTransformation):
-    def __init__(self, model1: VariabilityModel, model2: VariabilityModel):
-        self.counter = 1
-        self.variables = {}
-        self.model1 = model1
-        self.model2 = model2
-        self.cnf = model2.cnf
-
-    def add_feature(self, feature):
-        if not feature.name in self.variables.keys():
-            self.variables[feature.name] = self.counter
-            self.counter += 1
-
-    def add_relation(self, relation):
-        self.cnf.append([-1 * self.variables.get(relation.parent.name),
-                    self.variables.get(relation.children[0].name)])
-
-    def transform(self):
-        for feature in self.model1.get_features():
-            self.add_feature(feature)
-        for relation in self.model1.get_relations():
-            self.add_relation(relation)
-
-
-# SAT
-sat = SAT()
-
-# Test
+# Create a small fm manually //readers yet missing
 feature_b = Feature('B', [])
 relation = Relation(parent=None, children=[feature_b], card_min=0, card_max=1)
 feature_a = Feature('A', [relation])
 relation.parent = feature_a
 fm = FeatureModel(feature_a, [])
 
-print(fm)
+# Create a detination metamodel (Pysat for the record)
+sat= PySATModel()
 
-transform = Test2SAT(fm, sat)
+# Transform the first onto the second
+transform = Fm_to_pysat(fm, sat)
 transform.transform()
-print(sat.is_valid())
+
+# Create the operation
+valid = Glucose3Valid()
+
+# Execute the operation . TODO Investigate how t avoid that sat parameter
+valid.execute(sat)
+
+# Print the result
+print(valid.isValid())
+
+# Create the operation
+products = Glucose3Products()
+
+# Execute the operation . TODO Investigate how t avoid that sat parameter
+products.execute(sat)
+
+# Print the result
+print(products.getProducts())

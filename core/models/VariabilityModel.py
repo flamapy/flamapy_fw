@@ -1,4 +1,4 @@
+from abc import ABC, abstractmethod
 
-
-class VariabilityModel(object):
+class VariabilityModel():
     pass

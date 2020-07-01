@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from AbstractOperation import Operation
+from core.operations.AbstractOperation import Operation
 
 class ProductsOperation(Operation):
     @abstractmethod
