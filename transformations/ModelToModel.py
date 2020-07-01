@@ -3,5 +3,5 @@ from AbstractTransformation import Transformation
 
 class ModelToModelTransformation(Transformation):
     @abstractmethod
-    def transform(self,Metamodel):
+    def transform(self,VariabilityModel, VariabilityModel):
         pass
