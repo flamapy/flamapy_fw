@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from AbstractTransformation import Transformation
+from core.transformations.AbstractTransformation import Transformation
 
 
 class TextToModelTransformation(Transformation):
@@ -9,5 +9,5 @@ class TextToModelTransformation(Transformation):
         pass
 
     @abstractmethod
-    def transform(self, ):
+    def transform(self):
         pass

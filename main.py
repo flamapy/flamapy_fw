@@ -1,6 +1,8 @@
 from core.models.VariabilityModel import VariabilityModel
-from core.transformations.ModelToModel import ModelToModelTransformation
+from core.transformations.ModelToModel import ModelToModel
 from fm_metamodel.model.FeatureModel import Feature, FeatureModel, Relation
+from fm_metamodel.transformations.XMLTransformation import XMLTransformation
+
 from pysat_metamodel.model.PySATModel import PySATModel
 from pysat_metamodel.transformations.fm_to_pysat import Fm_to_pysat
 from pysat_metamodel.operations.Glucose3Valid import Glucose3Valid
@@ -12,6 +14,9 @@ relation = Relation(parent=None, children=[feature_b], card_min=0, card_max=1)
 feature_a = Feature('A', [relation])
 relation.parent = feature_a
 fm = FeatureModel(feature_a, [])
+
+xmlreader = XMLTransformation('df-case1.fama')
+xmlreader.transform()
 
 # Create a detination metamodel (Pysat for the record)
 sat= PySATModel()

@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from AbstractTransformation import Transformation
+from core.transformations.AbstractTransformation import Transformation
 
-class ModelToTextTransformation(Transformation):
+class TextToModel(Transformation):
     
     @abstractmethod
     def register(self, extension, metamodel):
         pass
 
     @abstractmethod
-    def transform(self,Metamodel):
+    def transform(self):
         pass
