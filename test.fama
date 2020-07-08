@@ -11,10 +11,8 @@
 		<solitaryFeature name="C">
 			<setRelation name="SR-1">
 				<cardinality min="1" max="1"/>
-				<groupedFeature name="D">
-				</groupedFeature>
-				<groupedFeature name="E">
-				</groupedFeature>
+				<groupedFeature name="D"></groupedFeature>
+				<groupedFeature name="E"></groupedFeature>
 			</setRelation>
 		</solitaryFeature>
 	</binaryRelation>
