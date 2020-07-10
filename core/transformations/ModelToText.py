@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from core.transformations.AbstractTransformation import Transformation
 
 
-class TextToModelTransformation(Transformation):
+class ModelToText(Transformation):
     
     @abstractmethod
     def register(self, extension, metamodel):
