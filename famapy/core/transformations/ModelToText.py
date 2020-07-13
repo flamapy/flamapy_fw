@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
-from core.transformations.AbstractTransformation import Transformation
 
-class TextToModel(Transformation):
-    
+from famapy.core.transformations.AbstractTransformation import Transformation
+
+
+class ModelToText(Transformation):
+
     @abstractmethod
     def register(self, extension, metamodel):
         pass

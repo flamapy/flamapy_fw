@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from core.models.VariabilityModel import VariabilityModel
-from core.transformations.AbstractTransformation import Transformation
+from famapy.core.models.VariabilityModel import VariabilityModel
+from famapy.core.transformations.AbstractTransformation import Transformation
 
 
 class ModelToModel(Transformation):

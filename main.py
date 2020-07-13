@@ -1,13 +1,15 @@
-from core.models.VariabilityModel import VariabilityModel
-from core.transformations.ModelToModel import ModelToModel
-from fm_metamodel.model.FeatureModel import Feature, FeatureModel, Relation
-from fm_metamodel.transformations.XMLTransformation import XMLTransformation
-from fm_metamodel.transformations.JsonWritter import JsonWriter
+from famapy.core.models.VariabilityModel import VariabilityModel
+from famapy.core.transformations.ModelToModel import ModelToModel
 
-from pysat_metamodel.model.PySATModel import PySATModel
-from pysat_metamodel.transformations.fm_to_pysat import Fm_to_pysat
-from pysat_metamodel.operations.Glucose3Valid import Glucose3Valid
-from pysat_metamodel.operations.Glucose3Products import Glucose3Products
+from famapy.metamodels.fm_metamodel.model.FeatureModel import Feature, FeatureModel, Relation
+from famapy.metamodels.fm_metamodel.transformations.JsonWritter import JsonWriter
+from famapy.metamodels.fm_metamodel.transformations.XMLTransformation import XMLTransformation
+
+from famapy.metamodels.pysat_metamodel.model.PySATModel import PySATModel
+from famapy.metamodels.pysat_metamodel.operations.Glucose3Products import Glucose3Products
+from famapy.metamodels.pysat_metamodel.operations.Glucose3Valid import Glucose3Valid
+from famapy.metamodels.pysat_metamodel.transformations.fm_to_pysat import Fm_to_pysat
+
 
 # Parse a file
 xmlreader = XMLTransformation("/mnt/c/Users/jagal/Documents/Repositories/FaMaPy/core/test.fama")

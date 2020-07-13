@@ -4,7 +4,7 @@ This repo will host the core components of FaMaPy
 
 # Install dependencies
 
-Create amd enter in virtualenv:
+Create and enter in virtualenv:
 
 ```
 python3 -m venv env .

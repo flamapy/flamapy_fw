@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from core.operations.AbstractOperation import Operation
+
+from famapy.core.operations.AbstractOperation import Operation
+
 
 class ProductsOperation(Operation):
     @abstractmethod
