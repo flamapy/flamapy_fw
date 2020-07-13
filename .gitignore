@@ -1,2 +1,2 @@
 *.pyc
-*_metamodel
+__pycache__
