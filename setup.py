@@ -22,5 +22,5 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[],
-    scripts=['scripts/famapy.py']
+    scripts=['scripts/famapy-admin.py']
 )

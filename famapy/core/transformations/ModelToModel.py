@@ -7,7 +7,7 @@ from famapy.core.transformations.AbstractTransformation import Transformation
 class ModelToModel(Transformation):
 
     @abstractmethod
-    def __init__(self, model1: VariabilityModel, model2: VariabilityModel):
+    def __init__(self, orig: VariabilityModel, dst: VariabilityModel):
         pass
 
     @abstractmethod
