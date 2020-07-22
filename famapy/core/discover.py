@@ -14,7 +14,7 @@ class DiscoverMetamodels(object):
         prefix = ns_pkg.__name__ + "."
         return pkgutil.iter_modules(ns_pkg.__path__, prefix)
 
-    def discover(self) -> list:
+    def discover(self) -> dict:
         """ Generate a dictionaty with metamodels and its submodules. The
         submodules can be model, transformations and operations. Example:
         {
@@ -60,7 +60,7 @@ class DiscoverMetamodels(object):
     def reload(self):
         self.metamodels = self.discover()
 
-    def get_operations(self):
+    def get_operations(self) -> list:
         """ Get the operations for all modules """
         operations = []
         for metamodel, submodules in self.metamodels.items():
@@ -69,7 +69,7 @@ class DiscoverMetamodels(object):
                 operations.append([submodule_name, submodule])
         return operations
 
-    def get_transformations(self):
+    def get_transformations(self) -> list:
         """ Get the transformations for all modules """
         transformations = []
         for metamodel, submodules in self.metamodels.items():
@@ -78,7 +78,7 @@ class DiscoverMetamodels(object):
                 transformations.append([submodule_name, submodule])
         return transformations
 
-    def get_models(self):
+    def get_models(self) -> list:
         models = []
         for metamodel, submodules in self.metamodels.items():
             submodule_model = submodules.get('model', {})  # TODO: Change folder name
@@ -86,26 +86,53 @@ class DiscoverMetamodels(object):
                 models.append([submodule_name, submodule])
         return models
 
-    def use_transformation(self, src, dst, filename):
-        # transformation puede ser:'load/save/transform' que es 'modelToText/textToModel/Transform'
-        mm_src = self.metamodels.get(src)
-        mm_dst = self.metamodels.get(dst)
+    def get_metamodel_by_name(self, metamodel_name: str) -> str:
+        metamodels = list(filter(lambda k: k.find(metamodel_name) >= 0, self.metamodels.keys()))
+        if len(metamodels) < 1:
+            print("metamodel {} not found".format(metamodel_name))
+            return ''
+        elif len(metamodels) > 1:
+            print("multiple metamodel {} founds: {}. First selected".format(metamodel_name, metamodels))
+            return metamodels[0]
+        else:
+            return metamodels[0]
 
-        if mm_src and mm_dst:  # m2m
-            vm = mm_dst.get('variability_model')
-            res = mm_dst.transform(vm)
-            print("Check si existe el modulo")
-        elif mm_src and not mm_dst:  # t2m
-            res = mm_src.transform(filename)
-        elif not mm_src and mm_dst:  # m2t
-            res = mm_dst.transform(filename)
+    def use_transformation(self, src: str, dst: str, filename: str):
+        if src and dst:  # m2m
+            mm_src = self.get_metamodel_by_name(src)
+            mm_dst = self.get_metamodel_by_name(dst)
+            if not mm_src or not mm_dst:
+                res = ''
+            else:
+                mm_src = self.get_metamodel_by_name(src)
+                mm_dst = self.get_metamodel_by_name(dst)
+                __vm = self.metamodels[mm_src].get('model', {}).get('VariabilityModel')
+                __class = self.metamodels[mm_dst].get('transformations', {}).get('ModelToModel')
+                instance = __class(__vm)
+                res = instance.transform(filename)
+        elif src and not dst:  # t2m
+            mm_src = self.get_metamodel_by_name(src)
+            __class = self.metamodels[mm_src].get('transformations', {}).get('TextToModel')
+            instance = __class()
+            res = instance.transform(filename)
+        elif not src and dst:  # m2t
+            mm_dst = self.get_metamodel_by_name(dst)
+            __class = self.metamodels[mm_dst].get('transformations', {}).get('ModelToText')
+            instance = __class()
+            res = instance.transform(filename)
         else:
             print("necesitamos src o/y dst")
         return res
 
-    def use_operation(self, metamodel, operation):
-        mm = self.metamodels.get(metamodel)
-        # Check que existe mm
-        trans = mm.get('operations').get(operation)
-        # Check que existe trans
-        return trans.execute()
+    def use_operation(self, src: str, operation: str):
+        mm = self.get_metamodel_by_name(src)
+        operations = self.metamodels[mm].get('operations', {})
+        __class = operations.get(operation)
+        if not __class:
+            print("operation {} not found. Availables operations are: {}".format(operation, operations.keys()))
+            res = ''
+        else:
+            instance = __class()
+            res = instance.execute()
+        return res
+
