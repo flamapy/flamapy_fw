@@ -4,6 +4,13 @@ import inspect
 from types import ModuleType
 
 import famapy.metamodels
+from famapy.core.models.VariabilityModel import VariabilityModel
+from famapy.core.operations.AbstractOperation import Operation
+from famapy.core.operations.Products import ProductsOperation
+from famapy.core.operations.Valid import Valid
+from famapy.core.transformations.TextToModel import TextToModel
+from famapy.core.transformations.ModelToText import ModelToText
+from famapy.core.transformations.ModelToModel import ModelToModel
 
 
 class DiscoverMetamodels(object):
@@ -14,14 +21,29 @@ class DiscoverMetamodels(object):
         prefix = ns_pkg.__name__ + "."
         return pkgutil.iter_modules(ns_pkg.__path__, prefix)
 
+    def search_classes(self, submodule):
+        classes = []
+        for _, file_name, ispkg in self.iter_namespace(submodule):
+            if ispkg:
+                classes += self.search_classes(import_module(file_name))
+            else:
+                _file = import_module(file_name)
+                classes += inspect.getmembers(_file, inspect.isclass)
+        return classes
+
     def discover(self) -> dict:
         """ Generate a dictionaty with metamodels and its submodules. The
         submodules can be model, transformations and operations. Example:
         {
             'fm': {
                 'module': module,
-                'model': {'VariabilityModel': 'FeatureModel'},
-                'transformation': {'TextToModel': 'XMLTransformation'},
+                'models': {'VariabilityModel': ['FeatureModel']},
+                'transformations': {
+                    'TextToModel': {'ext': 'XMLTransformation'},
+                    'ModelToText': {'ext': 'XMLTransformation'},
+                    'ModelToModel': {'ext ext': 'XMLTransformation'},
+                },
+                'operations': {'Valid': 'XMLTransformation'},
                 ...
             },
         }
@@ -34,31 +56,70 @@ class DiscoverMetamodels(object):
             metamodels[name] = {}
             metamodels[name]['module'] = module
 
-            # Search submodules: model, transformations y operations
+            # Search submodules: models, transformations y operations
             for _, submodule_name, ispkg in self.iter_namespace(module):
                 if not ispkg:
                     continue
                 submodule = import_module(submodule_name)
                 submodule_name = submodule_name.split('.')[-1]
-                metamodels[name][submodule_name] = {}
-                for _, file_name, ispkg in self.iter_namespace(submodule):
-                    if ispkg:
-                        # TODO: recursive iter for found modules in subfolder
-                        pass
-                    # TODO: Check file_name is a valid file
-                    try:
-                        _file = import_module(file_name)
-                    except:
-                        continue
-                    classes = inspect.getmembers(_file, inspect.isclass)
-                    for class_name, _class in classes:
-                        # TODO: filter by name, inherit and module?
-                        #print("Herencia", _class.mro())
-                        metamodels[name][submodule_name][class_name] = _class
+                if submodule_name == 'models':
+                    metamodels[name][submodule_name] = {'VariabilityModel': []}
+                elif submodule_name == 'operations':
+                    metamodels[name][submodule_name] = {}
+                elif submodule_name == 'transformations':
+                    metamodels[name][submodule_name] = {'TextToModel': {}, 'ModelToText': {}, 'ModelToModel': {}}
+                else:
+                    continue
+
+                classes = self.search_classes(submodule)
+                for class_name, _class in classes:
+                    if not _class.__module__.startswith(submodule.__package__):
+                        continue  # Exclude modules not in current package
+                    inherit = _class.mro()
+                    if submodule_name == 'operations':
+                        if ProductsOperation in inherit:
+                            metamodels[name][submodule_name]['Products'] = _class
+                        elif Valid in inherit:
+                            metamodels[name][submodule_name]['Valid'] = _class
+                        elif Operation in inherit:
+                            metamodels[name][submodule_name][_class.__name__] = _class
+                    elif submodule_name == 'transformations':
+                        if TextToModel in inherit:
+                            if not 'EXT_SRC' in dir(_class):
+                                print(_class, " not contains EXT_SRC variable")
+                                continue
+                            ext = _class.EXT_SRC
+                            metamodels[name][submodule_name]['TextToModel'][ext] = _class
+                        elif ModelToText in inherit:
+                            if not 'EXT_DST' in dir(_class):
+                                print(_class, " not contains EXT_DST variable")
+                                continue
+                            ext = _class.EXT_DST
+                            metamodels[name][submodule_name]['ModelToText'][ext] = _class
+                        elif ModelToModel in inherit:
+                            if not 'EXT_SRC' in dir(_class) or not 'EXT_DST' in dir(_class):
+                                print(_class, " not contains EXT_SRC/EXT_DST variable")
+                                continue
+                            ext = "{} {}".format(_class.EXT_SRC, _class.EXT_DST)
+                            metamodels[name][submodule_name]['ModelToModel'][ext] = _class
+                    elif submodule_name == 'models':
+                        if VariabilityModel in inherit:
+                            metamodels[name][submodule_name]['VariabilityModel'].append(_class)
         return metamodels
 
     def reload(self):
         self.metamodels = self.discover()
+
+    def __extract_metamodel_from_variability_model(self, vm: VariabilityModel):
+        metamodel = None
+        for key in self.metamodels.keys():
+            if key in vm.__module__:
+                metamodel = key
+                break
+        return metamodel
+
+    def __extract_extension_from_filename(self, filename: str):
+        return filename.split('.')[-1]
 
     def get_operations(self) -> list:
         """ Get the operations for all modules """
@@ -97,42 +158,39 @@ class DiscoverMetamodels(object):
         else:
             return metamodels[0]
 
-    def use_transformation(self, src: str, dst: str, filename: str):
-        if src and dst:  # m2m
-            mm_src = self.get_metamodel_by_name(src)
-            mm_dst = self.get_metamodel_by_name(dst)
-            if not mm_src or not mm_dst:
-                res = ''
-            else:
-                mm_src = self.get_metamodel_by_name(src)
-                mm_dst = self.get_metamodel_by_name(dst)
-                __vm = self.metamodels[mm_src].get('model', {}).get('VariabilityModel')
-                __class = self.metamodels[mm_dst].get('transformations', {}).get('ModelToModel')
-                instance = __class(__vm)
-                res = instance.transform(filename)
-        elif src and not dst:  # t2m
-            mm_src = self.get_metamodel_by_name(src)
-            __class = self.metamodels[mm_src].get('transformations', {}).get('TextToModel')
-            instance = __class()
-            res = instance.transform(filename)
-        elif not src and dst:  # m2t
-            mm_dst = self.get_metamodel_by_name(dst)
-            __class = self.metamodels[mm_dst].get('transformations', {}).get('ModelToText')
-            instance = __class()
-            res = instance.transform(filename)
-        else:
-            print("necesitamos src o/y dst")
-        return res
+    def use_transformation_m2t(self, src: VariabilityModel, dst: str):
+        mm = self.__extract_metamodel_from_variability_model(src)
+        if not mm:
+            print("Metamodel not found from VariabilityModel")
+        ext = self.__extract_extension_from_filename(dst)
+        _class = self.metamodels[mm]['transformations']['ModelToText'][ext]
+        transformation = _class(dst, src)
+        transformation.transform()
 
-    def use_operation(self, src: str, operation: str):
-        mm = self.get_metamodel_by_name(src)
-        operations = self.metamodels[mm].get('operations', {})
-        __class = operations.get(operation)
-        if not __class:
-            print("operation {} not found. Availables operations are: {}".format(operation, operations.keys()))
-            res = ''
-        else:
-            instance = __class()
-            res = instance.execute()
-        return res
+    def use_transformation_t2m(self, src: str, dst: VariabilityModel) -> VariabilityModel:
+        mm = self.__extract_metamodel_from_variability_model(dst)
+        if not mm:
+            print("Metamodel not found from VariabilityModel")
+        ext = self.__extract_extension_from_filename(src)
+        _class = self.metamodels[mm]['transformations']['TextToModel'][ext]
+        transformation = _class(src)
+        return transformation.transform()
+
+    def use_transformation_m2m(self, src: VariabilityModel, dst: str):
+        mm = self.__extract_metamodel_from_variability_model(dst)
+        if not mm:
+            print("Metamodel not found from VariabilityModel")
+        src_ext = 'fm'  # TODO: extract extension of src metamodel
+        ext = '{} {}'.format(src_ext, dst)
+        _class = self.metamodels[mm]['transformations']['ModelToModel'][ext]
+        transformation = _class(src)
+        return transformation.transform()
+
+    def use_operation(self, src: VariabilityModel, operation: Operation):
+        mm = self.__extract_metamodel_from_variability_model(dst)
+        if not mm:
+            print("Metamodel not found from VariabilityModel")
+        _class = self.metamodels[mm]['operations'][operation.__name__]
+        operation = _class()
+        return operation.execute(src)
 

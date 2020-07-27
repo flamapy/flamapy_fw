@@ -4,9 +4,10 @@ from famapy.core.transformations.AbstractTransformation import Transformation
 
 
 class ModelToText(Transformation):
+    EXT_DST = ''
 
     @abstractmethod
-    def register(self, extension, metamodel):
+    def register(self, path, metamodel):
         pass
 
     @abstractmethod
