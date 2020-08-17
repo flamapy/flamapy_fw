@@ -31,8 +31,8 @@ pytest
 There is at the moment two separate metamodels repository:
 
 ```
-git clone git@github.com:FaMaPy/fm_metamodel.git
-git clone git@github.com:FaMaPy/pysat_metamodel.git
+git clone git@github.com:diverso-lab/fm_metamodel.git
+git clone git@github.com:diverso-lab/pysat_metamodel.git
 ```
 
 You can install it inside the same virtualenv environment with:
