@@ -21,4 +21,4 @@ pysatm=dm.use_transformation_m2m(src=fm, dst='pysat')
 #from famapy.core.operations.Valid import Valid
 #from famapy.metamodels.pysat_metamodel.models import PySATModel
 # TODO: create pysat_model
-dm.use_operation(src=pysatm, op=Valid)
+dm.use_operation(src=pysatm, op='Valid')
