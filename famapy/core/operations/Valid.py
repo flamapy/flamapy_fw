@@ -6,6 +6,6 @@ from famapy.core.operations.AbstractOperation import Operation
 class Valid(Operation):
     """ """
     @abstractmethod
-    def isValid(self):
+    def isValid(self) -> bool:
         """ """
         pass

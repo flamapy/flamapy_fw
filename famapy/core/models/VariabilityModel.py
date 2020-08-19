@@ -2,4 +2,4 @@ from abc import ABC, abstractmethod
 
 
 class VariabilityModel():
-    pass
+    EXT = 'default'
