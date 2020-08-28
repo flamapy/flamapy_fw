@@ -6,8 +6,8 @@ class ModelToModel(Transformation):
     EXT_SRC = 'default'
     EXT_DST = 'default'
 
-    def __init__(self, model: VariabilityModel):
-        self.model_src = model
+    def __init__(self, model_src: VariabilityModel):
+        self.model_src = model_src
         self.model_dst = VariabilityModel()
 
     def transform(self) -> VariabilityModel:

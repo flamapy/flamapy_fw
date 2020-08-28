@@ -8,7 +8,6 @@ class ModelToText(Transformation):
     def __init__(self, path: str, model: VariabilityModel):
         self.path = path
         self.model = model
-        self.output = ''
 
     def transform(self) -> str:
-        return self.output
+        return self.path

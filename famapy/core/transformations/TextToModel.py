@@ -7,7 +7,7 @@ class TextToModel(Transformation):
     EXT_SRC = 'default'
 
     def __init__(self, path):
-        self.file = path
+        self.path = path
         self.model = VariabilityModel()
 
     def transform(self) -> VariabilityModel:
