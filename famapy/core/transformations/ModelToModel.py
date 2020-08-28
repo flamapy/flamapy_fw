@@ -1,18 +1,14 @@
-from abc import ABC, abstractmethod
-
 from famapy.core.models.VariabilityModel import VariabilityModel
 from famapy.core.transformations.AbstractTransformation import Transformation
 
 
 class ModelToModel(Transformation):
-    EXT_SRC = ''
-    EXT_DST = ''
-    #TODO: aqui las extensiones debes sacarlas de los tipos del metamodelo orig y dst
+    EXT_SRC = 'default'
+    EXT_DST = 'default'
 
-    @abstractmethod
-    def __init__(self, orig: VariabilityModel, dst: VariabilityModel):
-        pass
+    def __init__(self, model: VariabilityModel):
+        self.model_src = model
+        self.model_dst = VariabilityModel()
 
-    @abstractmethod
-    def transform(self):
-        pass
+    def transform(self) -> VariabilityModel:
+        return self.model_dst

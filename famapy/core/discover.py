@@ -6,7 +6,7 @@ from types import ModuleType
 import famapy.metamodels
 from famapy.core.models.VariabilityModel import VariabilityModel
 from famapy.core.operations.AbstractOperation import Operation
-from famapy.core.operations.Products import ProductsOperation
+from famapy.core.operations.Products import Products
 from famapy.core.operations.Valid import Valid
 from famapy.core.transformations.TextToModel import TextToModel
 from famapy.core.transformations.ModelToText import ModelToText
@@ -78,7 +78,7 @@ class DiscoverMetamodels(object):
                         continue  # Exclude modules not in current package
                     inherit = _class.mro()
                     if submodule_name == 'operations':
-                        if ProductsOperation in inherit:
+                        if Products in inherit:
                             plugins[name][submodule_name]['Products'] = _class
                         elif Valid in inherit:
                             plugins[name][submodule_name]['Valid'] = _class
@@ -170,7 +170,7 @@ class DiscoverMetamodels(object):
         ext = self.__extract_extension_from_filename(dst)
         _class = self.plugins[mm]['transformations']['ModelToText'][ext]
         transformation = _class(dst, src)
-        transformation.transform()
+        return transformation.transform()
 
     def use_transformation_t2m(self, src: str, dst: VariabilityModel) -> VariabilityModel:
         mm = self.__extract_plugin_from_extension(dst)

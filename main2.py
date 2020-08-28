@@ -19,7 +19,6 @@ dm.use_transformation_m2t(src=fm, dst='output.json')
 pysatm=dm.use_transformation_m2m(src=fm, dst='pysat')
 print(pysatm)
 
-#from famapy.core.operations.Valid import Valid
-#from famapy.metamodels.pysat_metamodel.models import PySATModel
-# TODO: create pysat_model
-dm.use_operation(src=pysatm, operation='Valid')
+# operation execute return the object instance
+operation = dm.use_operation(src=pysatm, operation='Valid')
+print("Result operation valid:", operation.isValid())

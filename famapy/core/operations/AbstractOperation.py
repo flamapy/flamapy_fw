@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from famapy.core.models.VariabilityModel import VariabilityModel
 
 
 class Operation():
-    @abstractmethod
-    def execute(self,model):
-        pass
+
+    def execute(self, model: VariabilityModel) -> 'Operation':
+        return self

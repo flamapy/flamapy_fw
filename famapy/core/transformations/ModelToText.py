@@ -1,15 +1,14 @@
-from abc import ABC, abstractmethod
-
+from famapy.core.models.VariabilityModel import VariabilityModel
 from famapy.core.transformations.AbstractTransformation import Transformation
 
 
 class ModelToText(Transformation):
-    EXT_DST = ''
+    EXT_DST = 'default'
 
-    @abstractmethod
-    def register(self, path, metamodel):
-        pass
+    def __init__(self, path: str, model: VariabilityModel):
+        self.path = path
+        self.model = model
+        self.output = ''
 
-    @abstractmethod
-    def transform(self):
-        pass
+    def transform(self) -> str:
+        return self.output

@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
+from typing import Any
 
 
 class Transformation():
 
-    @abstractmethod
-    def transform(self):
-        pass
+    def transform(self) -> Any:
+        return None

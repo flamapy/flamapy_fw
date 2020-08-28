@@ -1,11 +1,10 @@
-from abc import ABC, abstractmethod
-
 from famapy.core.operations.AbstractOperation import Operation
 
 
 class Valid(Operation):
-    """ """
-    @abstractmethod
+
+    def __init__(self):
+        self.res = False
+
     def isValid(self) -> bool:
-        """ """
-        pass
+        return self.res
