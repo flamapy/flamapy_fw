@@ -4,16 +4,12 @@ import inspect
 from types import ModuleType
 
 import famapy.metamodels
-from famapy.core.models.VariabilityModel import VariabilityModel
-from famapy.core.operations.AbstractOperation import Operation
-from famapy.core.operations.Products import Products
-from famapy.core.operations.Valid import Valid
-from famapy.core.transformations.TextToModel import TextToModel
-from famapy.core.transformations.ModelToText import ModelToText
-from famapy.core.transformations.ModelToModel import ModelToModel
+from famapy.core.models import VariabilityModel
+from famapy.core.operations import Operation, Products, Valid
+from famapy.core.transformations import TextToModel, ModelToText, ModelToModel
 
 
-class DiscoverMetamodels(object):
+class DiscoverMetamodels:
     def __init__(self):
         self.plugins = self.discover()
 
@@ -37,7 +33,6 @@ class DiscoverMetamodels(object):
         {
             'fm': {
                 'module': module,
-                'extension': '',
                 'variability_model': 'FeatureModel',
                 'transformations': {
                     'TextToModel': {'ext': 'XMLTransformation'},
@@ -58,8 +53,8 @@ class DiscoverMetamodels(object):
             plugins[name]['module'] = module
 
             # Search submodules: models, transformations y operations
-            for _, submodule_name, ispkg in self.iter_namespace(module):
-                if not ispkg:
+            for _, submodule_name, ispkg2 in self.iter_namespace(module):
+                if not ispkg2:
                     continue
                 submodule = import_module(submodule_name)
                 submodule_name = submodule_name.split('.')[-1]
@@ -73,7 +68,7 @@ class DiscoverMetamodels(object):
                     continue
 
                 classes = self.search_classes(submodule)
-                for class_name, _class in classes:
+                for _, _class in classes:
                     if not _class.__module__.startswith(submodule.__package__):
                         continue  # Exclude modules not in current package
                     inherit = _class.mro()
@@ -86,27 +81,19 @@ class DiscoverMetamodels(object):
                             plugins[name][submodule_name][_class.__name__] = _class
                     elif submodule_name == 'transformations':
                         if TextToModel in inherit:
-                            if not 'EXT_SRC' in dir(_class):
-                                print(_class, " not contains EXT_SRC variable")
-                                continue
-                            ext = _class.EXT_SRC
+                            ext = _class.get_source_extension()
                             plugins[name][submodule_name]['TextToModel'][ext] = _class
                         elif ModelToText in inherit:
-                            if not 'EXT_DST' in dir(_class):
-                                print(_class, " not contains EXT_DST variable")
-                                continue
-                            ext = _class.EXT_DST
+                            ext = _class.get_destiny_extension()
                             plugins[name][submodule_name]['ModelToText'][ext] = _class
                         elif ModelToModel in inherit:
-                            if not 'EXT_SRC' in dir(_class) or not 'EXT_DST' in dir(_class):
-                                print(_class, " not contains EXT_SRC/EXT_DST variable")
-                                continue
-                            ext = "{} {}".format(_class.EXT_SRC, _class.EXT_DST)
+                            source_ext = _class.get_source_extension()
+                            destiny_ext = _class.get_destiny_extension()
+                            ext = "{} {}".format(source_ext, destiny_ext)
                             plugins[name][submodule_name]['ModelToModel'][ext] = _class
                     elif submodule_name == 'models':
                         if VariabilityModel in inherit:
                             plugins[name]['variability_model'] = _class
-                            plugins[name]['extension'] = _class.EXT
         return plugins
 
     def reload(self):
@@ -123,7 +110,8 @@ class DiscoverMetamodels(object):
     def __extract_plugin_from_extension(self, extension: str):
         plugin = None
         for key, values in self.plugins.items():
-            if values.get('extension', '') == extension:
+            vm = values.get('variability_model', None)
+            if vm and vm.get_extension() == extension:
                 plugin = key
                 break
         return plugin
@@ -134,7 +122,7 @@ class DiscoverMetamodels(object):
     def get_operations(self) -> list:
         """ Get the operations for all modules """
         operations = []
-        for plugin, submodules in self.plugins.items():
+        for submodules in self.plugins.values():
             submodule_operation = submodules.get('operations', {})
             for submodule_name, submodule in submodule_operation.items():
                 operations.append([submodule_name, submodule])
@@ -143,7 +131,7 @@ class DiscoverMetamodels(object):
     def get_transformations(self) -> list:
         """ Get the transformations for all modules """
         transformations = []
-        for plugin, submodules in self.plugins.items():
+        for submodules in self.plugins.values():
             submodule_transformation = submodules.get('transformations', {})
             for submodule_name, submodule in submodule_transformation.items():
                 transformations.append([submodule_name, submodule])
@@ -185,7 +173,7 @@ class DiscoverMetamodels(object):
         mm = self.__extract_plugin_from_extension(dst)
         if not mm:
             print("Metamodel not found from VariabilityModel")
-        src_ext = src.EXT
+        src_ext = src.get_extension()
         ext = '{} {}'.format(src_ext, dst)
         _class = self.plugins[mm]['transformations']['ModelToModel'][ext]
         transformation = _class(src)
@@ -198,4 +186,3 @@ class DiscoverMetamodels(object):
         _class = self.plugins[mm]['operations'][operation]
         operation = _class()
         return operation.execute(src)
-

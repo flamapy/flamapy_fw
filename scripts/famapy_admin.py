@@ -2,7 +2,7 @@
 
 import argparse
 import os
-import re
+import sys
 from distutils.dir_util import copy_tree
 
 
@@ -10,7 +10,7 @@ from distutils.dir_util import copy_tree
 
 
 # Parser arguments
-parser = argparse.ArgumentParser(description='famapy-script.py: generate structure for new plugins')
+parser = argparse.ArgumentParser(description='famapy_admin.py: generate structure for new plugins')
 parser.add_argument('name', type=str, help='A name for your plugin. Ex: fama')
 parser.add_argument('extension', type=str, help='A extension for your plugin. Ex: fm')
 parser.add_argument('--path', default='.', type=str, help='Plugin project path.  Default: .')
@@ -25,17 +25,17 @@ SRC = 'skel_metamodel/'
 # Check DST exist
 if not os.path.isdir(DST):
     print(f"Folder {DST} not exist")
-    exit(0)
+    sys.exit()
 
 # Check DST is empty
 if len(os.listdir(DST)) != 0:
     print(f"Folder {DST} is not empty")
-    exit(0)
+    sys.exit()
 
 # Check DST has permissions to WRITE
 if not os.access(DST, os.W_OK):
     print(f"Folder {DST} has not write permissions")
-    exit(0)
+    sys.exit()
 
 
 # Generating structure

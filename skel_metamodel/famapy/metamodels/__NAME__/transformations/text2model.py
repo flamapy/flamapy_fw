@@ -1,14 +1,18 @@
-from famapy.core.transformations.TextToModel import TextToModel
+from famapy.core.transformations import TextToModel
+
 from famapy.metamodels.__NAME___metamodel.models.models import __NAME__Model
 
 
 class __NAME__TextToModel(TextToModel):
-    EXT_SRC = '__EXT__'
 
-    def __init__(self, path: str):
+    @staticmethod
+    def get_source_extension() -> str:
+        return '__EXT__'
+
+    def __init__(self, path: str, model: __NAME__Model):
         self.path = path
-        self.model = __NAME__Model()
+        self.model = model
 
     def transform(self) -> __NAME__Model:
         # TODO: insert your code here
-        return super().transform()
+        return self.model

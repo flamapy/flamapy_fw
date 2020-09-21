@@ -1,14 +1,10 @@
-from famapy.core.models.VariabilityModel import VariabilityModel
-from famapy.core.transformations.ModelToModel import ModelToModel
+from famapy.metamodels.fm_metamodel.transformations.json_writter import JsonWriter
+from famapy.metamodels.fm_metamodel.transformations.xml_transformation import XMLTransformation
 
-from famapy.metamodels.fm_metamodel.model.FeatureModel import Feature, FeatureModel, Relation
-from famapy.metamodels.fm_metamodel.transformations.JsonWritter import JsonWriter
-from famapy.metamodels.fm_metamodel.transformations.XMLTransformation import XMLTransformation
-
-from famapy.metamodels.pysat_metamodel.model.PySATModel import PySATModel
-from famapy.metamodels.pysat_metamodel.operations.Glucose3Products import Glucose3Products
-from famapy.metamodels.pysat_metamodel.operations.Glucose3Valid import Glucose3Valid
-from famapy.metamodels.pysat_metamodel.transformations.fm_to_pysat import Fm_to_pysat
+from famapy.metamodels.pysat_metamodel.models.pysat_model import PySATModel
+from famapy.metamodels.pysat_metamodel.operations.glucose3_products import Glucose3Products
+from famapy.metamodels.pysat_metamodel.operations.glucose3_valid import Glucose3Valid
+from famapy.metamodels.pysat_metamodel.transformations.fm_to_pysat import FmToPysat
 
 
 # Parse a file
@@ -22,7 +18,7 @@ print(fm)
 sat= PySATModel()
 
 # Transform the first onto the second
-transform = Fm_to_pysat(fm, sat)
+transform = FmToPysat(fm, sat)
 transform.transform()
 
 # Create the operation
@@ -32,7 +28,7 @@ valid = Glucose3Valid()
 valid.execute(sat)
 
 # Print the result
-print("Is the model valid: "+ str(valid.isValid()))
+print("Is the model valid: " + str(valid.isValid()))
 
 # Create the operation
 products = Glucose3Products()
@@ -46,5 +42,5 @@ print(products.getProducts())
 
 # Save the model as json
 
-w=JsonWriter("./data.json",fm)
+w = JsonWriter("./data.json", fm)
 w.transform()

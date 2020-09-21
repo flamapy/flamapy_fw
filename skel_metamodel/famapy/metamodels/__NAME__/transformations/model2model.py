@@ -1,16 +1,23 @@
-from famapy.core.models.VariabilityModel import VariabilityModel
-from famapy.core.transformations.ModelToModel import ModelModel
+from famapy.core.models import VariabilityModel
+from famapy.core.transformations import ModelModel
+
 from famapy.metamodels.__NAME___metamodel.models.models import __NAME__Model
 
 
-class FILLTo__NAME__(ModelToModel):
-    EXT_SCR = 'fill'  # TODO: modify
-    EXT_DST = '__EXT__'
+class TODOTo__NAME__(ModelToModel):
 
-    def __init__(self, model_src: VariabilityModel):
-        self.model_src = model_src
-        self.model_dst = __NAME__Model()
+    @staticmethod
+    def get_source_extension() -> str:
+        return 'TODO'  # TODO: modify source extension
+
+    @staticmethod
+    def get_destiny_extension() -> str:
+        return '__EXT__'
+
+    def __init__(self, source_model: VariabilityModel):
+        self.source_model = source_model
+        self.destiny_model = __NAME__Model()
 
     def transform(self) -> __NAME__Model:
         # TODO: insert your code here
-        return super().transform()
+        return self.destiny_model

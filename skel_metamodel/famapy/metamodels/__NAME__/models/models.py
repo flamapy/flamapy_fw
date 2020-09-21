@@ -1,7 +1,9 @@
-from famapy.core.models.VariabilityModel import VariabilityModel
+from famapy.core.models import VariabilityModel
 
 
 class __NAME__Model(VariabilityModel):
-    EXT = '__EXT__'
+    @staticmethod
+    def get_extension() -> str:
+        return '__EXT__'
 
     # TODO: insert your model code here

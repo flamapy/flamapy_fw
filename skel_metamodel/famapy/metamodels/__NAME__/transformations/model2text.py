@@ -1,9 +1,13 @@
-from famapy.core.transformations.ModelToText import ModelToText
+from famapy.core.transformations import ModelToText
+
 from famapy.metamodels.__NAME___metamodel.models.models import __NAME__Model
 
 
 class __NAME__ModelToText(ModelToText):
-    EXT_DST = '__EXT__'
+
+    @staticmethod
+    def get_destiny_extension() -> str:
+        return '__EXT__'
 
     def __init__(self, path: str, model: __NAME__Model):
         self.path = path
@@ -11,4 +15,4 @@ class __NAME__ModelToText(ModelToText):
 
     def transform(self) -> str:
         # TODO: insert your code here
-        return super().transform()
+        return self.path
