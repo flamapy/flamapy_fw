@@ -47,3 +47,38 @@ pip install -e .
 ```
 prospector
 ```
+
+
+## Command line CLI and HTTP API
+
+With the hug python library, we have created two different endpoints:
+
+* Command line CLI
+* HTTP API
+
+For execute the command line:
+
+```
+hug -f famapy/endpoint/diverso-lab.py -c help
+# Example
+hug -f famapy/endpoint/diverso-lab.py -c get_plugins
+hug -f famapy/endpoint/diverso-lab.py -c get_operations_by_plugin
+hug -f famapy/endpoint/diverso-lab.py -c use_operation_from_fm_file famapy.metamodels.pysat_metamodel Valid test.xml
+```
+
+For execute the HTTP API:
+
+```
+hug -f famapy/endpoint/diverso-lab.py  # mount the endpoint in port 8000
+# Doc: hug generate doc in json when you access to no exist endpoint
+http://localhost:8000/example/
+# Example
+http://localhost:8000/v1/get-plugins/
+http://localhost:8000/v1/get-operations/famapy.metamodels.pysat_metamodel/
+```
+
+Extra: If you want expose your api at the world, you can use ngrok:
+
+```
+ngrok http 8000
+```
