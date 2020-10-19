@@ -2,6 +2,7 @@ import pkgutil
 from importlib import import_module
 import inspect
 from types import ModuleType
+from typing import List
 
 import famapy.metamodels
 from famapy.core.models import VariabilityModel
@@ -137,8 +138,15 @@ class DiscoverMetamodels:
                 transformations.append([submodule_name, submodule])
         return transformations
 
+    def get_operations_by_plugin(self, plugin: str) -> List[str]:
+        submodules = self.plugins.get(plugin, {}).get('operations', {})
+        return list(submodules.keys())
+
     def get_variability_models(self) -> list:
         return [sub.get('variability_model', None) for sub in self.plugins.values()]
+
+    def get_plugins(self) -> List[str]:
+        return list(self.plugins.keys())
 
     def get_plugin_by_name(self, plugin_name: str) -> str:
         plugins = list(filter(lambda k: k.find(plugin_name) >= 0, self.plugins.keys()))
@@ -186,3 +194,24 @@ class DiscoverMetamodels:
         _class = self.plugins[mm]['operations'][operation]
         operation = _class()
         return operation.execute(src)
+
+    def use_operation_from_file(self, plugin: str, operation: str, filename: str):
+        """ Search transformation, generate variability model from file, and apply operation """
+        ext = self.__extract_extension_from_filename(filename)
+        transformation_class = self.plugins.get(plugin, {}).get('transformations', {}).get('TextToModel', {}).get(ext)
+        vm = transformation_class(filename)
+        operation_class = self.plugins.get(plugin, {}).get('operations', {}).get(operation)()
+        operation_class.execute(vm)
+        return operation_class.get_result()
+
+    def use_operation_from_fm_file(self, plugin: str, operation: str, filename: str):
+        # TODO: change in a future for autodiscover transformation way
+        ext = self.__extract_extension_from_filename(filename)
+        fm_plugin = 'famapy.metamodels.fm_metamodel'
+        transformation_class = self.plugins.get(fm_plugin, {}).get('transformations', {}).get('TextToModel', {}).get(ext)
+        vm = transformation_class(filename)
+        transformation_m2m = self.plugins.get(plugin, {}).get('transformations', {}).get('ModelToModel', {}).get('fm pysat')
+        end_vm = transformation_m2m(vm)
+        operation_class = self.plugins.get(plugin, {}).get('operations', {}).get(operation)()
+        operation_class.execute(end_vm)
+        return operation_class.get_result()
