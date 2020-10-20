@@ -17,7 +17,7 @@ IMPORTANT NOTE: this repository not work without metamodels, you need to install
 
 You can take a look to the execution at:
 
-<script id="asciicast-Tp0ffgp5aXcwvmqh3JE6YTXPJ" src="https://asciinema.org/a/Tp0ffgp5aXcwvmqh3JE6YTXPJ.js" async></script>
+[![asciicast](https://asciinema.org/a/366394.svg)](https://asciinema.org/a/366394)
 
 ## Execute tests
 
