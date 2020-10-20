@@ -15,7 +15,9 @@ pip install -e .  # Install package in development mode
 
 IMPORTANT NOTE: this repository not work without metamodels, you need to install some metamodels
 
-You can take a look to the execution at [![asciicast](https://asciinema.org/a/Tp0ffgp5aXcwvmqh3JE6YTXPJ.svg)](https://asciinema.org/a/Tp0ffgp5aXcwvmqh3JE6YTXPJ)
+You can take a look to the execution at:
+
+<script id="asciicast-Tp0ffgp5aXcwvmqh3JE6YTXPJ" src="https://asciinema.org/a/Tp0ffgp5aXcwvmqh3JE6YTXPJ.js" async></script>
 
 ## Execute tests
 
