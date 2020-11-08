@@ -47,7 +47,6 @@ The known plugins that you can install with pip are:
 ```
 famapy-fm
 famapy-sat
-famapy-aafm
 ```
 
 NOTE: If you have a new plugins and this plugins not appear in previous list, you can send a PR to add it.
