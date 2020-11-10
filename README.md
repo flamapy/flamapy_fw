@@ -22,6 +22,27 @@ Source: https://github.com/diverso-lab/core
 ```
 git clone https://github.com/diverso-lab/core
 python setup.py install
+
+IMPORTANT NOTE: this repository not work without metamodels, you need to install some metamodels
+
+You can take a look to the execution at:
+
+[![asciicast](https://asciinema.org/a/366394.svg)](https://asciinema.org/a/366394)
+
+## Execute tests
+
+Execute test with install package:
+
+```
+pip install pytest
+python -m pytest
+```
+
+Execute test with module installed:
+
+```
+pip install -e .
+pytest
 ```
 
 ## Usage
