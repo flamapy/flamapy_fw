@@ -4,7 +4,15 @@ import inspect
 from types import ModuleType
 from typing import List
 
-import famapy.metamodels
+try:
+    import famapy.metamodels as famapy_metamodels
+except ModuleNotFoundError:
+    import sys
+    fake_module = ModuleType("famapy.metamodels")
+    fake_module.__path__ = []
+    sys.modules[fake_module.__name__] = fake_module
+    import famapy.metamodels as famapy_metamodels
+
 from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation, Products, Valid
 from famapy.core.transformations import TextToModel, ModelToText, ModelToModel
@@ -46,7 +54,7 @@ class DiscoverMetamodels:
         }
         """
         plugins = {}
-        for _, name, ispkg in self.iter_namespace(famapy.metamodels):
+        for _, name, ispkg in self.iter_namespace(famapy_metamodels):
             if not ispkg:
                 continue
             module = import_module(name)

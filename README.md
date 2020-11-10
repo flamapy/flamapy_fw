@@ -26,10 +26,17 @@ You can take a look to the execution at:
 
 ## Execute tests
 
-After you install the module, you can execute:
-
+Execute test with install package:
 
 ```
+pip install pytest
+python -m pytest
+```
+
+Execute test with module installed:
+
+```
+pip install -e .
 pytest
 ```
 
