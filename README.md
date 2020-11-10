@@ -22,6 +22,7 @@ Source: https://github.com/diverso-lab/core
 ```
 git clone https://github.com/diverso-lab/core
 python setup.py install
+```
 
 IMPORTANT NOTE: this repository not work without metamodels, you need to install some metamodels
 
