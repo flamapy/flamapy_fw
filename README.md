@@ -8,15 +8,20 @@ The main features of the framework are:
 * Support multiple solvers. Currently, it provides support for the PySAT metasolver, which enables more than ten different solvers.
 * Support multiple operations. It is developed, having in mind multi-model operations such as those depicted by Familiar  and single-model operations.
 
-## Install development
 
-Create virtualenv and install setup.py:
+## Installation
+
+Pypi: https://pypi.org/project/famapy/
 
 ```
-python3 -m venv env .
-source env/bin/activate
-pip install -e .  # Install package in development mode
+pip install famapy
 ```
+
+Source: https://github.com/diverso-lab/core
+
+```
+git clone https://github.com/diverso-lab/core
+python setup.py install
 
 IMPORTANT NOTE: this repository not work without metamodels, you need to install some metamodels
 
@@ -40,31 +45,35 @@ pip install -e .
 pytest
 ```
 
+## Usage
 
-## Install metamodels
+### Create new plugins with the provide generator tool
 
-There is at the moment two separate metamodels repository:
+FaMaPy framework provides a tools to generate structure for new plugins.
 
-```
-git clone git@github.com:diverso-lab/fm_metamodel.git
-git clone git@github.com:diverso-lab/pysat_metamodel.git
-```
+The tools is `famapy_admin.py`
 
-You can install it inside the same virtualenv environment with:
+You can create a new plugins with the next command:
 
 ```
-pip install -e .
+famapy_admin.py --path PLUGIN_PATH NAME_PLUGIN EXTENSION_PLUGIN
+# Example
+famapy_admin.py --path /home/user/famapy-plugin1 plugin1 plug1
 ```
 
+### Install existing plugins
 
-## Review code quality and styles error
+The known plugins that you can install with pip are:
 
 ```
-prospector
+famapy-fm
+famapy-sat
 ```
 
+NOTE: If you have a new plugins and this plugins not appear in previous list, you can send a PR to add it.
 
-## Command line CLI and HTTP API
+
+### Command line CLI and HTTP API
 
 With the hug python library, we have created two different endpoints:
 
@@ -97,3 +106,57 @@ Extra: If you want expose your api at the world, you can use ngrok:
 ```
 ngrok http 8000
 ```
+
+### Manual operations and transformations from installed plugins
+
+FaMaPy provides a discover to facilitate the operations with the installed plugins
+
+IMPORTANT NOTE: this repository not work without metamodels, you need to install some metamodels
+
+You can take a look to the execution at:
+
+[![asciicast](https://asciinema.org/a/366394.svg)](https://asciinema.org/a/366394)
+
+
+
+## Development
+
+### Run tests
+
+With the module installed, you can execute:
+
+```
+pytest
+```
+
+
+### Install/test metamodels
+
+There is at the moment two separate metamodels repository:
+
+```
+git clone git@github.com:diverso-lab/fm_metamodel.git
+git clone git@github.com:diverso-lab/pysat_metamodel.git
+```
+
+You can install it inside the same virtualenv environment with:
+
+```
+pip install -e .
+```
+
+
+### Review code quality and styles error
+
+```
+prospector
+```
+
+## Changelog
+
+Detailed changes for each release are documented in the [release notes](https://github.com/diverso-lab/core/releases)
+
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/diverso-lab/core/blob/master/CONTRIBUTING.md)
