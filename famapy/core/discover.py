@@ -1,26 +1,35 @@
+import logging
 import pkgutil
 from importlib import import_module
 import inspect
 from types import ModuleType
 from typing import List
 
-try:
-    import famapy.metamodels as famapy_metamodels
-except ModuleNotFoundError:
-    import sys
-    fake_module = ModuleType("famapy.metamodels")
-    fake_module.__path__ = []
-    sys.modules[fake_module.__name__] = fake_module
-    import famapy.metamodels as famapy_metamodels
+from famapy.core.config import PLUGIN_PATHS
 
 from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation, Products, Valid
 from famapy.core.transformations import TextToModel, ModelToText, ModelToModel
+from famapy.core.plugins import Plugins
+
+
+LOGGER = logging.getLogger('discover')
 
 
 class DiscoverMetamodels:
     def __init__(self):
+        self.module_paths = self._get_modules_from_plugin_paths()
         self.plugins = self.discover()
+
+    def _get_modules_from_plugin_paths(self) -> List[ModuleType]:
+        results: List[ModuleType] = list()
+        for path in PLUGIN_PATHS:
+            try:
+                module: ModuleType = import_module(path)
+                results.append(module)
+            except ModuleNotFoundError:
+                LOGGER.exception('ModuleNotFoundError %s' % path)
+        return results
 
     def iter_namespace(self, ns_pkg: ModuleType):
         prefix = ns_pkg.__name__ + "."
@@ -54,55 +63,58 @@ class DiscoverMetamodels:
         }
         """
         plugins = {}
-        for _, name, ispkg in self.iter_namespace(famapy_metamodels):
-            if not ispkg:
-                continue
-            module = import_module(name)
-            plugins[name] = {}
-            plugins[name]['module'] = module
-
-            # Search submodules: models, transformations y operations
-            for _, submodule_name, ispkg2 in self.iter_namespace(module):
-                if not ispkg2:
+        plugins_obj = Plugins()
+        for _module in self.module_paths:
+            for _, name, ispkg in self.iter_namespace(_module):
+                if not ispkg:
                     continue
-                submodule = import_module(submodule_name)
-                submodule_name = submodule_name.split('.')[-1]
-                if submodule_name == 'models':
-                    plugins[name]['variability_model'] = None
-                elif submodule_name == 'operations':
-                    plugins[name][submodule_name] = {}
-                elif submodule_name == 'transformations':
-                    plugins[name][submodule_name] = {'TextToModel': {}, 'ModelToText': {}, 'ModelToModel': {}}
-                else:
-                    continue
+                module = import_module(name)
+                plugins[name] = {}
+                plugins[name]['module'] = module
+                # TODO: add Plugin
 
-                classes = self.search_classes(submodule)
-                for _, _class in classes:
-                    if not _class.__module__.startswith(submodule.__package__):
-                        continue  # Exclude modules not in current package
-                    inherit = _class.mro()
-                    if submodule_name == 'operations':
-                        if Products in inherit:
-                            plugins[name][submodule_name]['Products'] = _class
-                        elif Valid in inherit:
-                            plugins[name][submodule_name]['Valid'] = _class
-                        elif Operation in inherit:
-                            plugins[name][submodule_name][_class.__name__] = _class
+                # Search submodules: models, transformations y operations
+                for _, submodule_name, ispkg2 in self.iter_namespace(module):
+                    if not ispkg2:
+                        continue
+                    submodule = import_module(submodule_name)
+                    submodule_name = submodule_name.split('.')[-1]
+                    if submodule_name == 'models':
+                        plugins[name]['variability_model'] = None
+                    elif submodule_name == 'operations':
+                        plugins[name][submodule_name] = {}
                     elif submodule_name == 'transformations':
-                        if TextToModel in inherit:
-                            ext = _class.get_source_extension()
-                            plugins[name][submodule_name]['TextToModel'][ext] = _class
-                        elif ModelToText in inherit:
-                            ext = _class.get_destiny_extension()
-                            plugins[name][submodule_name]['ModelToText'][ext] = _class
-                        elif ModelToModel in inherit:
-                            source_ext = _class.get_source_extension()
-                            destiny_ext = _class.get_destiny_extension()
-                            ext = "{} {}".format(source_ext, destiny_ext)
-                            plugins[name][submodule_name]['ModelToModel'][ext] = _class
-                    elif submodule_name == 'models':
-                        if VariabilityModel in inherit:
-                            plugins[name]['variability_model'] = _class
+                        plugins[name][submodule_name] = {'TextToModel': {}, 'ModelToText': {}, 'ModelToModel': {}}
+                    else:
+                        continue
+
+                    classes = self.search_classes(submodule)
+                    for _, _class in classes:
+                        if not _class.__module__.startswith(submodule.__package__):
+                            continue  # Exclude modules not in current package
+                        inherit = _class.mro()
+                        if submodule_name == 'operations':
+                            if Products in inherit:
+                                plugins[name][submodule_name]['Products'] = _class
+                            elif Valid in inherit:
+                                plugins[name][submodule_name]['Valid'] = _class
+                            elif Operation in inherit:
+                                plugins[name][submodule_name][_class.__name__] = _class
+                        elif submodule_name == 'transformations':
+                            if TextToModel in inherit:
+                                ext = _class.get_source_extension()
+                                plugins[name][submodule_name]['TextToModel'][ext] = _class
+                            elif ModelToText in inherit:
+                                ext = _class.get_destiny_extension()
+                                plugins[name][submodule_name]['ModelToText'][ext] = _class
+                            elif ModelToModel in inherit:
+                                source_ext = _class.get_source_extension()
+                                destiny_ext = _class.get_destiny_extension()
+                                ext = "{} {}".format(source_ext, destiny_ext)
+                                plugins[name][submodule_name]['ModelToModel'][ext] = _class
+                        elif submodule_name == 'models':
+                            if VariabilityModel in inherit:
+                                plugins[name]['variability_model'] = _class
         return plugins
 
     def reload(self):

@@ -5,7 +5,7 @@ from famapy.core.discover import DiscoverMetamodels
 dm = DiscoverMetamodels()
 
 # Example t2m
-fm = dm.use_transformation_t2m(src='test.xml', dst='fm')
+fm = dm.use_transformation_t2m(src='example.xml', dst='fm')
 print(fm)
 
 # Example m2t

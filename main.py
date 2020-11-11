@@ -8,7 +8,7 @@ from famapy.metamodels.pysat_metamodel.transformations.fm_to_pysat import FmToPy
 
 
 # Parse a file
-xmlreader = XMLTransformation("/mnt/c/Users/jagal/Documents/Repositories/FaMaPy/core/test.fama")
+xmlreader = XMLTransformation("example.fama")
 fm=xmlreader.transform()
 
 #print the model
