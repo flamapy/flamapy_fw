@@ -3,16 +3,38 @@ from famapy.core.transformations import (
     ModelToText,
     TextToModel,
 )
-
+from famapy.core.models import VariabilityModel
 from one_plugin.plugin1.models.variability_model import ExampleModel
 
 
 class M2M(ModelToModel):
-    pass
+    @staticmethod
+    def get_source_extension() -> str:
+        return 'ext'
+
+    @staticmethod
+    def get_destiny_extension() -> str:
+        return 'ext'
+
+    def __init__(self, source_model: VariabilityModel) -> None:
+        self.source_model = source_model
+
+    def transform(self) -> VariabilityModel:
+        """ Fake transform for test, return the same value """
+        return self.source_model
 
 
 class M2T(ModelToText):
-    pass
+
+    @staticmethod
+    def get_destiny_extension() -> str:
+        return 'ext'
+
+    def __init__(self, path: str, source_model: VariabilityModel) -> None:
+        pass
+
+    def transform(self) -> ExampleModel:
+        return 'example'
 
 
 class T2M(TextToModel):

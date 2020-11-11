@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from famapy.core.models import Configuration, VariabilityModel
+from famapy.core.models import Configuration
 from famapy.core.operations import Operation
 
 

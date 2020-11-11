@@ -1,18 +1,24 @@
-import pytest
+from pytest import raises
 from pytest_mock import mock
 
+from famapy.core import discover
 from famapy.core.discover import DiscoverMetamodels
 from famapy.core.models import VariabilityModel
+from famapy.core.plugins import PluginNotFound
+
+import one_plugin
+import two_plugins
+import complex_plugin
 
 
 class TestDiscover:
 
     def test_discover(self):
-        discover = DiscoverMetamodels()
-        assert len(discover.plugins) == 0
+        search = DiscoverMetamodels()
+        assert len(search.plugins) == 0
 
     def test_invalid_model_implementation(self):
-        with pytest.raises(TypeError) as error:
+        with raises(TypeError) as error:
             class MyVariabilityModel(VariabilityModel):
                 pass
             MyVariabilityModel()
@@ -30,58 +36,63 @@ class TestDiscover:
 
 class TestDiscoverWithPlugin:
 
-    def test_discover_one_plugin(self):
-        import one_plugin
-        with mock.patch.object(
-            DiscoverMetamodels,
-            '_get_modules_from_plugin_paths',
-            return_value=[one_plugin]
-        ):
-            discover = DiscoverMetamodels()
-            assert len(discover.plugins) == 1
-            assert len(discover.plugins.get('one_plugin.plugin1').get('operations')) == 1
-            assert len(discover.plugins.get('one_plugin.plugin1').get('transformations')) == 3
+    @mock.patch.object(discover, 'filter_modules_from_plugin_paths')
+    def test_discover_one_plugin(self, mocker):
+        mocker.return_value = [one_plugin]
+        search = DiscoverMetamodels()
+        stats = search.plugins.get_stats()
+        assert stats.get('amount_plugins') == 1
+        assert stats.get('plugin1').get('amount_operations') == 1
+        assert stats.get('plugin1').get('amount_transformations') == 3
 
-    def test_discover_two_plugins(self):
-        import two_plugins
-        with mock.patch.object(DiscoverMetamodels,
-            '_get_modules_from_plugin_paths',
-            return_value=[two_plugins]
-        ):
-            discover = DiscoverMetamodels()
-            assert len(discover.plugins) == 2
-            assert discover.plugins.get('two_plugins.plugin1').get('operations', None) == None
-            assert discover.plugins.get('two_plugins.plugin1').get('transformations', None) == None
-            assert discover.plugins.get('two_plugins.plugin2').get('operations', None) == None
-            assert discover.plugins.get('two_plugins.plugin2').get('transformations', None) == None
+    @mock.patch.object(discover, 'filter_modules_from_plugin_paths')
+    def test_discover_two_plugins(self, mocker):
+        mocker.return_value = [two_plugins]
+        search = DiscoverMetamodels()
+        stats = search.plugins.get_stats()
+        assert stats.get('amount_plugins') == 2
+        assert stats.get('plugin1').get('amount_operations') == 1
+        assert stats.get('plugin1').get('amount_transformations') == 3
+        assert stats.get('plugin2').get('amount_operations') == 1
+        assert stats.get('plugin2').get('amount_transformations') == 3
 
-    def test_discover_complex_plugin(self):
-        import complex_plugin
-        with mock.patch.object(
-            DiscoverMetamodels,
-            '_get_modules_from_plugin_paths',
-            return_value=[complex_plugin]
-        ):
-            discover = DiscoverMetamodels()
-            assert len(discover.plugins) == 1
-            assert len(discover.plugins.get('complex_plugin.plugin1').get('operations')) == 1
-            assert len(discover.plugins.get('complex_plugin.plugin1').get('transformations')) == 3
+    @mock.patch.object(discover, 'filter_modules_from_plugin_paths')
+    def test_discover_complex_plugin(self, mocker):
+        mocker.return_value = [complex_plugin]
+        search = DiscoverMetamodels()
+        stats = search.plugins.get_stats()
+        assert stats.get('amount_plugins') == 1
+        assert stats.get('plugin1').get('amount_operations') == 1
+        assert stats.get('plugin1').get('amount_transformations') == 3
 
 
 class TestDiscoverApplyFunctions:
 
-    def test_discover_apply_functions(self):
-        import one_plugin
-        from one_plugin.plugin1.models.variability_model import VariabilityModel
-        with mock.patch.object(
-            DiscoverMetamodels,
-            '_get_modules_from_plugin_paths',
-            return_value=[one_plugin]
-        ):
-            discover = DiscoverMetamodels()
+    @mock.patch.object(discover, 'filter_modules_from_plugin_paths')
+    def test_discover_apply_functions(self, mocker):
+        mocker.return_value = [one_plugin]
+        search = DiscoverMetamodels()
 
-            variability_model = discover.use_transformation_t2m(src='file.ext', dst='ext')
-            operation = discover.use_operation(src=variability_model, operation='Operation1')
+        with raises(PluginNotFound) as error:
+            search.use_transformation_t2m(src='file.ext', dst='foo')
+        assert error.typename == 'PluginNotFound'
 
-            assert isinstance(variability_model, VariabilityModel)
-            assert operation.get_result() == '123456'
+        variability_model = search.use_transformation_t2m(
+            src='file.ext', dst='ext'
+        )
+
+        text = search.use_transformation_m2t(
+            src=variability_model,
+            dst='file.ext'
+        )
+
+        search.use_transformation_m2m(src=variability_model, dst='ext')
+
+        operation = search.use_operation(
+            src=variability_model,
+            operation='Operation1'
+        )
+
+        assert isinstance(variability_model, VariabilityModel)
+        assert text == 'example'
+        assert operation.get_result() == '123456'
