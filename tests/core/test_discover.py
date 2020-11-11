@@ -36,7 +36,7 @@ class TestDiscoverWithPlugin:
             DiscoverMetamodels,
             '_get_modules_from_plugin_paths',
             return_value=[one_plugin]
-        ) as mock_func:
+        ):
             discover = DiscoverMetamodels()
             assert len(discover.plugins) == 1
             assert len(discover.plugins.get('one_plugin.plugin1').get('operations')) == 1
@@ -47,7 +47,7 @@ class TestDiscoverWithPlugin:
         with mock.patch.object(DiscoverMetamodels,
             '_get_modules_from_plugin_paths',
             return_value=[two_plugins]
-        ) as mock_func:
+        ):
             discover = DiscoverMetamodels()
             assert len(discover.plugins) == 2
             assert discover.plugins.get('two_plugins.plugin1').get('operations', None) == None
@@ -61,7 +61,7 @@ class TestDiscoverWithPlugin:
             DiscoverMetamodels,
             '_get_modules_from_plugin_paths',
             return_value=[complex_plugin]
-        ) as mock_func:
+        ):
             discover = DiscoverMetamodels()
             assert len(discover.plugins) == 1
             assert len(discover.plugins.get('complex_plugin.plugin1').get('operations')) == 1
@@ -77,7 +77,7 @@ class TestDiscoverApplyFunctions:
             DiscoverMetamodels,
             '_get_modules_from_plugin_paths',
             return_value=[one_plugin]
-        ) as mock_func:
+        ):
             discover = DiscoverMetamodels()
 
             variability_model = discover.use_transformation_t2m(src='file.ext', dst='ext')
