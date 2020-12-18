@@ -8,14 +8,14 @@ from famapy.metamodels.pysat_metamodel.transformations.fm_to_pysat import FmToPy
 
 
 # Parse a file
-xmlreader = XMLTransformation("/mnt/c/Users/jagal/Documents/Repositories/FaMaPy/core/test.fama")
-fm=xmlreader.transform()
+xmlreader = XMLTransformation("example.fama")
+fm = xmlreader.transform()
 
-#print the model
+# print the model
 print(fm)
 
 # Create a detination metamodel (Pysat for the record)
-sat= PySATModel()
+sat = PySATModel()
 
 # Transform the first onto the second
 transform = FmToPysat(fm, sat)
