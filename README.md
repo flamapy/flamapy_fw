@@ -133,6 +133,7 @@ pytest
 
 ### Install/test metamodels
 
+
 There is at the moment two separate metamodels repository:
 
 ```
@@ -146,6 +147,11 @@ You can install it inside the same virtualenv environment with:
 pip install -e .
 ```
 
+Also, you can use a venv
+
+```
+python3 -m venv env .
+```
 
 ### Review code quality and styles error
 
