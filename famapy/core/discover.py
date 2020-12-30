@@ -134,6 +134,7 @@ class DiscoverMetamodels:
         operation = plugin.use_operation(operation, variability_model)
         return operation.get_result()
 
+''' This is to be defined
     def use_operation_from_fm_file(
         self,
         plugin: str,
@@ -148,3 +149,4 @@ class DiscoverMetamodels:
         variability_model = plugin.use_transformation_m2m(vm_temp, file)
         operation = plugin.use_operation(operation, variability_model)
         return operation.get_result()
+'''
