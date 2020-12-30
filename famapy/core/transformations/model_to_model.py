@@ -13,7 +13,7 @@ class ModelToModel(Transformation):
 
     @staticmethod
     @abstractmethod
-    def get_destiny_extension() -> str:
+    def get_destination_extension() -> str:
         pass
 
     @abstractmethod

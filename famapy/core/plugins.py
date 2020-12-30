@@ -81,7 +81,7 @@ class Plugin:
 
         def filter_transformations(transformation):
             return ModelToText in transformation.mro() and\
-                transformation.get_destiny_extension() == extension
+                transformation.get_destination_extension() == extension
 
         transformation = self.__get_transformation(filter_transformations)
         result = transformation(src, dst)
@@ -94,7 +94,7 @@ class Plugin:
     ) -> VariabilityModel:
         def filter_transformations(transformation):
             return ModelToModel in transformation.mro() and\
-                transformation.get_destiny_extension() == dst and\
+                transformation.get_destination_extension() == dst and\
                 transformation.get_source_extension() == src.get_extension()
 
         transformation = self.__get_transformation(filter_transformations)
