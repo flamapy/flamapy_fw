@@ -9,4 +9,4 @@ from .variability import Variability
 from .core_features import CoreFeatures
 
 __all__ = ["Commonality", "DeadFeatures", "Operation", "Products", "Valid",
-           "ValidConfiguration", "ValidProduct", "Variability"]
+           "ValidConfiguration", "ValidProduct", "Variability", "CoreFeatures"]
