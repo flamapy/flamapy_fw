@@ -22,5 +22,5 @@ class CoreFeatures(Operation):
         pass
 
     @abstractmethod
-    def get_core_features(self) -> set:
+    def get_core_features(self) -> Sequence:
         pass
