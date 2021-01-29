@@ -4,5 +4,5 @@ from abc import ABC, abstractmethod
 class Configuration(ABC):
 
     @abstractmethod
-    def __init__(self, elements: dict) -> bool:  # make elements to be a dict of feature, boolean
+    def __init__(self, elements: list):
         self.elements = elements
