@@ -7,5 +7,8 @@ from .valid_configuration import ValidConfiguration
 from .valid_product import ValidProduct
 from .variability import Variability
 
+from .count_leafs import CountLeafs
+from .average_branching_factor import AverageBranchingFactor
+
 __all__ = ["Commonality", "DeadFeatures", "Operation", "Products", "Valid",
-           "ValidConfiguration", "ValidProduct", "Variability"]
+           "ValidConfiguration", "ValidProduct", "Variability", "CountLeafs", "AverageBranchingFactor"]
