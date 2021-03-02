@@ -17,7 +17,7 @@ jobs:
           pip install prospector[with_everything]==1.3.1
       - name: Analysing the code with prospector
         run: |
-          prospector --zero-exit
+          prospector
   mypy:
     runs-on: ubuntu-latest
     steps:
