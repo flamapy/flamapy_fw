@@ -1,0 +1,26 @@
+name: Python analisys
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install prospector[with_everything]==1.3.1 pytest==5.4.3 mypy=0.812
+      - name: Analysing the code with prospector
+        run: |
+          prospector --zero-exit
+      - name: Running static types with mypy
+        run: |
+          mypy famapy
+      - name: Running test
+        run: |
+          python -m pytest
