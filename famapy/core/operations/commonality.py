@@ -11,7 +11,7 @@ class Commonality(Operation):
         pass
 
     @abstractmethod
-    def set_configuration(self, configuration: Configuration):
+    def set_configuration(self, configuration: Configuration) -> None:
         pass
 
     @abstractmethod
