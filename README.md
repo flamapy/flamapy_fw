@@ -127,9 +127,17 @@ You can take a look to the execution at:
 With the module installed, you can execute:
 
 ```
-pytest
+pip install pytest
+make pytest
 ```
 
+
+### Run test with coverage
+
+```
+pip install pytest coverage
+make cov
+```
 
 ### Install/test metamodels
 
@@ -156,7 +164,15 @@ python3 -m venv env .
 ### Review code quality and styles error
 
 ```
-prospector
+pip install prospector
+make lint
+```
+
+### Review hint typing
+
+```
+pip install mypy
+make mypy
 ```
 
 ## Changelog

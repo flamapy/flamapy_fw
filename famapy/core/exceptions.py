@@ -9,8 +9,10 @@ class OperationNotFound(Exception):
 class TransformationNotFound(Exception):
     pass
 
+
 class ElementNotFound(Exception):
     pass
+
 
 class DuplicatedFeature(Exception):
     pass
