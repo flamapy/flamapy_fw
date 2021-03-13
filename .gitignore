@@ -1,5 +1,8 @@
 env
 htmlcov
+famapy/metamodels
 
 *.pyc
 __pycache__
+.coverage
+tags
