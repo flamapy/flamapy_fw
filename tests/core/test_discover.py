@@ -1,5 +1,5 @@
 from pytest import raises
-from pytest_mock import mock
+from unittest import mock
 
 from famapy.core import discover
 from famapy.core.discover import DiscoverMetamodels
@@ -80,19 +80,11 @@ class TestDiscoverApplyFunctions:
         variability_model = search.use_transformation_t2m(
             src='file.ext', dst='ext'
         )
-
-        text = search.use_transformation_m2t(
-            src=variability_model,
-            dst='file.ext'
-        )
-
-        search.use_transformation_m2m(src=variability_model, dst='ext')
+        assert isinstance(variability_model, VariabilityModel)
 
         operation = search.use_operation(
             src=variability_model,
-            operation='Operation1'
+            operation='Operation'
         )
 
-        assert isinstance(variability_model, VariabilityModel)
-        assert text == 'example'
         assert operation.get_result() == '123456'

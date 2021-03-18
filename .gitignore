@@ -1,2 +1,5 @@
+env
+htmlcov
+
 *.pyc
 __pycache__

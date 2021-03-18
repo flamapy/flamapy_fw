@@ -9,12 +9,19 @@ upload-testpypi:
 upload-pypi:
 	python3 -m twine upload --repository pypi dist/*
 
+lint:
+	prospector --zero-exit
+
+mypy:
+	mypy famapy
+
 test:
-	python -m pytest
+	python -m pytest -sv
 
-interantive-test:
-	python -m pytest -s
-
+cov:
+	coverage run --source=famapy -m pytest
+	coverage report
+	coverage html
 
 start:
 	hug -f famapy/endpoint/diverso-lab.py

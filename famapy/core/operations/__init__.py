@@ -1,11 +1,11 @@
 from .abstract_operation import Operation
-from .commonality import Commonality
-from .dead_features import DeadFeatures
-from .products import Products
-from .valid import Valid
-from .valid_configuration import ValidConfiguration
-from .valid_product import ValidProduct
-from .variability import Variability
+from .commonality import Commonality  # pylint: disable=cyclic-import
+from .dead_features import DeadFeatures  # pylint: disable=cyclic-import
+from .products import Products  # pylint: disable=cyclic-import
+from .valid import Valid  # pylint: disable=cyclic-import
+from .valid_configuration import ValidConfiguration  # pylint: disable=cyclic-import
+from .valid_product import ValidProduct  # pylint: disable=cyclic-import
+from .variability import Variability  # pylint: disable=cyclic-import
 
 __all__ = ["Commonality", "DeadFeatures", "Operation", "Products", "Valid",
            "ValidConfiguration", "ValidProduct", "Variability"]
