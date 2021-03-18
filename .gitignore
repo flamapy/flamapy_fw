@@ -3,3 +3,5 @@ htmlcov
 
 *.pyc
 __pycache__
+
+famapy.egg-info
