@@ -12,7 +12,3 @@ class DeadFeatures(Operation):
     @abstractmethod
     def get_dead_features(self) -> list:
         pass
-
-    @abstractmethod
-    def set_products(self, products: list):
-        pass
