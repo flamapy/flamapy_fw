@@ -1,5 +1,6 @@
 
 from termcolor import colored
+from typing import List, Optional, Any
 
 '''
 This algorithm obtains an abstract syntax tree from a text string.
@@ -7,57 +8,58 @@ Support for parentheses is included
 '''
 
 
-def main():
+class Node():
 
-    try:
+    token = None
 
-        ast1 = AST("(A implies (B requires C))")
-        print(ast1)
+    is_leaf = False
+    feature = ""
+    is_feature = False
+    unary_operator = False
+    binary_operator = False
+    points_to = None
+    operator = ""
 
-        ast2 = AST(" (A and not B)")
-        print(ast2)
+    level = 0
 
-        ast3 = AST("A and B or C")
-        print(ast3)
+    def __init__(self, token: int, is_leaf: bool=False, feature: str="", is_feature: bool =False, unary_operator:bool =False, binary_operator: bool=False, points_to: Any=None, operator: str="", level:int =0): # noqa
+        self.token = token
+        self.is_leaf = is_leaf
+        self.feature = feature
+        self.is_feature = is_feature
+        self.unary_operator = unary_operator
+        self.binary_operator = binary_operator
+        self.points_to = points_to
+        self.operator = operator
+        self.level = level
 
-        ast4 = AST("(A and B) or C")
-        print(ast4)
+    def is_root(self) -> bool:
+        return self.points_to is None
 
-        ast5 = AST("A")
-        print(ast5)
+    def get_token(self) -> Optional[Any]:
+        return self.token
 
-        ast6 = AST("A implies B and C requires D")
-        print(ast6)
+    def get_points_to(self) -> str:
+        if(self.points_to is None):
+            return "None"
+        return str(self.points_to)
 
-        ast7 = AST("not A and B")
-        print(ast7)
+    def get_name(self) -> str:
+        name = ""
+        if self.is_feature:
+            name = self.feature
+        else:
+            name = self.operator
 
-        ast8 = AST("not (A and B)")
-        print(ast8)
+        return name
 
-        ast9 = AST("not (A and not B)")
-        print(ast9)
+    def get_level(self) -> int:
+        return self.level
 
-        ast10 = AST("A implies (  B requires (  C excludes ( D ) ) )")
-        print(ast10)
+    def __str__(self) -> str:
+        string = "Node: " + self.get_name() + ", points to: " + str(self.get_points_to()) + ", token: " + str(self.get_token()) + ", level: " + str(self.get_level()) # noqa
 
-        ast11 = AST("(A implies B) and (C requires D)")
-        print(ast11)
-
-        ast12 = AST("A implies (B requires (C and D))")
-        print(ast12)
-
-        ast13 = AST("A implies (B requires (not not C and D))")
-        print(ast13)
-
-        ast14 = AST("(A and not B)")
-        print(ast14)
-
-        ast15 = AST("A or B and C")
-        print(ast15)
-
-    except Exception as e:
-        print(type(e).__name__ + "\n" + str(e))
+        return string
 
 
 class ASTINFO():
@@ -66,26 +68,26 @@ class ASTINFO():
     binary_operators = ["or", "and", "implies", "excludes", "requires"]
 
     @staticmethod
-    def get_unary_operators():
+    def get_unary_operators() -> List[str]:
         return ASTINFO.unary_operators
 
     @staticmethod
-    def set_unary_operators(list):
+    def set_unary_operators(list: List[str]) -> None:
         ASTINFO.unary_operators = list
 
     @staticmethod
-    def get_binary_operators():
+    def get_binary_operators() -> List[str]:
         return ASTINFO.binary_operators
 
     @staticmethod
-    def set_binary_operators(list):
+    def set_binary_operators(list: List[str]) -> None:
         ASTINFO.binary_operators = list
 
 
 class ASTCHECK():
 
     @staticmethod
-    def check_all(string):
+    def check_all(string: str) -> None:
 
         ASTCHECK.check_is_empty(string)
         ASTCHECK.check_parentheses(string)
@@ -99,27 +101,27 @@ class ASTCHECK():
         ASTCHECK.check_unary_operator_succeeded_by_parentheses(string)
 
     @staticmethod
-    def raise_syntax_error(string, element1=None, element2=None):
+    def raise_syntax_error(string: str, element1: str = "", element2: str = "") -> None:
         raise_string = string
 
         raise_string = colored("SyntaxError: " + string, "red")
 
-        if element1 is not None:
+        if element1:
             raise_string += " " + colored(element1, "yellow")
 
-        if element2 is not None:
+        if element2:
             raise_string += " " + colored(element2, "yellow") 
 
         raise SyntaxError(raise_string)
 
     @staticmethod
-    def check_is_empty(string):
+    def check_is_empty(string: str) -> None:
 
         if not bool(string.strip()):
             raise ValueError(colored("ValueError: Empty string", "red"))
 
     @staticmethod
-    def check_parentheses(string):
+    def check_parentheses(string: str) -> None:
 
         count_open_parentheses = ASTUtilities.count_characters(string, "(")
         count_close_parentheses = ASTUtilities.count_characters(string, ")")
@@ -128,7 +130,7 @@ class ASTCHECK():
             ASTCHECK.raise_syntax_error("There is not the same number of open parentheses as closed ones") # noqa
 
     @staticmethod
-    def check_adjacent_binary_operators(string):
+    def check_adjacent_binary_operators(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -141,7 +143,7 @@ class ASTCHECK():
                 ASTCHECK.raise_syntax_error("There cannot be two adjacent binary operators:", string_list[i], string_list[i + 1]) # noqa
 
     @staticmethod
-    def check_adjacent_unary_plus_binary_operators(string):
+    def check_adjacent_unary_plus_binary_operators(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -154,7 +156,7 @@ class ASTCHECK():
                 ASTCHECK.raise_syntax_error("There cannot be a unary operator followed by a binary operator:", string_list[i], string_list[i + 1]) # noqa
 
     @staticmethod
-    def check_adjacent_features(string):
+    def check_adjacent_features(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -167,7 +169,7 @@ class ASTCHECK():
                 ASTCHECK.raise_syntax_error("There cannot be two adjacent features:", string_list[i], string_list[i + 1]) # noqa
 
     @staticmethod
-    def check_binary_operator_preceded_or_succeeded_by_parentheses(string):
+    def check_binary_operator_preceded_or_succeeded_by_parentheses(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -181,7 +183,7 @@ class ASTCHECK():
                     ASTCHECK.raise_syntax_error("A binary operator cannot be preceded or succeeded by parentheses:", string_list[i], string_list[i + 1]) # noqa
 
     @staticmethod
-    def check_unary_operator_succeeded_by_parentheses(string):
+    def check_unary_operator_succeeded_by_parentheses(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -193,7 +195,7 @@ class ASTCHECK():
                 ASTCHECK.raise_syntax_error("An unary operator cannot succeeded by parentheses:", string_list[i]) # noqa
 
     @staticmethod
-    def check_binary_operator_at_start_or_end(string):
+    def check_binary_operator_at_start_or_end(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -207,7 +209,7 @@ class ASTCHECK():
             ASTCHECK.raise_syntax_error("There cannot be binary operators at end:", string_list[-1]) # noqa
 
     @staticmethod
-    def check_unary_operator_at_end(string):
+    def check_unary_operator_at_end(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
@@ -218,7 +220,7 @@ class ASTCHECK():
 
     # TODO: Detectar paréntesis vacíos "()"
     @staticmethod
-    def check_empty_parentheses(string):
+    def check_empty_parentheses(string: str) -> None:
 
         for i in range(0, len(string) - 1):
 
@@ -232,14 +234,14 @@ class ASTCHECK():
 class ASTUtilities():
 
     @staticmethod
-    def string2list(string):
+    def string2list(string: str) -> List[str]:
 
         string = " ".join(string.split())
         return list(string.split(" "))
 
     #preprocesamiento de la cadena de entrada 
     @staticmethod
-    def preprocessing(string):
+    def preprocessing(string: str) -> str:
 
         preprocessed_string = string
 
@@ -250,7 +252,7 @@ class ASTUtilities():
         return preprocessed_string
 
     @staticmethod
-    def computing_blank_spaces(string): # noqa: MC0001
+    def computing_blank_spaces(string: str) -> str: # noqa: MC0001
 
         preprocessed_string = string
 
@@ -301,7 +303,7 @@ class ASTUtilities():
 
     #cuenta caracteres repetidos
     @staticmethod
-    def count_characters(string, character):
+    def count_characters(string: str, character: str) -> int:
         count = 0
         for c in string:
             if(c == character):
@@ -310,7 +312,7 @@ class ASTUtilities():
 
     #elimina paréntesis exteriores
     @staticmethod
-    def preprocessing_remove_outer_parentheses(string):
+    def preprocessing_remove_outer_parentheses(string: str) -> str:
 
         string_without_outer_parentheses = string
 
@@ -321,7 +323,7 @@ class ASTUtilities():
         return string_without_outer_parentheses
 
     @staticmethod
-    def clean_parentheses(string):
+    def clean_parentheses(string: str) -> str:
 
         cleaned_string = string
 
@@ -331,19 +333,19 @@ class ASTUtilities():
         return cleaned_string
 
     @staticmethod
-    def is_unary_operator(element):
+    def is_unary_operator(element: str) -> bool:
         return element in ASTINFO.get_unary_operators()
 
     @staticmethod
-    def is_binary_operator(element):
+    def is_binary_operator(element: str) -> bool:
         return element in ASTINFO.get_binary_operators()
 
     @staticmethod
-    def is_feature(element):
+    def is_feature(element: str) -> bool:
         return not ASTUtilities.is_binary_operator(element) and not ASTUtilities.is_unary_operator(element) and not element == ")" and not element == "(" # noqa
 
     @staticmethod
-    def replacer(s, newstring, index, nofail=False):
+    def replacer(s: str, newstring: str, index: int, nofail: bool = False) -> str:
         # raise an error if index is outside of the string
         if not nofail and index not in range(len(s)):
             raise ValueError("index outside given string")
@@ -360,12 +362,12 @@ class ASTUtilities():
 
 class AST():
 
-    #variables  
+    #variables
     string = ""
-    nodes = []
-    list = []
+    nodes: List[Node] = []
+    list: List[str] = []
 
-    def __init__(self, string=""):
+    def __init__(self, string: str = ""):
 
         # Preprocesamiento
         preprocessed_string = ASTUtilities.preprocessing(string)
@@ -391,17 +393,17 @@ class AST():
             #print(n)
             pass
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n\"" + self.string + "\"" + self.print_tree(self.get_root(), "\n\n" + self.get_root().get_name()) # noqa
 
-    def print_tree(self, node, string):
+    def print_tree(self, node: Node, string: str) -> str:
         childs_nodes = self.get_childs(node)
         for n in childs_nodes:
             string = string + self.print_tree(n, "\n" + self.print_tabs(n) + n.get_name())
 
         return string
 
-    def print_tabs(self, node):
+    def print_tabs(self, node: Node) -> str:
         level = node.get_level()
         tabs = ""
         for i in range(level - 1):
@@ -409,7 +411,7 @@ class AST():
         return tabs
 
     # extrae las posiciones de los operadores binarios en el rango (i,j]
-    def extract_binary_operators(self, i, j):
+    def extract_binary_operators(self, i: int, j: int) -> List[int]:
 
         list_binary_operators = []
 
@@ -420,7 +422,7 @@ class AST():
         return list_binary_operators
 
     # extrae las posiciones de los operadores unarios en el rango (i,j]
-    def extract_unary_operators(self, i, j):
+    def extract_unary_operators(self, i: int, j: int) -> List[int]:
 
         list_unary_operators = []
 
@@ -431,7 +433,7 @@ class AST():
         return list_unary_operators
 
     # descarta los operadores binarios encerrados entre paréntesis
-    def discard_nodes_in_parentheses(self, i, j, list):
+    def discard_nodes_in_parentheses(self, i: int, j: int, list: List[int]) -> List[int]:
 
         candidate_root_nodes_without_parentheses = []
 
@@ -466,7 +468,7 @@ class AST():
 
         return candidate_root_nodes_without_parentheses
 
-    def explore(self, i, j, points_to, level):
+    def explore(self, i: int, j: int, points_to: Any, level: int) -> None:
 
         # existe el caso particular de hacer Divide y Vencerás a partir de un operador unario
         # esto provoca que sea una sublista SIN elementos, puesto que el operador unario 
@@ -521,9 +523,7 @@ class AST():
         self.explore(parent + 1, j, points_to=parent, level=level + 1)
 
     # encuentra el nodo padre más idóneo en el subconjunto [i,j)
-    def find_out_parent_node(self, i, j):
-
-        # "+str(i)+", j: "+str(j))
+    def find_out_parent_node(self, i: int, j: int) -> int:
 
         parent = None
 
@@ -567,7 +567,7 @@ class AST():
         return parent
 
     # dada una lista de operadores unarios, encuentra el más prioritario
-    def priority_unary_operator_according_to_hierarchy(self, list):
+    def priority_unary_operator_according_to_hierarchy(self, list: List[int]) -> int:
 
         unary_operators = ASTINFO.get_unary_operators()
         position = len(unary_operators) - 1
@@ -583,7 +583,7 @@ class AST():
         return priority
 
     # dada una lista de operadores biarios, encuentra el más prioritario
-    def priority_binary_operator_according_to_hierarchy(self, list):
+    def priority_binary_operator_according_to_hierarchy(self, list: List[int]) -> int:
 
         binary_operators = ASTINFO.get_binary_operators()
         position = len(binary_operators) - 1
@@ -599,15 +599,17 @@ class AST():
         return priority
 
     # common methods
-    def get_nodes_by_feature(self, feature):
+    def get_nodes_by_feature(self, feature: str) -> List[Node]:
         res_node = []
         for node in self.nodes:
             if node.get_name() == feature:
                 res_node.append(node)
         return res_node
 
-    def get_root(self):
-        res_node = None
+    def get_root(self) -> Node:
+
+        # we take the first node by default
+        res_node = self.nodes[0]
         for node in self.nodes:
 
             if(node.points_to is None):
@@ -616,7 +618,7 @@ class AST():
 
         return res_node
 
-    def get_childs(self, parent_node):
+    def get_childs(self, parent_node: Node) -> List[Any]:
         childs = []
         points_to = parent_node.get_token()
         for node in self.nodes:
@@ -624,66 +626,62 @@ class AST():
                 childs.append(node)
         return childs
 
-    def get_nodes(self):
+    def get_nodes(self) -> List[Any]:
 
         return self.nodes
 
 
-class Node():
+def main() -> None:
 
-    token = None
+    try:
 
-    is_leaf = False
-    feature = ""
-    is_feature = False
-    unary_operator = False
-    binary_operator = False
-    points_to = None
-    operator = ""
+        ast1 = AST("(A implies (B requires C))")
+        print(ast1)
 
-    level = None
+        ast2 = AST(" (A and not B)")
+        print(ast2)
 
-    def __init__(self, token=None, is_leaf=False, feature="", is_feature=False, unary_operator=False, binary_operator=False, points_to=None, operator="", level=0): # noqa
-        self.token = token
-        self.is_leaf = is_leaf
-        self.feature = feature
-        self.is_feature = is_feature
-        self.unary_operator = unary_operator
-        self.binary_operator = binary_operator
-        self.points_to = points_to
-        self.operator = operator
-        self.level = level
+        ast3 = AST("A and B or C")
+        print(ast3)
 
-    def is_leaf(self):
-        return self.is_leaf
+        ast4 = AST("(A and B) or C")
+        print(ast4)
 
-    def is_root(self):
-        return self.points_to is None
+        ast5 = AST("A")
+        print(ast5)
 
-    def get_token(self):
-        return self.token
+        ast6 = AST("A implies B and C requires D")
+        print(ast6)
 
-    def get_points_to(self):
-        if(self.points_to is None):
-            return "None"
-        return str(self.points_to)
+        ast7 = AST("not A and B")
+        print(ast7)
 
-    def get_name(self):
-        name = ""
-        if self.is_feature:
-            name = self.feature
-        else:
-            name = self.operator
+        ast8 = AST("not (A and B)")
+        print(ast8)
 
-        return name
+        ast9 = AST("not (A and not B)")
+        print(ast9)
 
-    def get_level(self):
-        return self.level
+        ast10 = AST("A implies (  B requires (  C excludes ( D ) ) )")
+        print(ast10)
 
-    def __str__(self):
-        string = "Node: " + self.get_name() + ", points to: " + str(self.get_points_to()) + ", token: " + str(self.get_token()) + ", level: " + str(self.get_level()) # noqa
+        ast11 = AST("(A implies B) and (C requires D)")
+        print(ast11)
 
-        return string
+        ast12 = AST("A implies (B requires (C and D))")
+        print(ast12)
+
+        ast13 = AST("A implies (B requires (not not C and D))")
+        print(ast13)
+
+        ast14 = AST("(A and not B)")
+        print(ast14)
+
+        ast15 = AST("A or B and C")
+        print(ast15)
+
+    except Exception as e:
+        print(type(e).__name__ + "\n" + str(e))
 
 
 main()
