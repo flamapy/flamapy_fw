@@ -11,10 +11,10 @@ from .valid import Valid
 from .valid_configuration import ValidConfiguration
 from .valid_product import ValidProduct
 from .variability import Variability
-
 from .count_leafs import CountLeafs
 from .average_branching_factor import AverageBranchingFactor
 
-__all__ = ["Commonality", "DeadFeatures", "CoreFeatures", "FalseOptionalFeatures", "ErrorDetection",
-          "ErrorDiagnosis", "Operation", "Products", "Valid", "ValidConfiguration", "ValidProduct",
-          "Variability", "CountLeafs", "AverageBranchingFactor"]
+__all__ = ["Commonality", "DeadFeatures", "CoreFeatures", "FalseOptionalFeatures", 
+           "ErrorDetection", "ErrorDiagnosis", "Operation", "Products", "Valid", 
+           "ValidConfiguration", "ValidProduct", "Variability", "CountLeafs", 
+           "AverageBranchingFactor"]

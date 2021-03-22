@@ -32,7 +32,7 @@ start-cli:
 	hug -f famapy/endpoint/diverso-lab.py -c
 
 dev:
-	python3 -m venv env
+	python3.9 -m venv env
 	. ./env/bin/activate
 	pip install -e .[dev] $(shell echo "${PLUGIN_PATHS}" | sed "s/:/ /g")
 	PLUGIN_PATHS=${PLUGIN_PATHS} python3 configure_plugins.py
