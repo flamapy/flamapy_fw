@@ -22,5 +22,14 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[],
+    extras_require={
+        'dev': [
+            'pytest',
+            'pytest-mock',
+            'prospector',
+            'mypy',
+            'coverage',
+        ]
+    },
     scripts=['scripts/famapy_admin.py']
 )
