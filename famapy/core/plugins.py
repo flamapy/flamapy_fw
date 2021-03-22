@@ -27,10 +27,11 @@ class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancesto
 
     def search_by_name(self, name: str) -> Type[Operation]:
         # This has been modified to use the parent class name
-        # candidates = filter(lambda op: op.__name__ == name, self.data)
-        candidates = filter(lambda op: op.get_parent_name() == name, self.data)
+        candidates = filter(lambda op: op.__bases__[0].__name__ == name, self.data)
+        
         try:
             operation = next(candidates, None)
+            print(operation)
         except StopIteration:
             raise OperationNotFound
         else:
@@ -96,7 +97,7 @@ class Plugin:
             Type[ModelToText],
             self.__get_transformation(filter_transformations)
         )
-        result = transformation(source_model=src, path=dst)
+        result = transformation(path=dst, source_model=src)
         return result.transform()
 
     def use_transformation_m2m(

@@ -1,3 +1,5 @@
+.ONESHELL:
+
 .PHONY: build
 build:
 	rm -rf dist
@@ -10,7 +12,7 @@ upload-pypi:
 	python3 -m twine upload --repository pypi dist/*
 
 lint:
-	prospector --zero-exit
+	prospector
 
 mypy:
 	mypy famapy
@@ -26,6 +28,15 @@ cov:
 start:
 	hug -f famapy/endpoint/diverso-lab.py
 
-
 start-cli:
 	hug -f famapy/endpoint/diverso-lab.py -c
+
+dev:
+	python3.9 -m venv env
+	. ./env/bin/activate
+	pip install -e .[dev] $(shell echo "${PLUGIN_PATHS}" | sed "s/:/ /g")
+	PLUGIN_PATHS=${PLUGIN_PATHS} python3 configure_plugins.py
+
+clean:
+	rm -rf ./env
+	rm -rf ./famapy/metamodels/
