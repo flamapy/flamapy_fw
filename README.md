@@ -122,6 +122,67 @@ You can take a look to the execution at:
 
 ## Development
 
+### Install in mode development with development tools
+
+#### Automatic mode
+
+Configure your plugins, there are at the moment two separate plugins/metamodels repositories:
+
+```
+git clone git@github.com:diverso-lab/fm_metamodel.git
+git clone git@github.com:diverso-lab/pysat_metamodel.git
+```
+
+If you want to use the plugins, you need edit an environment variable with the full path of the plugins/metamodels:
+
+Example:
+
+```
+export PLUGIN_PATHS=/home/foo/plugin1:/home/foo/plugin2
+```
+
+Install full environment for develop:
+
+```
+make dev
+```
+
+Your environment is prepared.
+
+
+#### Manual mode
+
+The advise is create a parent folder where install the tools and download all repositories:
+
+```
+mkdir diverso; cd diverso
+git clone git@github.com:diverso-lab/core.git
+git clone git@github.com:diverso-lab/fm_metamodel.git
+git clone git@github.com:diverso-lab/pysat_metamodel.git
+```
+
+Create virtual environment and install repositories in editable mode:
+
+```
+python3 -m venv env
+source env/bin/activate
+pip install -e core[dev]
+pip install -e fm_metamodel
+pip install -e pysat_metamodel
+```
+
+There is a problem with plugins in editable mode because we use find_namespace_package from setuptools for install it.
+If you want that discover find your plugins, you need make a symbolics links inside core repository:
+
+```
+mkdir core/famapy/metamodels
+ln -s fm_metamodel/famapy/metamodels/fm_metamodel core/famapy/metamodels/fm_metamodel
+ln -s pysat_metamodel/famapy/metamodels/pysat_metamodel core/famapy/metamodels/pysat_metamodel
+```
+
+Your environment is prepared.
+
+
 ### Run tests
 
 With the module installed, you can execute:
@@ -139,27 +200,6 @@ pip install pytest coverage
 make cov
 ```
 
-### Install/test metamodels
-
-
-There is at the moment two separate metamodels repository:
-
-```
-git clone git@github.com:diverso-lab/fm_metamodel.git
-git clone git@github.com:diverso-lab/pysat_metamodel.git
-```
-
-You can install it inside the same virtualenv environment with:
-
-```
-pip install -e .
-```
-
-Also, you can use a venv
-
-```
-python3 -m venv env .
-```
 
 ### Review code quality and styles error
 
@@ -168,12 +208,14 @@ pip install prospector
 make lint
 ```
 
+
 ### Review hint typing
 
 ```
 pip install mypy
 make mypy
 ```
+
 
 ## Changelog
 
