@@ -1,3 +1,5 @@
+.ONESHELL:
+
 .PHONY: build
 build:
 	rm -rf dist
@@ -9,16 +11,32 @@ upload-testpypi:
 upload-pypi:
 	python3 -m twine upload --repository pypi dist/*
 
+lint:
+	prospector
+
+mypy:
+	mypy famapy
+
 test:
-	python -m pytest
+	python -m pytest -sv
 
-interantive-test:
-	python -m pytest -s
-
+cov:
+	coverage run --source=famapy -m pytest
+	coverage report
+	coverage html
 
 start:
 	hug -f famapy/endpoint/diverso-lab.py
 
-
 start-cli:
 	hug -f famapy/endpoint/diverso-lab.py -c
+
+dev:
+	python3 -m venv env
+	. ./env/bin/activate
+	pip install -e .[dev] $(shell echo "${PLUGIN_PATHS}" | sed "s/:/ /g")
+	PLUGIN_PATHS=${PLUGIN_PATHS} python3 configure_plugins.py
+
+clean:
+	rm -rf ./env
+	rm -rf ./famapy/metamodels/
