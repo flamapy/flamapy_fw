@@ -31,7 +31,6 @@ class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancesto
         
         try:
             operation = next(candidates, None)
-            print(operation)
         except StopIteration:
             raise OperationNotFound
         else:
