@@ -1,5 +1,4 @@
 
-from termcolor import colored
 from typing import List, Optional, Any
 
 '''
@@ -104,13 +103,13 @@ class ASTCHECK():
     def raise_syntax_error(string: str, element1: str = "", element2: str = "") -> None:
         raise_string = string
 
-        raise_string = colored("SyntaxError: " + string, "red")
+        raise_string = "SyntaxError: " + string
 
         if element1:
-            raise_string += " " + colored(element1, "yellow")
+            raise_string += " " + element1
 
         if element2:
-            raise_string += " " + colored(element2, "yellow") 
+            raise_string += " " + element2 
 
         raise SyntaxError(raise_string)
 
@@ -118,7 +117,7 @@ class ASTCHECK():
     def check_is_empty(string: str) -> None:
 
         if not bool(string.strip()):
-            raise ValueError(colored("ValueError: Empty string", "red"))
+            raise ValueError("ValueError: Empty string")
 
     @staticmethod
     def check_parentheses(string: str) -> None:
