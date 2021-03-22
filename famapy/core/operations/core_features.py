@@ -3,12 +3,12 @@ from abc import abstractmethod
 from famapy.core.operations import Operation
 
 
-class DeadFeatures(Operation):
+class CoreFeatures(Operation):
 
     @abstractmethod
     def __init__(self) -> None:
         pass
 
     @abstractmethod
-    def get_dead_features(self) -> list:
+    def get_core_features(self) -> list:
         pass
