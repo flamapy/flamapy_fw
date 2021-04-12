@@ -12,7 +12,3 @@ class CoreFeatures(Operation):
     @abstractmethod
     def get_core_features(self) -> list:
         pass
-
-    @abstractmethod
-    def set_products(self, products: list):
-        pass

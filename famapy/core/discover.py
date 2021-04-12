@@ -1,26 +1,26 @@
-import logging
-from pkgutil import iter_modules
-from importlib import import_module
 import inspect
+import logging
+from importlib import import_module
+from pkgutil import iter_modules
 from types import ModuleType
-from typing import List
+from typing import Any, Type
 
 from famapy.core.config import PLUGIN_PATHS
-
 from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation
-from famapy.core.transformations import Transformation
 from famapy.core.plugins import (
+    Operations,
     Plugin,
     Plugins
 )
+from famapy.core.transformations import Transformation
 
 
 LOGGER = logging.getLogger('discover')
 
 
-def filter_modules_from_plugin_paths() -> List[ModuleType]:
-    results: List[ModuleType] = list()
+def filter_modules_from_plugin_paths() -> list[ModuleType]:
+    results: list[ModuleType] = list()
     for path in PLUGIN_PATHS:
         try:
             module: ModuleType = import_module(path)
@@ -31,14 +31,14 @@ def filter_modules_from_plugin_paths() -> List[ModuleType]:
 
 
 class DiscoverMetamodels:
-    def __init__(self):
+    def __init__(self) -> None:
         self.module_paths = filter_modules_from_plugin_paths()
         self.plugins: Plugins = self.discover()
 
-    def search_classes(self, module):
+    def search_classes(self, module: ModuleType) -> list[Any]:
         classes = []
         for _, file_name, ispkg in iter_modules(
-            module.__path__, module.__name__ + '.'
+            module.__path__, module.__name__ + '.'  # type: ignore
         ):
             if ispkg:
                 classes += self.search_classes(import_module(file_name))
@@ -47,11 +47,11 @@ class DiscoverMetamodels:
                 classes += inspect.getmembers(_file, inspect.isclass)
         return classes
 
-    def discover(self) -> dict:
+    def discover(self) -> Plugins:
         plugins = Plugins()
         for pkg in self.module_paths:
             for _, plugin_name, ispkg in iter_modules(
-                pkg.__path__, pkg.__name__ + '.'
+                pkg.__path__, pkg.__name__ + '.'  # type: ignore
             ):
                 if not ispkg:
                     continue
@@ -74,37 +74,33 @@ class DiscoverMetamodels:
                 plugins.append(plugin)
         return plugins
 
-    def reload(self):
+    def reload(self) -> None:
         self.plugins = self.discover()
 
-    def get_operations(self) -> list:
+    def get_operations(self) -> list[Type[Operation]]:
         """ Get the operations for all modules """
-        operations = []
-        for submodules in self.plugins.values():
-            submodule_operation = submodules.get('operations', {})
-            for submodule_name, submodule in submodule_operation.items():
-                operations.append([submodule_name, submodule])
+        operations: list[Type[Operation]] = []
+        for plugin in self.plugins:
+            operations += plugin.operations
         return operations
 
-    def get_transformations(self) -> list:
+    def get_transformations(self) -> list[Type[Transformation]]:
         """ Get the transformations for all modules """
-        transformations = []
-        for submodules in self.plugins.values():
-            submodule_transformation = submodules.get('transformations', {})
-            for submodule_name, submodule in submodule_transformation.items():
-                transformations.append([submodule_name, submodule])
+        transformations: list[Type[Transformation]] = []
+        for plugin in self.plugins:
+            transformations += plugin.transformations
         return transformations
 
-    def get_operations_by_plugin(self, plugin_name: str) -> List[str]:
+    def get_operations_by_plugin(self, plugin_name: str) -> Operations:
         return self.plugins.get_operations_by_plugin_name(plugin_name)
 
-    def get_variability_models(self) -> List[VariabilityModel]:
+    def get_variability_models(self) -> list[VariabilityModel]:
         return self.plugins.get_variability_models()
 
-    def get_plugins(self) -> List[str]:
+    def get_plugins(self) -> list[str]:
         return self.plugins.get_plugin_names()
 
-    def use_transformation_m2t(self, src: VariabilityModel, dst: str):
+    def use_transformation_m2t(self, src: VariabilityModel, dst: str) -> str:
         plugin = self.plugins.get_plugin_by_variability_model(src)
         return plugin.use_transformation_m2t(src, dst)
 
@@ -112,15 +108,15 @@ class DiscoverMetamodels:
         plugin = self.plugins.get_plugin_by_extension(dst)
         return plugin.use_transformation_t2m(src)
 
-    def use_transformation_m2m(self, src: VariabilityModel, dst: str):
+    def use_transformation_m2m(self, src: VariabilityModel, dst: str) -> VariabilityModel:
         plugin = self.plugins.get_plugin_by_extension(dst)
         return plugin.use_transformation_m2m(src, dst)
 
-    def use_operation(self, src: VariabilityModel, operation: str):
+    def use_operation(self, src: VariabilityModel, operation: str) -> Operation:
         plugin = self.plugins.get_plugin_by_variability_model(src)
         return plugin.use_operation(operation, src)
 
-    def use_operation_from_file(self, plugin: str, operation: str, file: str):
+    def use_operation_from_file(self, plugin_name: str, operation_name: str, file: str) -> Any:
         """
         Steps:
         * Search plugins by name
@@ -129,24 +125,22 @@ class DiscoverMetamodels:
         * Apply operation
         """
 
-        plugin: Plugin = self.plugins.get_plugin_by_name(plugin)
+        plugin: Plugin = self.plugins.get_plugin_by_name(plugin_name)
         variability_model = plugin.use_transformation_t2m(file)
-        operation = plugin.use_operation(operation, variability_model)
+        operation = plugin.use_operation(operation_name, variability_model)
         return operation.get_result()
 
-''' This is to be defined
     def use_operation_from_fm_file(
         self,
-        plugin: str,
-        operation: str,
+        plugin_name: str,
+        operation_name: str,
         file: str
-    ):
+    ) -> Any:
         # TODO: change in a future for autodiscover transformation way
         fm_plugin: Plugin = self.plugins.get_plugin_by_name('fm_metamodel')
         vm_temp = fm_plugin.use_transformation_t2m(file)
 
-        plugin: Plugin = self.plugins.get_plugin_by_name(plugin)
+        plugin: Plugin = self.plugins.get_plugin_by_name(plugin_name)
         variability_model = plugin.use_transformation_m2m(vm_temp, file)
-        operation = plugin.use_operation(operation, variability_model)
+        operation = plugin.use_operation(operation_name, variability_model)
         return operation.get_result()
-'''
