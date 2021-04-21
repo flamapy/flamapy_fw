@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Any
 
 from famapy.core.operations import Operation
 
@@ -10,5 +11,5 @@ class CoreFeatures(Operation):
         pass
 
     @abstractmethod
-    def get_core_features(self) -> list:
+    def get_core_features(self) -> list[Any]:
         pass
