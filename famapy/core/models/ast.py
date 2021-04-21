@@ -19,8 +19,9 @@ class Node:
 
     level = 0
 
-    def __init__(self, token: int, is_leaf: bool = False, feature: str = "", is_feature: bool = False,
-                 unary_operator: bool = False, binary_operator: bool = False, points_to: Any = None, operator: str = "",
+    def __init__(self, token: int, is_leaf: bool = False, feature: str = "", 
+                 is_feature: bool = False, unary_operator: bool = False, 
+                 binary_operator: bool = False, points_to: Any = None, operator: str = "",
                  level: int = 0):  # noqa
         self.token = token
         self.is_leaf = is_leaf
