@@ -1,29 +1,23 @@
-from typing import Any, Optional, List
-
-'''
-This algorithm obtains an abstract syntax tree from a text string.
-Support for parentheses is included
-'''
+from dataclasses import dataclass
+from typing import Any, List
 
 
+# TODO: Review python dataclasses
 class Node:
-    token = None
 
-    is_leaf = False
-    feature = ""
-    is_feature = False
-    unary_operator = False
-    binary_operator = False
-    points_to = None
-    operator = ""
+    def __init__(
+        self,
+        token: int,
+        is_leaf: bool = False,
+        feature: str = "",
+        is_feature: bool = False,
+        unary_operator: bool = False,
+        binary_operator: bool = False,
+        points_to: Any = None, operator: str = "",
+        level: int = 0
+    ):
 
-    level = 0
-
-    def __init__(self, token: int, is_leaf: bool = False, feature: str = "", 
-                 is_feature: bool = False, unary_operator: bool = False, 
-                 binary_operator: bool = False, points_to: Any = None, operator: str = "",
-                 level: int = 0):  # noqa
-        self.token = token
+        self._token = token  # _ meaning private in python
         self.is_leaf = is_leaf
         self.feature = feature
         self.is_feature = is_feature
@@ -33,11 +27,12 @@ class Node:
         self.operator = operator
         self.level = level
 
+    @property
+    def token(self) -> Any:
+        return self._token
+
     def is_root(self) -> bool:
         return self.points_to is None
-
-    def get_token(self) -> Optional[Any]:
-        return self.token
 
     def get_points_to(self) -> str:
         if self.points_to is None:
@@ -57,10 +52,12 @@ class Node:
         return self.level
 
     def __str__(self) -> str:
-        string = "Node: " + self.get_name() + ", points to: " + str(self.get_points_to()) + ", token: " + str(
-            self.get_token()) + ", level: " + str(self.get_level())  # noqa
-
-        return string
+        return (
+            f'Node: {self.get_name()}, '
+            f'points to: {self.get_points_to()}, '
+            f'token: {self._token}, '
+            f'level: {self.get_level()}'
+       )
 
 
 class ASTINFO:
@@ -71,17 +68,18 @@ class ASTINFO:
     def get_unary_operators() -> List[str]:
         return ASTINFO.unary_operators
 
+    # TODO: use list as variable is not correct
     @staticmethod
-    def set_unary_operators(list: List[str]) -> None:
-        ASTINFO.unary_operators = list
+    def set_unary_operators(operators: List[str]) -> None:
+        ASTINFO.unary_operators = operators
 
     @staticmethod
     def get_binary_operators() -> List[str]:
         return ASTINFO.binary_operators
 
     @staticmethod
-    def set_binary_operators(list: List[str]) -> None:
-        ASTINFO.binary_operators = list
+    def set_binary_operators(operators: List[str]) -> None:
+        ASTINFO.binary_operators = operators
 
 
 class ASTCHECK:
@@ -126,7 +124,9 @@ class ASTCHECK:
         count_close_parentheses = ASTUtilities.count_repeating_characters(string, ")")
 
         if count_open_parentheses != count_close_parentheses:
-            ASTCHECK.raise_syntax_error("There is not the same number of open parentheses as closed ones")  # noqa
+            ASTCHECK.raise_syntax_error(
+                "There is not the same number of open parentheses as closed ones"
+            )
 
     @staticmethod
     def check_adjacent_binary_operators(string: str) -> None:
@@ -138,9 +138,13 @@ class ASTCHECK:
             fist_item = ASTUtilities.clean_parentheses(string_list[i])
             second_item = ASTUtilities.clean_parentheses(string_list[i + 1])
 
-            if (ASTUtilities.is_binary_operator(fist_item) and ASTUtilities.is_binary_operator(second_item)):  # noqa
-                ASTCHECK.raise_syntax_error("There cannot be two adjacent binary operators:", string_list[i],
-                                            string_list[i + 1])  # noqa
+            if (ASTUtilities.is_binary_operator(fist_item) and
+                    ASTUtilities.is_binary_operator(second_item)):
+                ASTCHECK.raise_syntax_error(
+                    "There cannot be two adjacent binary operators:",
+                    string_list[i],
+                    string_list[i + 1]
+                )
 
     @staticmethod
     def check_adjacent_unary_plus_binary_operators(string: str) -> None:
@@ -152,9 +156,13 @@ class ASTCHECK:
             fist_item = ASTUtilities.clean_parentheses(string_list[i])
             second_item = ASTUtilities.clean_parentheses(string_list[i + 1])
 
-            if (ASTUtilities.is_unary_operator(fist_item) and ASTUtilities.is_binary_operator(second_item)):  # noqa
-                ASTCHECK.raise_syntax_error("There cannot be a unary operator followed by a binary operator:",
-                                            string_list[i], string_list[i + 1])  # noqa
+            if (ASTUtilities.is_unary_operator(fist_item) and
+                    ASTUtilities.is_binary_operator(second_item)):
+                ASTCHECK.raise_syntax_error(
+                    "There cannot be a unary operator followed by a binary operator:",
+                    string_list[i],
+                    string_list[i + 1]
+                )
 
     @staticmethod
     def check_adjacent_features(string: str) -> None:
@@ -167,36 +175,43 @@ class ASTCHECK:
             second_item = ASTUtilities.clean_parentheses(string_list[i + 1])
 
             if ASTUtilities.is_feature(fist_item) and ASTUtilities.is_feature(second_item):
-                ASTCHECK.raise_syntax_error("There cannot be two adjacent features:", string_list[i],
-                                            string_list[i + 1])  # noqa
+                ASTCHECK.raise_syntax_error(
+                    "There cannot be two adjacent features:",
+                    string_list[i],
+                    string_list[i + 1]
+                )
 
     @staticmethod
     def check_binary_operator_preceded_or_succeeded_by_parentheses(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
-        for i in range(0, len(string_list)):
+        for idx, _string in enumerate(string_list):
 
-            item_with_parentheses = string_list[i]
-            item_without_parentheses = ASTUtilities.clean_parentheses(string_list[i])
+            item_without_parentheses = ASTUtilities.clean_parentheses(_string)
 
-            if ASTUtilities.is_binary_operator(item_without_parentheses):
-                if item_with_parentheses != item_without_parentheses:
-                    ASTCHECK.raise_syntax_error("A binary operator cannot be preceded or succeeded by parentheses:",
-                                                string_list[i], string_list[i + 1])  # noqa
+            if (ASTUtilities.is_binary_operator(item_without_parentheses) and
+                    _string != item_without_parentheses):
+                ASTCHECK.raise_syntax_error(
+                    "A binary operator cannot be preceded or succeeded by parentheses:",
+                    _string,
+                    string_list[idx + 1]
+                )
 
     @staticmethod
     def check_unary_operator_succeeded_by_parentheses(string: str) -> None:
 
         string_list = ASTUtilities.string2list(string)
 
-        for i in range(0, len(string_list)):
+        for _string in string_list:
 
-            item = ASTUtilities.clean_parentheses(string_list[i])
+            item = ASTUtilities.clean_parentheses(_string)
 
-            if ASTUtilities.is_unary_operator(item) and ")" in string_list[i]:
-                ASTCHECK.raise_syntax_error("An unary operator cannot succeeded by parentheses:",
-                                            string_list[i])  # noqa
+            if ASTUtilities.is_unary_operator(item) and ")" in _string:
+                ASTCHECK.raise_syntax_error(
+                    "An unary operator cannot succeeded by parentheses:",
+                    _string
+                )
 
     @staticmethod
     def check_binary_operator_at_start_or_end(string: str) -> None:
@@ -207,10 +222,16 @@ class ASTCHECK:
         second_item = ASTUtilities.clean_parentheses(string_list[-1])
 
         if ASTUtilities.is_binary_operator(fist_item):
-            ASTCHECK.raise_syntax_error("There cannot be binary operator at start:", string_list[0])  # noqa
+            ASTCHECK.raise_syntax_error(
+                "There cannot be binary operator at start:",
+                string_list[0]
+            )
 
         if ASTUtilities.is_binary_operator(second_item):
-            ASTCHECK.raise_syntax_error("There cannot be binary operators at end:", string_list[-1])  # noqa
+            ASTCHECK.raise_syntax_error(
+                "There cannot be binary operators at end:",
+                string_list[-1]
+            )
 
     @staticmethod
     def check_unary_operator_at_end(string: str) -> None:
@@ -220,7 +241,10 @@ class ASTCHECK:
         item = ASTUtilities.clean_parentheses(string_list[-1])
 
         if ASTUtilities.is_unary_operator(item):
-            ASTCHECK.raise_syntax_error("There cannot be unary operators at end::", string_list[-1])  # noqa
+            ASTCHECK.raise_syntax_error(
+                "There cannot be unary operators at end::",
+                string_list[-1]
+            )
 
     @staticmethod
     def check_empty_parentheses(string: str) -> None:
@@ -231,7 +255,11 @@ class ASTCHECK:
             second_item = string[i + 1]
 
             if first_item == "(" and second_item == ")":
-                ASTCHECK.raise_syntax_error("There cannot be empty parentheses:", string[i], string[i + 1])  # noqa
+                ASTCHECK.raise_syntax_error(
+                    "There cannot be empty parentheses:",
+                    string[i],
+                    string[i + 1]
+                )
 
 
 class ASTUtilities:
@@ -332,8 +360,11 @@ class ASTUtilities:
 
     @staticmethod
     def is_feature(element: str) -> bool:
-        return not ASTUtilities.is_binary_operator(element) and not ASTUtilities.is_unary_operator(
-            element) and not element == ")" and not element == "("  # noqa
+        return (
+            not ASTUtilities.is_binary_operator(element) and
+            not ASTUtilities.is_unary_operator(element) and
+            not element == ")" and not element == "("
+        )
 
     @staticmethod
     def replacer(s: str, new_string: str, index: int, no_fail: bool = False) -> str:
@@ -353,10 +384,10 @@ class ASTUtilities:
 
 
 class AST():
-    # variables
-    string = ""
-    nodes: List[Node] = []
-    list: List[str] = []
+    '''
+    This algorithm obtains an abstract syntax tree from a text string.
+    Support for parentheses is included
+    '''
 
     def __init__(self, string: str = ""):
 
@@ -367,19 +398,20 @@ class AST():
         ASTCHECK.check_all(preprocessed_string)
 
         self.string = preprocessed_string
-        self.nodes = []
-        self.list = ASTUtilities.string2list(preprocessed_string)
+        self.nodes: list[Node] = []
+        self.list: list[str] = ASTUtilities.string2list(preprocessed_string)
 
         self.explore(i=0, j=len(self.list), points_to=None, level=0)
 
     def __str__(self) -> str:
-        return "\n\"" + self.string + "\"" + self.print_tree(self.get_root(),
-                                                             "\n\n" + self.get_root().get_name())  # noqa
+        printed_tree = self.print_tree(self.get_root(), f'\n\n{self.get_root().get_name()}')
+        return f'\n"{self.string}"{printed_tree}'
 
+    # TODO: what is string variable
     def print_tree(self, node: Node, string: str) -> str:
         child_nodes = self.get_childs(node)
         for n in child_nodes:
-            string = string + self.print_tree(n, "\n" + self.print_tabs(n) + n.get_name())
+            string += self.print_tree(n, "\n" + self.print_tabs(n) + n.get_name())
 
         return string
 
@@ -387,7 +419,7 @@ class AST():
         level = node.get_level()
         tabs = ""
         for i in range(level - 1):
-            tabs = tabs + "\t"
+            tabs += "\t"
         return tabs
 
     # extracts the positions of the binary operators in the range (i, j]
@@ -413,6 +445,7 @@ class AST():
         return list_unary_operators
 
     # discard binary operators enclosed in parentheses
+    # TODO: put all comments in the function
     def discard_nodes_in_parentheses(self, i: int, j: int, possible_nodes: List[int]) -> List[int]:
 
         candidate_root_nodes_without_parentheses = []
@@ -424,13 +457,13 @@ class AST():
 
             '''
                 EXPLANATION OF THE ALGORITHM
-                an element "e" will be free if NEITHER to its left NOR to its right does not have 
+                an element "e" will be free if NEITHER to its left NOR to its right does not have
                 any elements with opening or closing parentheses
             '''
 
             '''
                 is there any parentheses "(" to the left?
-                note: the first element is not counted because it is considered an outer parenthesis, 
+                note: the first element is not counted because it is considered an outer parenthesis,
                 hence the k! = i
             '''
             for k in range(i, e):
@@ -440,7 +473,7 @@ class AST():
 
             '''
                 is there any parentheses "(" to the right?
-                note: the last element is not counted because it is considered an outer parenthesis, 
+                note: the last element is not counted because it is considered an outer parenthesis,
                 hence the k! = j-1
             '''
             if without_parentheses:
@@ -494,18 +527,34 @@ class AST():
         # BASE CASE 4: list with three elements (it is of type "A implies B")
         if j - i == 3:
             # the parent node (operator) is the central node (i + 1)
-            node = Node(operator=self.list[i + 1], points_to=points_to, level=level + 1, token=i + 1)  # noqa
+            node = Node(
+                operator=self.list[i + 1],
+                points_to=points_to,
+                level=level + 1,
+                token=i + 1
+            )
             self.nodes.append(node)
 
             # the first child (feature) is the node on the left
-            node_1 = Node(is_leaf=True, is_feature=True, points_to=i + 1,
-                          feature=ASTUtilities.clean_parentheses(self.list[i]), level=level + 2, token=i)  # noqa
+            node_1 = Node(
+                is_leaf=True,
+                is_feature=True,
+                points_to=i + 1,
+                feature=ASTUtilities.clean_parentheses(self.list[i]),
+                level=level + 2,
+                token=i
+            )
             self.nodes.append(node_1)
 
             # the second child (feature) is the node on the right
-            node_2 = Node(is_leaf=True, is_feature=True, points_to=i + 1,
-                          feature=ASTUtilities.clean_parentheses(self.list[i + 2]), level=level + 2,
-                          token=i + 2)  # noqa
+            node_2 = Node(
+                is_leaf=True,
+                is_feature=True,
+                points_to=i + 1,
+                feature=ASTUtilities.clean_parentheses(self.list[i + 2]),
+                level=level + 2,
+                token=i + 2
+            )
             self.nodes.append(node_2)
 
             return
@@ -524,10 +573,16 @@ class AST():
         candidate_binary_parent_nodes = self.extract_binary_operators(i, j)
         candidate_unary_parent_nodes = self.extract_unary_operators(i, j)
 
-        candidate_binary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(i=i, j=j,
-                                                                                              possible_nodes=candidate_binary_parent_nodes)  # noqa
-        candidate_unary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(i=i, j=j,
-                                                                                             possible_nodes=candidate_unary_parent_nodes)  # noqa
+        candidate_binary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(
+            i=i,
+            j=j,
+            possible_nodes=candidate_binary_parent_nodes
+        )
+        candidate_unary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(
+            i=i,
+            j=j,
+            possible_nodes=candidate_unary_parent_nodes
+        )
 
         '''
             At the same level (understand by "same level" the nodes
@@ -608,7 +663,7 @@ class AST():
     def get_childs(self, parent_node: Node) -> List[Node]:
 
         childs = []
-        points_to = parent_node.get_token()
+        points_to = parent_node.token
 
         for node in self.nodes:
             if node.get_points_to() == str(points_to):
@@ -622,8 +677,8 @@ class AST():
 
         if children:
             return children[0]
-        else:
-            return None
+
+        return None
 
     def get_second_child(self, parent_node: Node) -> Node:
 
@@ -631,8 +686,8 @@ class AST():
 
         if children:
             return children[-1]
-        else:
-            return None
+
+        return None
 
     def get_nodes(self) -> List[Node]:
 
