@@ -1,11 +1,8 @@
-from dataclasses import dataclass
-from typing import Any, List
+from typing import Any, List, Optional
 
 
-# TODO: Review python dataclasses
-class Node:
-
-    def __init__(
+class Node:  # noqa
+    def __init__(  # noqa
         self,
         token: int,
         is_leaf: bool = False,
@@ -57,7 +54,7 @@ class Node:
             f'points to: {self.get_points_to()}, '
             f'token: {self._token}, '
             f'level: {self.get_level()}'
-       )
+        )
 
 
 class ASTINFO:
@@ -301,7 +298,7 @@ class ASTUtilities:
                         preprocessed_string = ASTUtilities.replacer(preprocessed_string, "", i)
                         break
 
-            # add a blank space to the left of "(" if what is on the left is not another "(" # noqa
+            # add a blank space to the left of "(" if what is on the left is not another "("
             end = False
             while not end:
                 for i in range(1, len(preprocessed_string) - 1):
@@ -310,7 +307,7 @@ class ASTUtilities:
                         break
                     end = True
 
-            # add a blank space to the right of ")" if what is on the right is not another ")" # noqa
+            # add a blank space to the right of ")" if what is on the right is not another ")"
             end = False
             while not end:
                 for i in range(1, len(preprocessed_string) - 1):
@@ -335,8 +332,8 @@ class ASTUtilities:
     def count_repeating_characters(string: str, character: str) -> int:
         count = 0
 
-        for c in string:
-            if c == character:
+        for char in string:
+            if char == character:
                 count = count + 1
         return count
 
@@ -367,20 +364,28 @@ class ASTUtilities:
         )
 
     @staticmethod
-    def replacer(s: str, new_string: str, index: int, no_fail: bool = False) -> str:
+    def replacer(preprocessed_str: str, new_string: str, index: int, no_fail: bool = False) -> str:
 
         # raise an error if index is outside of the string
-        if not no_fail and index not in range(len(s)):
+        if not no_fail and index not in range(len(preprocessed_str)):
             raise ValueError("index outside given string")
 
         # if not erroring, but the index is still not in the correct range
         if index < 0:  # add it to the beginning
-            return new_string + s
-        if index > len(s):  # add it to the end
-            return s + new_string
+            return new_string + preprocessed_str
+        if index > len(preprocessed_str):  # add it to the end
+            return preprocessed_str + new_string
 
         # insert the new string between "slices" of the original
-        return s[:index] + new_string + s[index + 1:]
+        return preprocessed_str[:index] + new_string + preprocessed_str[index + 1:]
+
+
+def print_tabs(node: Node) -> str:
+    level = node.get_level()
+    tabs = ""
+    for _ in range(level - 1):
+        tabs += "\t"
+    return tabs
 
 
 class AST():
@@ -407,29 +412,23 @@ class AST():
         printed_tree = self.print_tree(self.get_root(), f'\n\n{self.get_root().get_name()}')
         return f'\n"{self.string}"{printed_tree}'
 
-    # TODO: what is string variable
     def print_tree(self, node: Node, string: str) -> str:
         child_nodes = self.get_childs(node)
-        for n in child_nodes:
-            string += self.print_tree(n, "\n" + self.print_tabs(n) + n.get_name())
+        for child_node in child_nodes:
+            string += self.print_tree(
+                child_node, "\n" + print_tabs(child_node) + child_node.get_name()
+            )
 
         return string
-
-    def print_tabs(self, node: Node) -> str:
-        level = node.get_level()
-        tabs = ""
-        for i in range(level - 1):
-            tabs += "\t"
-        return tabs
 
     # extracts the positions of the binary operators in the range (i, j]
     def extract_binary_operators(self, i: int, j: int) -> List[int]:
 
         list_binary_operators = []
 
-        for i in range(i, j):
-            if self.list[i] in ASTINFO.get_binary_operators():
-                list_binary_operators.append(i)
+        for idx in range(i, j):
+            if self.list[idx] in ASTINFO.get_binary_operators():
+                list_binary_operators.append(idx)
 
         return list_binary_operators
 
@@ -438,74 +437,68 @@ class AST():
 
         list_unary_operators = []
 
-        for i in range(i, j):
-            if self.list[i] in ASTINFO.get_unary_operators():
-                list_unary_operators.append(i)
+        for idx in range(i, j):
+            if self.list[idx] in ASTINFO.get_unary_operators():
+                list_unary_operators.append(idx)
 
         return list_unary_operators
 
     # discard binary operators enclosed in parentheses
-    # TODO: put all comments in the function
     def discard_nodes_in_parentheses(self, i: int, j: int, possible_nodes: List[int]) -> List[int]:
 
         candidate_root_nodes_without_parentheses = []
 
-        for e in possible_nodes:
+        for element in possible_nodes:
 
             #  flag
             without_parentheses = True
 
-            '''
-                EXPLANATION OF THE ALGORITHM
-                an element "e" will be free if NEITHER to its left NOR to its right does not have
-                any elements with opening or closing parentheses
-            '''
+            # EXPLANATION OF THE ALGORITHM
+            # an element will be free if NEITHER to its left NOR to its right does not have
+            # any elements with opening or closing parentheses
 
-            '''
-                is there any parentheses "(" to the left?
-                note: the first element is not counted because it is considered an outer parenthesis,
-                hence the k! = i
-            '''
-            for k in range(i, e):
+            # is there any parentheses "(" to the left?
+            # note: the first element is not counted because it is considered an outer parenthesis,
+            # hence the k! = i
+            for k in range(i, element):
                 if "(" in self.list[k] and k != i:
                     without_parentheses = False
                     break
 
-            '''
-                is there any parentheses "(" to the right?
-                note: the last element is not counted because it is considered an outer parenthesis,
-                hence the k! = j-1
-            '''
+            # is there any parentheses "(" to the right?
+            # note: the last element is not counted because it is considered an outer parenthesis,
+            # hence the k! = j-1
             if without_parentheses:
-                for k in range(e + 1, j):
+                for k in range(element + 1, j):
                     if ")" in self.list[k] and k != j - 1:
                         without_parentheses = False
                         break
 
             if without_parentheses:
-                candidate_root_nodes_without_parentheses.append(e)
+                candidate_root_nodes_without_parentheses.append(element)
 
         return candidate_root_nodes_without_parentheses
 
     def explore(self, i: int, j: int, points_to: Any, level: int) -> None:
+        """ DIVIDE AND CONQUER """
 
-        """
-            DIVIDE AND CONQUER
-        """
-
-        '''
-            BASE CASE 1
-            There is the particular case of doing Divide and Conquer will win from a unary operator.
-            This causes it to be a sublist WITHOUT elements, since the unary operator
-            does not operate with elements to the left
-        '''
+        # BASE CASE 1
+        # There is the particular case of doing Divide and Conquer will win from a unary operator.
+        # This causes it to be a sublist WITHOUT elements, since the unary operator
+        # does not operate with elements to the left
         if j - i == 0:
             return
 
         # BASE CASE 2: list with a single element (it is a feature type "A")
         if j - i == 1:
-            node = Node(is_leaf=True, is_feature=True, points_to=points_to,
-                        feature=ASTUtilities.clean_parentheses(self.list[i]), level=level + 1, token=i)  # noqa
+            node = Node(
+                is_leaf=True,
+                is_feature=True,
+                points_to=points_to,
+                feature=ASTUtilities.clean_parentheses(self.list[i]),
+                level=level + 1,
+                token=i
+            )
             self.nodes.append(node)
 
             return
@@ -517,9 +510,14 @@ class AST():
             self.nodes.append(node_1)
 
             # the second node is the feature
-            node_2 = Node(is_leaf=True, is_feature=True, points_to=i,
-                          feature=ASTUtilities.clean_parentheses(self.list[i + 1]), level=level + 2,
-                          token=i + 1)  # noqa
+            node_2 = Node(
+                is_leaf=True,
+                is_feature=True,
+                points_to=i,
+                feature=ASTUtilities.clean_parentheses(self.list[i + 1]),
+                level=level + 2,
+                token=i + 1
+            )
             self.nodes.append(node_2)
 
             return
@@ -584,26 +582,26 @@ class AST():
             possible_nodes=candidate_unary_parent_nodes
         )
 
-        '''
-            At the same level (understand by "same level" the nodes
-            which are free of parentheses),
-            unary operators take precedence if not previously
-            there are binary operators
-        '''
+        # At the same level (understand by "same level" the nodes
+        # which are free of parentheses),
+        # unary operators take precedence if not previously
+        # there are binary operators
 
         # if the list of binary operators is NOT empty
         if candidate_binary_parent_nodes_without_parentheses:
 
             # of all binary operators, the one with the highest priority is obtained
             parent = self.priority_binary_operator_according_to_hierarchy(
-                candidate_binary_parent_nodes_without_parentheses)  # noqa
+                candidate_binary_parent_nodes_without_parentheses
+            )
 
         # if the list of binary operators is empty
         else:
 
             # of all unary operators, the one with the highest priority is obtained
             parent = self.priority_unary_operator_according_to_hierarchy(
-                candidate_unary_parent_nodes_without_parentheses)  # noqa
+                candidate_unary_parent_nodes_without_parentheses
+            )
 
         return parent
 
@@ -614,12 +612,12 @@ class AST():
         position = len(unary_operators) - 1
         priority = possible_nodes[0]
 
-        for e in possible_nodes:
-            new_position = unary_operators.index(self.list[e])
+        for element in possible_nodes:
+            new_position = unary_operators.index(self.list[element])
 
             if new_position < position:
                 position = new_position
-                priority = e
+                priority = element
 
         return priority
 
@@ -630,12 +628,12 @@ class AST():
         position = len(binary_operators) - 1
         priority = possible_nodes[0]
 
-        for e in possible_nodes:
-            new_position = binary_operators.index(self.list[e])
+        for element in possible_nodes:
+            new_position = binary_operators.index(self.list[element])
 
             if new_position < position:
                 position = new_position
-                priority = e
+                priority = element
 
         return priority
 
@@ -671,7 +669,7 @@ class AST():
 
         return childs
 
-    def get_first_child(self, parent_node: Node) -> Node:
+    def get_first_child(self, parent_node: Node) -> Optional[Node]:  # noqa
 
         children = self.get_childs(parent_node)
 
@@ -680,7 +678,7 @@ class AST():
 
         return None
 
-    def get_second_child(self, parent_node: Node) -> Node:
+    def get_second_child(self, parent_node: Node) -> Optional[Node]:  # noqa
 
         children = self.get_childs(parent_node)
 
@@ -697,8 +695,8 @@ class AST():
 
         height = 1
 
-        for n in self.get_nodes():
-            level = n.get_level()
+        for node in self.get_nodes():
+            level = node.get_level()
             if level > height:
                 height = level
 
@@ -708,8 +706,8 @@ class AST():
 
         features = []
 
-        for n in self.get_nodes():
-            if n.is_feature:
-                features.append(n)
+        for node in self.get_nodes():
+            if node.is_feature:
+                features.append(node)
 
         return features
