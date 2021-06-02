@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Any
 
 from famapy.core.operations import Operation
 
