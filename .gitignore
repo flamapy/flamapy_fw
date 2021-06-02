@@ -7,4 +7,8 @@ __pycache__
 .coverage
 tags
 
-.vscode
+venv
+.idea
+.DS_Store
+*.egg-info*
+.vscode*
