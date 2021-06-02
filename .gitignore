@@ -6,3 +6,5 @@ famapy/metamodels
 __pycache__
 .coverage
 tags
+
+.vscode
