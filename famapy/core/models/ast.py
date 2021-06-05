@@ -459,20 +459,13 @@ class AST():
                     - If it passes the two previous filters, then it is a node that passes the test
         '''
 
-        #print("possible_nodes")
-        #print(possible_nodes)
-        #print("i: "+str(i)+", j: "+str(j))
-
         candidate_root_nodes_without_parentheses = []
         
         for element in possible_nodes:
 
-            #print("estudiando \""+self.list[element]+"\"")
-
             if ASTUtilities.clean_parentheses(self.list[element]) in ASTINFO.get_unary_operators():
 
                 if "(" in self.list[element+1] and ")" in self.list[j-1]:
-                    #print("\t\t\tencontrado candidato UNARIO sin parentesis: "+self.list[element])
                     candidate_root_nodes_without_parentheses.append(element)
                     continue
 
@@ -480,7 +473,6 @@ class AST():
             without_parentheses = True
 
             # EXPLORING TO THE LEFT
-            #print("\tanalizando a la izquierda de "+self.list[element])
 
             # counters
             count_left_parentheses = 0
@@ -491,21 +483,15 @@ class AST():
                 count_left_parentheses = -1
 
             for k in range(element - 1, i - 1, -1):
-                
-                #print("\t\tactualmente analizando "+self.list[k])
 
                 count_left_parentheses += ASTUtilities.count_repeating_characters(self.list[k], "(")
                 count_right_parentheses += ASTUtilities.count_repeating_characters(self.list[k], ")")
 
-            #print("\t\t\tcount_left_parentheses: "+str(count_left_parentheses)+", count_right_parentheses: "+str(count_right_parentheses))
-
             if count_left_parentheses != count_right_parentheses:
                 without_parentheses = False
-                #print("\t\t\tDescartado")
 
             # EXPLORING TO THE RIGHT
             if without_parentheses:
-                #print("\tanalizando a la derecha de "+self.list[element])
                
                 # counters
                 count_left_parentheses = 0
@@ -517,24 +503,15 @@ class AST():
 
                 for k in range(element + 1, j):
                     
-                    #print("\t\tactualmente analizando "+self.list[k])
-                    
                     count_left_parentheses += ASTUtilities.count_repeating_characters(self.list[k], "(")
                     count_right_parentheses += ASTUtilities.count_repeating_characters(self.list[k], ")")
 
-                #print("\t\t\tcount_left_parentheses: "+str(count_left_parentheses)+", count_right_parentheses: "+str(count_right_parentheses))
-
                 if count_left_parentheses != count_right_parentheses:
                     without_parentheses = False
-                    #print("\t\t\tDescartado")
 
             if without_parentheses:
-                #print("\t\t\tencontrado candidato sin parentesis: "+self.list[element])
                 candidate_root_nodes_without_parentheses.append(element)
 
-        #print("candidate_root_nodes_without_parentheses")
-        #print(candidate_root_nodes_without_parentheses)
-        #print("\n\n")
         return candidate_root_nodes_without_parentheses
 
     def explore(self, i: int, j: int, points_to: Any, level: int) -> None:
@@ -616,7 +593,6 @@ class AST():
             return
 
         parent = self.find_out_parent_node(i, j)
-        #print("parent: "+str(parent)+"\n\n")
         node = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(self.list[parent]), level=level + 1, token=parent)
         self.nodes.append(node)
 
@@ -644,14 +620,6 @@ class AST():
         candidate_binary_parent_nodes = self.extract_binary_operators(i, j)
         candidate_unary_parent_nodes = self.extract_unary_operators(i, j)
 
-        #print("candidate_binary_parent_nodes")
-        #print(candidate_binary_parent_nodes)
-
-        #print("candidate_unary_parent_nodes")
-        #print(candidate_unary_parent_nodes)
-
-        #print("")
-
         # candidate nodes STUDYING PARENTHESES
         candidate_binary_parent_nodes_without_parentheses = []
         candidate_unary_parent_nodes_without_parentheses = []
@@ -664,13 +632,7 @@ class AST():
             i=i,
             j=j,
             possible_nodes=candidate_unary_parent_nodes
-        )       
-
-        #print("candidate_binary_parent_nodes_without_parentheses")
-        #print(candidate_binary_parent_nodes_without_parentheses)
-
-        #print("candidate_unary_parent_nodes_without_parentheses")
-        #print(candidate_unary_parent_nodes_without_parentheses)
+        )
 
         # if the list of binary operators is NOT empty
         if candidate_binary_parent_nodes_without_parentheses:
@@ -691,7 +653,6 @@ class AST():
                 if(node_name_without_parentheses in ASTINFO.get_unary_operators()):
 
                     next_node_name = self.list[candidate_unary_parent_nodes_without_parentheses[k]+1]
-                    #print(next_node_name)
                     
                     if("(" in next_node_name):
 
