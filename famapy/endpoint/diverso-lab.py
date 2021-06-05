@@ -4,14 +4,15 @@ import hug
 
 from famapy.core.discover import DiscoverMetamodels
 from famapy.core.plugins import Operations
-
+from typing import NewType
 
 dm = DiscoverMetamodels()
 
+PluginsType = NewType('PluginsType', dict[str, list[str]])
 
 @hug.cli()
 @hug.get('/get-plugins/', versions=1)
-def get_plugins() -> dict[str, list[str]]:
+def get_plugins() -> PluginsType:
     """ Get availables plugins """
     plugins = dm.get_plugins()
     return {'plugins': plugins}
