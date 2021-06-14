@@ -474,46 +474,64 @@ class AST():
 
             # EXPLORING TO THE LEFT
 
-            # counters
-            count_left_parentheses = 0
-            count_right_parentheses = 0
-
-            # if they are outer parentheses, we count an open parenthesis "minus"
-            if "(" in self.list[i] and ")" in self.list[j - 1]:
-                count_left_parentheses = -1
-
-            for k in range(element - 1, i - 1, -1):
-
-                count_left_parentheses += ASTUtilities.count_repeating_characters(
-                                                                self.list[k], "(")
-                count_right_parentheses += ASTUtilities.count_repeating_characters(self.list[k], ")")
-
-            if count_left_parentheses != count_right_parentheses:
-                without_parentheses = False
+            without_parentheses = self.exploring_to_the_left(i, j, element)
 
             # EXPLORING TO THE RIGHT
             if without_parentheses:
-               
-                # counters
-                count_left_parentheses = 0
-                count_right_parentheses = 0
-
-                #if they are outer parentheses, we count an close parenthesis "minus"
-                if "(" in self.list[i] and ")" in self.list[j-1]:
-                    count_right_parentheses = -1
-
-                for k in range(element + 1, j):
-                    
-                    count_left_parentheses += ASTUtilities.count_repeating_characters(self.list[k], "(")
-                    count_right_parentheses += ASTUtilities.count_repeating_characters(self.list[k], ")")
-
-                if count_left_parentheses != count_right_parentheses:
-                    without_parentheses = False
+                without_parentheses = self.exploring_to_the_right(i, j, element)
 
             if without_parentheses:
                 candidate_root_nodes_without_parentheses.append(element)
 
         return candidate_root_nodes_without_parentheses
+
+    def exploring_to_the_left(self, i: int, j: int, element: int) -> bool:
+
+        without_parentheses = True
+
+        # counters
+        count_left_parentheses = 0
+        count_right_parentheses = 0
+
+        # if they are outer parentheses, we count an open parenthesis "minus"
+        if "(" in self.list[i] and ")" in self.list[j - 1]:
+            count_left_parentheses = -1
+
+        for k in range(element - 1, i - 1, -1):
+
+            count_left_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], "(")
+            count_right_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], ")")
+
+        if count_left_parentheses != count_right_parentheses:
+            without_parentheses = False
+
+        return without_parentheses
+
+    def exploring_to_the_right(self, i: int, j: int, element: int) -> bool:
+
+        without_parentheses = True
+
+        # counters
+        count_left_parentheses = 0
+        count_right_parentheses = 0
+
+        #if they are outer parentheses, we count an close parenthesis "minus"
+        if "(" in self.list[i] and ")" in self.list[j - 1]:
+            count_right_parentheses = -1
+
+        for k in range(element + 1, j):
+
+            count_left_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], "(")
+            count_right_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], ")")
+
+        if count_left_parentheses != count_right_parentheses:
+            without_parentheses = False
+
+        return without_parentheses
 
     def explore(self, i: int, j: int, points_to: Any, level: int) -> None:
         """ DIVIDE AND CONQUER """
@@ -542,7 +560,8 @@ class AST():
         # BASE CASE 3: list with two elements (it is of type "not A")
         if j - i == 2:
             # the first node is the unary
-            node_1 = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(self.list[i]), level=level + 1, token=i)
+            node_1 = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(
+                self.list[i]), level=level + 1, token=i)
             self.nodes.append(node_1)
 
             # the second node is the feature
@@ -594,21 +613,22 @@ class AST():
             return
 
         parent = self.find_out_parent_node(i, j)
-        node = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(self.list[parent]), level=level + 1, token=parent)
+        node = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(
+            self.list[parent]), level=level + 1, token=parent)
         self.nodes.append(node)
 
         # we remove outer parentheses to simplify
         # checks if the set [i, j) is enclosed in parentheses
-        if "(" in self.list[i][0] and ")" in self.list[j-1][len(self.list[j-1])-1]:
+        if "(" in self.list[i][0] and ")" in self.list[j - 1][len(self.list[j - 1]) - 1]:
 
             first = self.list[i]
-            second = self.list[j-1]
+            second = self.list[j - 1]
 
             first = first[1:]
             second = second[:-1]
 
             self.list[i] = first
-            self.list[j-1] = second
+            self.list[j - 1] = second
 
         # we execute divide and conquer
         self.explore(i, parent, points_to=parent, level=level + 1)
@@ -625,10 +645,10 @@ class AST():
         candidate_binary_parent_nodes_without_parentheses = []
         candidate_unary_parent_nodes_without_parentheses = []
         candidate_binary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(
-                i=i,
-                j=j,
-                possible_nodes=candidate_binary_parent_nodes
-            )
+            i=i,
+            j=j,
+            possible_nodes=candidate_binary_parent_nodes
+        )
         candidate_unary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(
             i=i,
             j=j,
@@ -645,17 +665,16 @@ class AST():
 
         # if the list of binary operators is empty
         else:
-            
-            # we check if there is a unary operator of the type "not (...)"
-            for k in range(len(candidate_unary_parent_nodes_without_parentheses)):
 
-                node_name_without_parentheses = ASTUtilities.clean_parentheses(
-                                    self.list[candidate_unary_parent_nodes_without_parentheses[k]])
+            # we check if there is a unary operator of the type "not (...)"
+            for k, node in enumerate(candidate_unary_parent_nodes_without_parentheses):
+
+                node_name_without_parentheses = ASTUtilities.clean_parentheses(self.list[node])
 
                 if node_name_without_parentheses in ASTINFO.get_unary_operators():
 
                     next_node_name = self.list[
-                                candidate_unary_parent_nodes_without_parentheses[k]+1]
+                        candidate_unary_parent_nodes_without_parentheses[k] + 1]
 
                     if "(" in next_node_name:
 
@@ -776,9 +795,11 @@ class AST():
 
         return features
 
-def main():
+
+def main() -> None:
 
     ast1 = AST("((A and (not B and not C)) implies (D or E))")
     print(ast1)
+
 
 main()
