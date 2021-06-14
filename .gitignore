@@ -6,6 +6,7 @@ famapy/metamodels
 __pycache__
 .coverage
 tags
+
 venv
 .idea
 .DS_Store
