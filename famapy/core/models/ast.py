@@ -1,6 +1,5 @@
 from typing import Any, List, Optional
 
-
 class Node:  # noqa
     def __init__(  # noqa
         self,
@@ -65,7 +64,6 @@ class ASTINFO:
     def get_unary_operators() -> List[str]:
         return ASTINFO.unary_operators
 
-    # TODO: use list as variable is not correct
     @staticmethod
     def set_unary_operators(operators: List[str]) -> None:
         ASTINFO.unary_operators = operators
@@ -370,7 +368,7 @@ class ASTUtilities:
         if not no_fail and index not in range(len(preprocessed_str)):
             raise ValueError("index outside given string")
 
-        # if not erroring, but the index is still not in the correct range
+        # if not erring, but the index is still not in the correct range
         if index < 0:  # add it to the beginning
             return new_string + preprocessed_str
         if index > len(preprocessed_str):  # add it to the end
@@ -427,7 +425,7 @@ class AST():
         list_binary_operators = []
 
         for idx in range(i, j):
-            if self.list[idx] in ASTINFO.get_binary_operators():
+            if ASTUtilities.clean_parentheses(self.list[idx]) in ASTINFO.get_binary_operators():
                 list_binary_operators.append(idx)
 
         return list_binary_operators
@@ -438,7 +436,7 @@ class AST():
         list_unary_operators = []
 
         for idx in range(i, j):
-            if self.list[idx] in ASTINFO.get_unary_operators():
+            if ASTUtilities.clean_parentheses(self.list[idx]) in ASTINFO.get_unary_operators():
                 list_unary_operators.append(idx)
 
         return list_unary_operators
@@ -446,38 +444,94 @@ class AST():
     # discard binary operators enclosed in parentheses
     def discard_nodes_in_parentheses(self, i: int, j: int, possible_nodes: List[int]) -> List[int]:
 
+        '''
+            EXPLANATION OF THE PARENTHESIS DETECTION ALGORITHM
+            This algorithm tries to detect and discard the nodes enclosed in parentheses
+
+            As it does?
+                Given an element node "e"
+                    - Checks if it is of type "not (...)". If it is, it is a candidate.
+                    - Check if to the left of "e", the number of open parentheses
+                        and closed is the same. If it is not, it is discarded.
+                    - If it is, then check if to the right of "e", the number of
+                        open and closed parentheses is the same. If it is not, it is discarded
+                        and we go to the next element.
+                    - If it passes the two previous filters, then it is a node that passes the test
+        '''
+
         candidate_root_nodes_without_parentheses = []
 
         for element in possible_nodes:
 
+            if ASTUtilities.clean_parentheses(self.list[element]) in ASTINFO.get_unary_operators():
+
+                if "(" in self.list[element + 1] and ")" in self.list[j - 1]:
+                    candidate_root_nodes_without_parentheses.append(element)
+                    continue
+
             #  flag
             without_parentheses = True
 
-            # EXPLANATION OF THE ALGORITHM
-            # an element will be free if NEITHER to its left NOR to its right does not have
-            # any elements with opening or closing parentheses
+            # EXPLORING TO THE LEFT
 
-            # is there any parentheses "(" to the left?
-            # note: the first element is not counted because it is considered an outer parenthesis,
-            # hence the k! = i
-            for k in range(i, element):
-                if "(" in self.list[k] and k != i:
-                    without_parentheses = False
-                    break
+            without_parentheses = self.exploring_to_the_left(i, j, element)
 
-            # is there any parentheses "(" to the right?
-            # note: the last element is not counted because it is considered an outer parenthesis,
-            # hence the k! = j-1
+            # EXPLORING TO THE RIGHT
             if without_parentheses:
-                for k in range(element + 1, j):
-                    if ")" in self.list[k] and k != j - 1:
-                        without_parentheses = False
-                        break
+                without_parentheses = self.exploring_to_the_right(i, j, element)
 
             if without_parentheses:
                 candidate_root_nodes_without_parentheses.append(element)
 
         return candidate_root_nodes_without_parentheses
+
+    def exploring_to_the_left(self, i: int, j: int, element: int) -> bool:
+
+        without_parentheses = True
+
+        # counters
+        count_left_parentheses = 0
+        count_right_parentheses = 0
+
+        # if they are outer parentheses, we count an open parenthesis "minus"
+        if "(" in self.list[i] and ")" in self.list[j - 1]:
+            count_left_parentheses = -1
+
+        for k in range(element - 1, i - 1, -1):
+
+            count_left_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], "(")
+            count_right_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], ")")
+
+        if count_left_parentheses != count_right_parentheses:
+            without_parentheses = False
+
+        return without_parentheses
+
+    def exploring_to_the_right(self, i: int, j: int, element: int) -> bool:
+
+        without_parentheses = True
+
+        # counters
+        count_left_parentheses = 0
+        count_right_parentheses = 0
+
+        #if they are outer parentheses, we count an close parenthesis "minus"
+        if "(" in self.list[i] and ")" in self.list[j - 1]:
+            count_right_parentheses = -1
+
+        for k in range(element + 1, j):
+
+            count_left_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], "(")
+            count_right_parentheses += ASTUtilities.count_repeating_characters(
+                self.list[k], ")")
+
+        if count_left_parentheses != count_right_parentheses:
+            without_parentheses = False
+
+        return without_parentheses
 
     def explore(self, i: int, j: int, points_to: Any, level: int) -> None:
         """ DIVIDE AND CONQUER """
@@ -506,7 +560,8 @@ class AST():
         # BASE CASE 3: list with two elements (it is of type "not A")
         if j - i == 2:
             # the first node is the unary
-            node_1 = Node(points_to=points_to, operator=self.list[i], level=level + 1, token=i)
+            node_1 = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(
+                self.list[i]), level=level + 1, token=i)
             self.nodes.append(node_1)
 
             # the second node is the feature
@@ -526,7 +581,7 @@ class AST():
         if j - i == 3:
             # the parent node (operator) is the central node (i + 1)
             node = Node(
-                operator=self.list[i + 1],
+                operator=ASTUtilities.clean_parentheses(self.list[i + 1]),
                 points_to=points_to,
                 level=level + 1,
                 token=i + 1
@@ -558,8 +613,22 @@ class AST():
             return
 
         parent = self.find_out_parent_node(i, j)
-        node = Node(points_to=points_to, operator=self.list[parent], level=level + 1, token=parent)
+        node = Node(points_to=points_to, operator=ASTUtilities.clean_parentheses(
+            self.list[parent]), level=level + 1, token=parent)
         self.nodes.append(node)
+
+        # we remove outer parentheses to simplify
+        # checks if the set [i, j) is enclosed in parentheses
+        if "(" in self.list[i][0] and ")" in self.list[j - 1][len(self.list[j - 1]) - 1]:
+
+            first = self.list[i]
+            second = self.list[j - 1]
+
+            first = first[1:]
+            second = second[:-1]
+
+            self.list[i] = first
+            self.list[j - 1] = second
 
         # we execute divide and conquer
         self.explore(i, parent, points_to=parent, level=level + 1)
@@ -568,9 +637,13 @@ class AST():
     # finds the most suitable parent node in subset [i, j)
     def find_out_parent_node(self, i: int, j: int) -> int:
 
+        # candidate nodes WITHOUT STUDYING THE PARENTHESES
         candidate_binary_parent_nodes = self.extract_binary_operators(i, j)
         candidate_unary_parent_nodes = self.extract_unary_operators(i, j)
 
+        # candidate nodes STUDYING PARENTHESES
+        candidate_binary_parent_nodes_without_parentheses = []
+        candidate_unary_parent_nodes_without_parentheses = []
         candidate_binary_parent_nodes_without_parentheses = self.discard_nodes_in_parentheses(
             i=i,
             j=j,
@@ -582,11 +655,6 @@ class AST():
             possible_nodes=candidate_unary_parent_nodes
         )
 
-        # At the same level (understand by "same level" the nodes
-        # which are free of parentheses),
-        # unary operators take precedence if not previously
-        # there are binary operators
-
         # if the list of binary operators is NOT empty
         if candidate_binary_parent_nodes_without_parentheses:
 
@@ -597,6 +665,21 @@ class AST():
 
         # if the list of binary operators is empty
         else:
+
+            # we check if there is a unary operator of the type "not (...)"
+            for k, node in enumerate(candidate_unary_parent_nodes_without_parentheses):
+
+                node_name_without_parentheses = ASTUtilities.clean_parentheses(self.list[node])
+
+                if node_name_without_parentheses in ASTINFO.get_unary_operators():
+
+                    next_node_name = self.list[
+                        candidate_unary_parent_nodes_without_parentheses[k] + 1]
+
+                    if "(" in next_node_name:
+
+                        parent = candidate_unary_parent_nodes_without_parentheses[k]
+                        return parent
 
             # of all unary operators, the one with the highest priority is obtained
             parent = self.priority_unary_operator_according_to_hierarchy(
@@ -711,3 +794,12 @@ class AST():
                 features.append(node)
 
         return features
+
+
+def main() -> None:
+
+    ast1 = AST("((A and (not B and not C)) implies (D or E))")
+    print(ast1)
+
+
+main()
