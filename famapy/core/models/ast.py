@@ -460,12 +460,12 @@ class AST():
         '''
 
         candidate_root_nodes_without_parentheses = []
-        
+
         for element in possible_nodes:
 
             if ASTUtilities.clean_parentheses(self.list[element]) in ASTINFO.get_unary_operators():
 
-                if "(" in self.list[element+1] and ")" in self.list[j-1]:
+                if "(" in self.list[element + 1] and ")" in self.list[j - 1]:
                     candidate_root_nodes_without_parentheses.append(element)
                     continue
 
@@ -479,12 +479,13 @@ class AST():
             count_right_parentheses = 0
 
             # if they are outer parentheses, we count an open parenthesis "minus"
-            if "(" in self.list[i] and ")" in self.list[j-1]:
+            if "(" in self.list[i] and ")" in self.list[j - 1]:
                 count_left_parentheses = -1
 
             for k in range(element - 1, i - 1, -1):
 
-                count_left_parentheses += ASTUtilities.count_repeating_characters(self.list[k], "(")
+                count_left_parentheses += ASTUtilities.count_repeating_characters(
+                                                                self.list[k], "(")
                 count_right_parentheses += ASTUtilities.count_repeating_characters(self.list[k], ")")
 
             if count_left_parentheses != count_right_parentheses:
@@ -644,20 +645,21 @@ class AST():
 
         # if the list of binary operators is empty
         else:
-
-            # comprobamos si hay un operador unario del tipo "not (...)"
+            
+            # we check if there is a unary operator of the type "not (...)"
             for k in range(len(candidate_unary_parent_nodes_without_parentheses)):
 
-                node_name_without_parentheses = ASTUtilities.clean_parentheses(self.list[candidate_unary_parent_nodes_without_parentheses[k]])
+                node_name_without_parentheses = ASTUtilities.clean_parentheses(
+                                    self.list[candidate_unary_parent_nodes_without_parentheses[k]])
 
-                if(node_name_without_parentheses in ASTINFO.get_unary_operators()):
+                if node_name_without_parentheses in ASTINFO.get_unary_operators():
 
-                    next_node_name = self.list[candidate_unary_parent_nodes_without_parentheses[k]+1]
-                    
-                    if("(" in next_node_name):
+                    next_node_name = self.list[
+                                candidate_unary_parent_nodes_without_parentheses[k]+1]
 
-                        unary_candidate_node_number = candidate_unary_parent_nodes_without_parentheses[k]
-                        parent = unary_candidate_node_number
+                    if "(" in next_node_name:
+
+                        parent = candidate_unary_parent_nodes_without_parentheses[k]
                         return parent
 
             # of all unary operators, the one with the highest priority is obtained
@@ -775,20 +777,8 @@ class AST():
         return features
 
 def main():
-    
-    ast1 = AST("A  or not (B and C)")
+
+    ast1 = AST("((A and (not B and not C)) implies (D or E))")
     print(ast1)
-
-    ast2 = AST("not (not (A and B))")
-    print(ast2)
-
-    ast3 = AST("not (A or not B)")
-    print(ast3)
-
-    ast4 = AST("not (A and B)")
-    print(ast4)
-
-    ast5 = AST("A implies ((B and not C) or (not B and C))")
-    print(ast5)
 
 main()
