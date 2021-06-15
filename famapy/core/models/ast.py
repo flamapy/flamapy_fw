@@ -265,6 +265,12 @@ class ASTUtilities:
         string = " ".join(string.split())
         return list(string.split(" "))
 
+    @staticmethod
+    def list2string(list_param: List[str]) -> str:
+
+        string = " "
+        return string.join(list_param)
+
     # input string preprocessing
     @staticmethod
     def preprocessing(string: str) -> str:
@@ -272,6 +278,8 @@ class ASTUtilities:
         preprocessed_string = string
 
         preprocessed_string = ASTUtilities.computing_blank_spaces(preprocessed_string)
+        preprocessed_string = ASTUtilities.computing_features_between_parentheses(
+            preprocessed_string)
 
         return preprocessed_string
 
@@ -327,6 +335,41 @@ class ASTUtilities:
         return preprocessed_string
 
     @staticmethod
+    def computing_features_between_parentheses(string: str) -> str:
+
+        preprocessed_string = string
+
+        preprocessed_string_list = ASTUtilities.string2list(preprocessed_string)
+
+        for i, element in enumerate(preprocessed_string_list):
+
+            item = ASTUtilities.clean_parentheses(element)
+
+            if ASTUtilities.is_feature(item):
+
+                processed_feature = preprocessed_string_list[i]
+
+                while ASTUtilities.is_feature_enclosed_in_parentheses(processed_feature):
+
+                    for j in range(len(processed_feature) - 1):
+
+                        if processed_feature[j] == "(" and not processed_feature[j + 1] == "(":
+                            processed_feature = ASTUtilities.replacer(processed_feature, "?", j)
+
+                        condition_1 = processed_feature[j] == ")"
+                        condition_2 = processed_feature[j] == "?"
+                        condition_3 = processed_feature[j + 1] == ")"
+                        if not condition_1 and not condition_2 and condition_3:
+                            processed_feature = ASTUtilities.replacer(
+                                processed_feature, "?", j + 1)
+
+                    processed_feature = ASTUtilities.clean_joker(processed_feature)
+
+                    preprocessed_string_list[i] = processed_feature
+
+        return ASTUtilities.list2string(preprocessed_string_list)
+
+    @staticmethod
     def count_repeating_characters(string: str, character: str) -> int:
         count = 0
 
@@ -346,6 +389,15 @@ class ASTUtilities:
         return cleaned_string
 
     @staticmethod
+    def clean_joker(string: str) -> str:
+
+        cleaned_string = string
+
+        cleaned_string = cleaned_string.replace("?", "")
+
+        return cleaned_string
+
+    @staticmethod
     def is_unary_operator(element: str) -> bool:
         return element in ASTINFO.get_unary_operators()
 
@@ -360,6 +412,25 @@ class ASTUtilities:
             not ASTUtilities.is_unary_operator(element) and
             not element == ")" and not element == "("
         )
+
+    @staticmethod
+    def is_feature_enclosed_in_parentheses(element: str) -> bool:
+        there_are_parentheses_on_the_left = False
+        there_are_parentheses_on_the_right = False
+
+        # to the left
+        for i in range(len(element) - 1):
+            if (element[i] == "(" and not element[i + 1] == "("):
+                there_are_parentheses_on_the_left = True
+                break
+
+        # to the right
+        for i in range(len(element) - 1):
+            if (not element[i] == ")" and element[i + 1] == ")"):
+                there_are_parentheses_on_the_right = True
+                break
+
+        return there_are_parentheses_on_the_left and there_are_parentheses_on_the_right
 
     @staticmethod
     def replacer(preprocessed_str: str, new_string: str, index: int, no_fail: bool = False) -> str:
@@ -798,7 +869,7 @@ class AST():
 
 def main() -> None:
 
-    ast1 = AST("((A and (not B and not C)) implies (D or E))")
+    ast1 = AST("A implies ((B and ((C)) and ((D)) and (((J)))) or (not B and C))")
     print(ast1)
 
 
