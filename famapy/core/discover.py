@@ -139,8 +139,14 @@ class DiscoverMetamodels:
         # TODO: change in a future for autodiscover transformation way
         fm_plugin: Plugin = self.plugins.get_plugin_by_name('fm_metamodel')
         vm_temp = fm_plugin.use_transformation_t2m(file)
-
         plugin: Plugin = self.plugins.get_plugin_by_name(plugin_name)
-        variability_model = plugin.use_transformation_m2m(vm_temp, file)
+        if plugin_name != 'fm_metamodel':
+            variability_model = (
+                plugin.use_transformation_m2m(
+                    vm_temp, 
+                    plugin_name.replace("_metamodel", "")
+                ))
+        else:
+            variability_model = vm_temp
         operation = plugin.use_operation(operation_name, variability_model)
         return operation.get_result()
