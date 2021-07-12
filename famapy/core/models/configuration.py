@@ -11,7 +11,9 @@ class Configuration():
     def __init__(self, elements: dict[Any, bool]) -> None:
         self.elements = elements
 
-    def __eq__(self, other: 'Configuration') -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Configuration):
+            return NotImplemented
         return self.elements == other.elements
 
     def __hash__(self) -> int:
