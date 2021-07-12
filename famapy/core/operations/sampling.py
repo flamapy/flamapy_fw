@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Optional
 
 from famapy.core.models import Configuration
 from famapy.core.operations import Operation
@@ -11,7 +12,7 @@ class Sampling(Operation):
 
     @abstractmethod
     def sample(self, size: int, with_replacement: bool = False, 
-               partial_configuration: Configuration = None) -> list[Configuration]:
+               partial_configuration: Optional[Configuration] = None) -> list[Configuration]:
         """Return a sample of configurations.
 
         Keyword arguments:
