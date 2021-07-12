@@ -2,8 +2,7 @@ from typing import Any
 
 
 class Configuration():
-    """
-    A configuration is a selection of elements in a variability model.
+    """A configuration is a selection of elements in a variability model.
 
     It is represented as a dictionary of elements of Any type -> bool.
     """
