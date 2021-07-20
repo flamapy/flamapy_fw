@@ -1,5 +1,5 @@
 from famapy.core.operations import Operation
 
 
-class Operation1(Operation):
+class Operation2(Operation):
     pass

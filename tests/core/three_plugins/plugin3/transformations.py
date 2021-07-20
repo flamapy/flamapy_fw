@@ -1,10 +1,9 @@
-from typing import Any
-
 from famapy.core.transformations import (
     ModelToModel,
     ModelToText,
     TextToModel,
 )
+
 from .variability_model import ExampleModel
 
 
@@ -15,13 +14,13 @@ class M2M(ModelToModel):
 
     @staticmethod
     def get_destination_extension() -> str:
-        return 'ext1'
+        return 'ext3'
 
     def __init__(self, source_model: ExampleModel) -> None:
         pass
 
-    def transform(self) -> Any:
-        pass
+    def transform(self) -> ExampleModel:
+        return ExampleModel()
 
 
 class M2T(ModelToText):

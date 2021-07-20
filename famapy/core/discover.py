@@ -6,6 +6,7 @@ from types import ModuleType
 from typing import Any, Type
 
 from famapy.core.config import PLUGIN_PATHS
+from famapy.core.exceptions import OperationNotFound
 from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation
 from famapy.core.plugins import (
@@ -14,6 +15,7 @@ from famapy.core.plugins import (
     Plugins
 )
 from famapy.core.transformations import Transformation
+from famapy.core.transformations.model_to_model import ModelToModel
 
 
 LOGGER = logging.getLogger('discover')
@@ -84,6 +86,9 @@ class DiscoverMetamodels:
             operations += plugin.operations
         return operations
 
+    def get_name_operations(self) -> list[str]:
+        return [op.__name__ for op in self.get_operations()]
+
     def get_transformations(self) -> list[Type[Transformation]]:
         """ Get the transformations for all modules """
         transformations: list[Type[Transformation]] = []
@@ -91,8 +96,27 @@ class DiscoverMetamodels:
             transformations += plugin.transformations
         return transformations
 
+    def get_transformations_m2m(self) -> list[Type[ModelToModel]]:
+        """ Get the transformations for all modules """
+
+        transformations: list[Type[ModelToModel]] = []
+        for plugin in self.plugins:
+            transformations += [
+                t for t in plugin.transformations if issubclass(t, ModelToModel)
+            ]
+        return transformations
+
     def get_operations_by_plugin(self, plugin_name: str) -> Operations:
         return self.plugins.get_operations_by_plugin_name(plugin_name)
+
+    def get_plugins_with_operation(self, operation_name: str) -> list[Plugin]:
+        return [
+            plugin for plugin in self.plugins
+            if operation_name in self.get_name_operations_by_plugin(plugin.name)
+        ]
+
+    def get_name_operations_by_plugin(self, plugin_name: str) -> list[str]:
+        return [op.__name__ for op in self.get_operations_by_plugin(plugin_name)]
 
     def get_variability_models(self) -> list[VariabilityModel]:
         return self.plugins.get_variability_models()
@@ -130,23 +154,74 @@ class DiscoverMetamodels:
         operation = plugin.use_operation(operation_name, variability_model)
         return operation.get_result()
 
+    def __search_transformation_way(
+        self,
+        plugin: Plugin,
+        operation_name: str
+    ) -> list[tuple[str, str]]:
+
+        '''
+        Search way to reach plugin with operation_name using m2m transformations
+        '''
+        way: list[tuple[str, str]] = []
+
+        plugins_with_operation = self.get_plugins_with_operation(operation_name)
+        m2m_transformations = self.get_transformations_m2m()
+
+        input_extension = plugin.get_extension()
+
+        def __search_recursive_way(
+            input_extension: str,
+            output_extension: str,
+            tmp_way: list[tuple[str, str]]
+        ) -> list[tuple[str, str]]:
+
+            for m2m in m2m_transformations:
+                in_m2m = m2m.get_source_extension()
+                out_m2m = m2m.get_destination_extension()
+
+                if in_m2m == input_extension:
+                    _next = (in_m2m, out_m2m)
+                    if _next in tmp_way:
+                        continue
+
+                    tmp_way.append(_next)
+                    if output_extension == out_m2m:
+                        return tmp_way
+
+                    return __search_recursive_way(out_m2m, output_extension, tmp_way)
+
+            return tmp_way
+
+        for _plugin in plugins_with_operation:
+            output_extension = _plugin.get_extension()
+            way = __search_recursive_way(input_extension, output_extension, [])
+
+            if way and output_extension == way[-1][1]:
+                return way
+
+        raise NotImplementedError('Way to execute operation not found')
+
     def use_operation_from_fm_file(
         self,
-        plugin_name: str,
         operation_name: str,
         file: str
     ) -> Any:
-        # TODO: change in a future for autodiscover transformation way
-        fm_plugin: Plugin = self.plugins.get_plugin_by_name('fm_metamodel')
-        vm_temp = fm_plugin.use_transformation_t2m(file)
-        plugin: Plugin = self.plugins.get_plugin_by_name(plugin_name)
-        if plugin_name != 'fm_metamodel':
-            variability_model = (
-                plugin.use_transformation_m2m(
-                    vm_temp, 
-                    plugin_name.replace("_metamodel", "")
-                ))
-        else:
-            variability_model = vm_temp
-        operation = plugin.use_operation(operation_name, variability_model)
+
+        if operation_name not in self.get_name_operations():
+            raise OperationNotFound()
+
+        extension = file.split('.')[-1]
+        plugin: Plugin = self.plugins.get_plugin_by_extension(extension)
+        vm_temp = plugin.use_transformation_t2m(file)
+
+        if operation_name not in self.get_name_operations_by_plugin(plugin.name):
+            transformation_way = self.__search_transformation_way(plugin, operation_name)
+
+            for (_, dst) in transformation_way:
+                _plugin = self.plugins.get_plugin_by_extension(dst)
+                vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
+                plugin = _plugin
+
+        operation = plugin.use_operation(operation_name, vm_temp)
         return operation.get_result()

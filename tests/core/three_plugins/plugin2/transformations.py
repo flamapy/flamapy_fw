@@ -5,23 +5,24 @@ from famapy.core.transformations import (
     ModelToText,
     TextToModel,
 )
+
 from .variability_model import ExampleModel
 
 
 class M2M(ModelToModel):
     @staticmethod
     def get_source_extension() -> str:
-        return 'ext2'
+        return 'ext1'
 
     @staticmethod
     def get_destination_extension() -> str:
-        return 'ext1'
+        return 'ext2'
 
     def __init__(self, source_model: ExampleModel) -> None:
         pass
 
-    def transform(self) -> Any:
-        pass
+    def transform(self) -> ExampleModel:
+        return ExampleModel()
 
 
 class M2T(ModelToText):
@@ -29,4 +30,12 @@ class M2T(ModelToText):
 
 
 class T2M(TextToModel):
-    pass
+    @staticmethod
+    def get_source_extension() -> str:
+        return 'ext2'
+
+    def __init__(self, path: str) -> None:
+        pass
+
+    def transform(self):
+        return ExampleModel()
