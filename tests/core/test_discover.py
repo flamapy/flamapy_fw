@@ -1,13 +1,16 @@
+import tempfile
 from pytest import raises
-from unittest import mock
+from unittest import TestCase, mock
 
 from famapy.core import discover
+from famapy.core.exceptions import OperationNotFound
 from famapy.core.discover import DiscoverMetamodels
 from famapy.core.models import VariabilityModel
 from famapy.core.plugins import PluginNotFound
 
 import one_plugin
 import two_plugins
+import three_plugins
 import complex_plugin
 
 
@@ -84,7 +87,34 @@ class TestDiscoverApplyFunctions:
 
         operation = search.use_operation(
             src=variability_model,
-            operation='Operation'
+            operation='Operation1'
         )
 
         assert operation.get_result() == '123456'
+
+
+class TestDiscoverUseOperationFromFile(TestCase):
+
+    @mock.patch.object(discover, 'filter_modules_from_plugin_paths')
+    def setUp(self, mocker):
+        self.filename = tempfile.NamedTemporaryFile(suffix='.ext1').name
+        mocker.return_value = [three_plugins]
+        self.discover = DiscoverMetamodels()
+
+    def test_discover_use_operation_from_file_unexist(self):
+        with raises(OperationNotFound):
+            self.discover.use_operation_from_fm_file('Unexist', self.filename)
+
+    def test_discover_use_operation_from_file_no_step(self):
+        self.discover.use_operation_from_fm_file('Operation1', self.filename)
+
+    def test_discover_use_operation_from_file_one_step(self):
+        self.discover.use_operation_from_fm_file('Operation2', self.filename)
+
+    def test_discover_use_operation_from_file_two_step(self):
+        self.discover.use_operation_from_fm_file('Operation3', self.filename)
+
+    def test_discover_use_operation_from_file_unreachable_way(self):
+        filename = tempfile.NamedTemporaryFile(suffix='.ext2').name
+        with raises(NotImplementedError):
+            self.discover.use_operation_from_fm_file('Operation1', filename)

@@ -18,7 +18,7 @@ OperationResult = NewType('OperationResult', dict[str, Any])
 def get_plugins() -> PluginsType:
     """ Get availables plugins """
     plugins = dm.get_plugins()
-    return {'plugins': plugins}
+    return PluginsType({'plugins': plugins})
 
 
 @hug.cli()
@@ -26,7 +26,7 @@ def get_plugins() -> PluginsType:
 def get_operations_by_plugin(plugin: str, versions: int = 1) -> OperationDict:
     """ Get availables operations gave a plugin name """
     operations = dm.get_operations_by_plugin(plugin)
-    return {'operations': operations}
+    return OperationDict({'operations': operations})
 
 
 @hug.cli()
@@ -36,12 +36,11 @@ def use_operation(plugin: str, operation: str, filename: str, versions: int = 1)
     - Read input model, transform and call operation
     """
     result = dm.use_operation_from_file(plugin, operation, filename)
-    return {'result': result}
+    return OperationResult({'result': result})
 
 
 @hug.cli()
 def use_operation_from_fm_file(
-    plugin: str,
     operation: str,
     filename: str,
     versions: int = 1
@@ -50,5 +49,5 @@ def use_operation_from_fm_file(
     Execute an operation gave a plugin, an operation and one input fm file.
     - Read input model, transformations and call operation
     """
-    result = dm.use_operation_from_fm_file(plugin, operation, filename)
+    result = dm.use_operation_from_fm_file(operation, filename)
     return {'result': result}
