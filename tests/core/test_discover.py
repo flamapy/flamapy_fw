@@ -97,7 +97,7 @@ class TestDiscoverUseOperationFromFile(TestCase):
 
     @mock.patch.object(discover, 'filter_modules_from_plugin_paths')
     def setUp(self, mocker):
-        self.filename = tempfile.NamedTemporaryFile(suffix='.ext1').name
+        self.filename = tempfile.NamedTemporaryFile(suffix='.xml').name
         mocker.return_value = [three_plugins]
         self.discover = DiscoverMetamodels()
 
@@ -106,15 +106,18 @@ class TestDiscoverUseOperationFromFile(TestCase):
             self.discover.use_operation_from_fm_file('Unexist', self.filename)
 
     def test_discover_use_operation_from_file_no_step(self):
+        self.discover.use_operation_from_fm_file('Valid', self.filename)
         self.discover.use_operation_from_fm_file('Operation1', self.filename)
 
     def test_discover_use_operation_from_file_one_step(self):
+        self.discover.use_operation_from_fm_file('Valid', self.filename)
         self.discover.use_operation_from_fm_file('Operation2', self.filename)
 
     def test_discover_use_operation_from_file_two_step(self):
+        self.discover.use_operation_from_fm_file('Valid', self.filename)
         self.discover.use_operation_from_fm_file('Operation3', self.filename)
 
     def test_discover_use_operation_from_file_unreachable_way(self):
-        filename = tempfile.NamedTemporaryFile(suffix='.ext2').name
+        filename = tempfile.NamedTemporaryFile(suffix='.xml2').name
         with raises(NotImplementedError):
             self.discover.use_operation_from_fm_file('Operation1', filename)

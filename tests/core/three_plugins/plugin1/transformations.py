@@ -13,7 +13,7 @@ class M2T(ModelToText):
 class T2M(TextToModel):
     @staticmethod
     def get_source_extension() -> str:
-        return 'ext1'
+        return 'xml'
 
     def __init__(self, path: str) -> None:
         pass

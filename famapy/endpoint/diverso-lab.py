@@ -3,13 +3,13 @@ from typing import Any
 import hug
 
 from famapy.core.discover import DiscoverMetamodels
-from famapy.core.plugins import Operations
 from typing import NewType
+
 
 dm = DiscoverMetamodels()
 
 PluginsType = NewType('PluginsType', dict[str, list[str]])
-OperationDict = NewType('OperationDict', dict[str, Operations])
+OperationDict = NewType('OperationDict', dict[str, list[str]])
 OperationResult = NewType('OperationResult', dict[str, Any])
 
 
@@ -23,9 +23,9 @@ def get_plugins() -> PluginsType:
 
 @hug.cli()
 @hug.get('/get-operations/{plugin}/')
-def get_operations_by_plugin(plugin: str, versions: int = 1) -> OperationDict:
+def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDict:
     """ Get availables operations gave a plugin name """
-    operations = dm.get_operations_by_plugin(plugin)
+    operations = dm.get_name_operations_by_plugin(plugin)
     return OperationDict({'operations': operations})
 
 
@@ -46,8 +46,8 @@ def use_operation_from_fm_file(
     versions: int = 1
 ) -> dict[str, Any]:
     """
-    Execute an operation gave a plugin, an operation and one input fm file.
-    - Read input model, transformations and call operation
+    Execute an operation gave an operation and one input file.
+    - Read input model, t2m and several transformations for reach operation
     """
     result = dm.use_operation_from_fm_file(operation, filename)
     return {'result': result}
