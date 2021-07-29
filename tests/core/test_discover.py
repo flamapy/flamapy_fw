@@ -101,23 +101,27 @@ class TestDiscoverUseOperationFromFile(TestCase):
         mocker.return_value = [three_plugins]
         self.discover = DiscoverMetamodels()
 
+    def test_discover_use_operation_from_file_with_plugins(self):
+        self.discover.use_operation_from_file('Valid', self.filename, 'plugin1')
+        self.discover.use_operation_from_file('Operation1', self.filename, 'plugin1')
+
     def test_discover_use_operation_from_file_unexist(self):
         with raises(OperationNotFound):
-            self.discover.use_operation_from_fm_file('Unexist', self.filename)
+            self.discover.use_operation_from_file('Unexist', self.filename)
 
     def test_discover_use_operation_from_file_no_step(self):
-        self.discover.use_operation_from_fm_file('Valid', self.filename)
-        self.discover.use_operation_from_fm_file('Operation1', self.filename)
+        self.discover.use_operation_from_file('Valid', self.filename)
+        self.discover.use_operation_from_file('Operation1', self.filename)
 
     def test_discover_use_operation_from_file_one_step(self):
-        self.discover.use_operation_from_fm_file('Valid', self.filename)
-        self.discover.use_operation_from_fm_file('Operation2', self.filename)
+        self.discover.use_operation_from_file('Valid', self.filename)
+        self.discover.use_operation_from_file('Operation2', self.filename)
 
     def test_discover_use_operation_from_file_two_step(self):
-        self.discover.use_operation_from_fm_file('Valid', self.filename)
-        self.discover.use_operation_from_fm_file('Operation3', self.filename)
+        self.discover.use_operation_from_file('Valid', self.filename)
+        self.discover.use_operation_from_file('Operation3', self.filename)
 
     def test_discover_use_operation_from_file_unreachable_way(self):
         filename = tempfile.NamedTemporaryFile(suffix='.xml2').name
         with raises(NotImplementedError):
-            self.discover.use_operation_from_fm_file('Operation1', filename)
+            self.discover.use_operation_from_file('Operation1', filename)

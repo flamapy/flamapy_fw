@@ -3,7 +3,7 @@ import logging
 from importlib import import_module
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Any, Type
+from typing import Any, Optional, Type
 
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
@@ -166,19 +166,47 @@ class DiscoverMetamodels:
         plugin = self.plugins.get_plugin_by_variability_model(src)
         return plugin.use_operation(operation, src)
 
-    def use_operation_from_file(self, plugin_name: str, operation_name: str, file: str) -> Any:
-        """
-        Steps:
-        * Search plugins by name
-        * Search TextToModel transformation
-        * Apply transformation
-        * Apply operation
-        """
+    def use_operation_from_file(
+        self,
+        operation_name: str,
+        file: str,
+        plugin_name: Optional[str] = None
+    ) -> Any:
 
-        plugin: Plugin = self.plugins.get_plugin_by_name(plugin_name)
-        variability_model = plugin.use_transformation_t2m(file)
-        operation = plugin.use_operation(operation_name, variability_model)
+        if operation_name not in self.get_name_operations():
+            raise OperationNotFound()
+
+        if plugin_name is not None:
+            plugin = self.plugins.get_plugin_by_name(plugin_name)
+            vm_temp = plugin.use_transformation_t2m(file)
+        else:
+            vm_temp = self.__transform_to_model_from_file(file)
+            plugin = self.plugins.get_plugin_by_extension(vm_temp.get_extension())
+
+            if operation_name not in self.get_name_operations_by_plugin(plugin.name):
+                transformation_way = self.__search_transformation_way(plugin, operation_name)
+
+                for (_, dst) in transformation_way:
+                    _plugin = self.plugins.get_plugin_by_extension(dst)
+                    vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
+                    plugin = _plugin
+
+        operation = plugin.use_operation(operation_name, vm_temp)
         return operation.get_result()
+
+    def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
+        t2m_transformations = self.get_transformations_t2m()
+        extension = file.split('.')[-1]
+        t2m_filters = filter(
+            lambda t2m: t2m.get_source_extension() == extension,
+            t2m_transformations
+        )
+
+        t2m = next(t2m_filters, None)
+        if t2m is None:
+            raise TransformationNotFound()
+
+        return t2m(file).transform()
 
     def __search_transformation_way(
         self,
@@ -227,40 +255,3 @@ class DiscoverMetamodels:
                 return way
 
         raise NotImplementedError('Way to execute operation not found')
-
-    def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
-        t2m_transformations = self.get_transformations_t2m()
-        extension = file.split('.')[-1]
-        t2m_filters = filter(
-            lambda t2m: t2m.get_source_extension() == extension,
-            t2m_transformations
-        )
-
-        t2m = next(t2m_filters, None)
-        if t2m is None:
-            raise TransformationNotFound()
-
-        return t2m(file).transform()
-
-    def use_operation_from_fm_file(
-        self,
-        operation_name: str,
-        file: str
-    ) -> Any:
-
-        if operation_name not in self.get_name_operations():
-            raise OperationNotFound()
-
-        vm_temp = self.__transform_to_model_from_file(file)
-        plugin: Plugin = self.plugins.get_plugin_by_extension(vm_temp.get_extension())
-
-        if operation_name not in self.get_name_operations_by_plugin(plugin.name):
-            transformation_way = self.__search_transformation_way(plugin, operation_name)
-
-            for (_, dst) in transformation_way:
-                _plugin = self.plugins.get_plugin_by_extension(dst)
-                vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
-                plugin = _plugin
-
-        operation = plugin.use_operation(operation_name, vm_temp)
-        return operation.get_result()
