@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 import hug
 
@@ -30,24 +30,15 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 
 
 @hug.cli()
-def use_operation(plugin: str, operation: str, filename: str, versions: int = 1) -> OperationResult:
-    """
-    Execute an operation gave a plugin, an operation and one input file.
-    - Read input model, transform and call operation
-    """
-    result = dm.use_operation_from_file(plugin, operation, filename)
-    return OperationResult({'result': result})
-
-
-@hug.cli()
-def use_operation_from_fm_file(
+def use_operation_from_file(
     operation: str,
     filename: str,
+    plugin: Optional[str] = None,
     versions: int = 1
-) -> dict[str, Any]:
+) -> OperationResult:
     """
-    Execute an operation gave an operation and one input file.
-    - Read input model, t2m and several transformations for reach operation
+    Execute an operation gave an operation and one input file. Optionally you
+    can give a plugin as last parameter.
     """
-    result = dm.use_operation_from_fm_file(operation, filename)
-    return {'result': result}
+    result = dm.use_operation_from_file(operation, filename, plugin)
+    return OperationResult({'result': result})
