@@ -46,7 +46,8 @@ class AST:
         self.root = root
 
     @classmethod
-    def create_simple_binary_operation(cls, operation: ASTOperation, left: str, right: str) -> 'AST':
+    def create_simple_binary_operation(cls, operation: ASTOperation, 
+                                       left: str, right: str) -> 'AST':
         ast = cls(Node(operation))
         ast.root.left = Node(left)
         ast.root.right = Node(right)
@@ -73,6 +74,13 @@ class AST:
 
     def to_cnf(self) -> 'AST':
         return convert_into_cnf(self)
+
+    def get_clauses(self) -> list[list[Any]]:
+        ast = self.to_cnf()
+        clauses = get_clauses(ast.root)
+        if len(clauses) > 0 and not isinstance(clauses[0], list):
+            return [clauses]
+        return clauses
 
     def __str__(self) -> str:
         return str(self.root)
@@ -203,3 +211,40 @@ def distribute_ors(ast: AST) -> AST:
             node.left = distribute_ors(AST(node.left)).root
             node.right = distribute_ors(AST(node.right)).root
             return AST(node)
+
+def get_clauses(node: Node) -> list[list[Any]]:
+    """Return the list of clauses represented by the AST root node in normal conjuntive form."""
+    if node is None or not node.is_op():
+        return []
+    if node.data == ASTOperation.AND:  # Each AND gives us two clauses
+        clauses = []
+        clauses_left = get_clauses(node.left)  # Recursive AND
+        # recursive ANDs may introduce additional clauses
+        if len(clauses_left) > 0 and isinstance(clauses_left[0], list):  
+            for c in clauses_left:
+                clauses.append(c)
+        else:
+            clauses.append(clauses_left)
+
+        clauses_right = get_clauses(node.right)  # Recursive AND
+        # recursive ANDs may introduce additional clauses
+        if len(clauses_right) > 0 and isinstance(clauses_right[0], list):  
+            for c in clauses_right:
+                clauses.append(c)
+        else:
+            clauses.append(clauses_right)
+        return clauses
+    if node.data == ASTOperation.NOT:
+        return ['-' + node.left.data]
+    if node.data == ASTOperation.OR:
+        clause = []
+        if node.left.is_op():
+            clause += get_clauses(node.left)  # recursive OR belongs to the same clause
+        else:
+            clause.append(node.left.data)
+        if node.right.is_op():
+            clause += get_clauses(node.right)  # recursive OR belongs to the same clause
+        else:
+            clause.append(node.right.data)
+        return clause
+    return []
