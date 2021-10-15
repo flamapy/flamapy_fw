@@ -58,5 +58,19 @@ class AST:
         ast.root.left = Node(elem)
         return ast
 
+    @classmethod
+    def create_binary_operation(cls, operation: ASTOperation, left: Node, right: Node) -> 'AST':
+        ast = cls(Node(operation))
+        ast.root.left = left
+        ast.root.right = right
+        return ast
+
+    @classmethod
+    def create_unary_operation(cls, operation: ASTOperation, elem: Node) -> 'AST':
+        ast = cls(Node(operation))
+        ast.root.left = elem
+        return ast
+
+
     def __str__(self) -> str:
         return str(self.root)
