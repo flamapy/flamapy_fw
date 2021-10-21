@@ -14,10 +14,10 @@ class ASTOperation(Enum):
 
 class Node:
 
-    def __init__(self, data: Any):
-        self.left: Optional['Node'] = None
-        self.right: Optional['Node'] = None
+    def __init__(self, data: Any, left: 'Node' = None, right: 'Node' = None):
         self.data = data
+        self.left = left
+        self.right = right
 
     def is_feature(self) -> bool:
         return not self.is_op()
@@ -46,31 +46,21 @@ class AST:
         self.root = root
 
     @classmethod
-    def create_simple_binary_operation(cls, operation: ASTOperation, 
+    def create_simple_binary_operation(cls, operation: ASTOperation,
                                        left: str, right: str) -> 'AST':
-        ast = cls(Node(operation))
-        ast.root.left = Node(left)
-        ast.root.right = Node(right)
-        return ast
+        return cls(Node(operation, Node(left), Node(right)))
 
     @classmethod
     def create_simple_unary_operation(cls, operation: ASTOperation, elem: str) -> 'AST':
-        ast = cls(Node(operation))
-        ast.root.left = Node(elem)
-        return ast
+        return cls(Node(operation, Node(elem)))
 
     @classmethod
     def create_binary_operation(cls, operation: ASTOperation, left: Node, right: Node) -> 'AST':
-        ast = cls(Node(operation))
-        ast.root.left = left
-        ast.root.right = right
-        return ast
+        return cls(Node(operation, left, right))
 
     @classmethod
     def create_unary_operation(cls, operation: ASTOperation, elem: Node) -> 'AST':
-        ast = cls(Node(operation))
-        ast.root.left = elem
-        return ast
+        return cls(Node(operation, elem))
 
     def to_cnf(self) -> 'AST':
         return convert_into_cnf(self)
@@ -217,7 +207,7 @@ def distribute_ors(ast: AST) -> AST:
     return result
 
 
-def get_clauses(node: Node) -> list[list[Any]]:
+def get_clauses(node: Node) -> list[Any]:
     """Return the list of clauses represented by the AST root node in normal conjuntive form."""
     if node is None or not node.is_op():
         return []
