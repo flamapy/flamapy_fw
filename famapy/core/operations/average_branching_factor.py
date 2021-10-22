@@ -10,5 +10,5 @@ class AverageBranchingFactor(Operation):
         pass
 
     @abstractmethod
-    def get_average_branching_factor(self) -> int:
+    def get_average_branching_factor(self) -> float:
         pass
