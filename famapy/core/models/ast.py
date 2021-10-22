@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Any
 from enum import Enum
 
 
@@ -14,7 +14,7 @@ class ASTOperation(Enum):
 
 class Node:
 
-    def __init__(self, data: Any, left: 'Node' = None, right: 'Node' = None):
+    def __init__(self, data: Any, left: 'Node' = None, right: 'Node' = None):  # type: ignore
         self.data = data
         self.left = left
         self.right = right
