@@ -37,6 +37,8 @@ dev:
 	pip install -e .[dev] $(shell echo "${PLUGIN_PATHS}" | sed "s/:/ /g")
 	PLUGIN_PATHS=${PLUGIN_PATHS} python3 configure_plugins.py
 
+git-pull:
+	echo ${PLUGIN_PATHS} | awk -F: '{ for (i=1; i<=NF; i++) {cd $i;git pull}}'
 clean:
 	rm -rf ./env
 	rm -rf ./famapy/metamodels/
