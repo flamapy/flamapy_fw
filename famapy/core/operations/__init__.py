@@ -17,8 +17,9 @@ from .valid_configuration import \
     ValidConfiguration  # pylint: disable=cyclic-import
 from .valid_product import ValidProduct  # pylint: disable=cyclic-import
 from .variability import Variability  # pylint: disable=cyclic-import
+from .sampling import Sampling  # pylint: disable=cyclic-import
 
 __all__ = ["Commonality", "DeadFeatures", "CoreFeatures", "FalseOptionalFeatures", 
            "ErrorDetection", "ErrorDiagnosis", "Operation", "Products", "Valid", 
            "ValidConfiguration", "ValidProduct", "Variability", "CountLeafs", 
-           "AverageBranchingFactor", "ProductsNumber", "Filter"]
+           "AverageBranchingFactor", "ProductsNumber", "Filter", "Sampling"]
