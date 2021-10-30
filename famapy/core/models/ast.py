@@ -2,7 +2,10 @@ from typing import Optional
 
 
 class Node:
-    operations = ['requires', 'excludes', 'and', 'or', 'implies', 'not', 'equivalence']
+    operations = ['requires', 'excludes', 'and',
+                  'or', 'implies', 'not', 'equivalence']
+    afm_operations = ['iff', '>', '<', '>=', '<=', '==', '!=', '+', '-', '*', '/', '%', '^', '=']
+    operations = operations + afm_operations
 
     def __init__(self, data: str):
         self.left: Optional['Node'] = None  # pylint: disable=unsubscriptable-object
