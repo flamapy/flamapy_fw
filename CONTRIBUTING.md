@@ -8,6 +8,7 @@ Examples of contributions include:
 * Documentation improvements
 * Bug reports and patch reviews
 
+Guide to contribute: [Wiki](https://github.com/diverso-lab/core/wiki/Contributing)
 
 ## Code of Conduct
 
