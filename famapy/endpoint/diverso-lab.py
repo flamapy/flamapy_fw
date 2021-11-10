@@ -3,6 +3,7 @@ from typing import Any, Optional
 import hug
 
 from famapy.core.discover import DiscoverMetamodels
+from famapy.core.exceptions import OperationNotFound
 from typing import NewType
 
 
@@ -30,6 +31,7 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 
 
 @hug.cli()
+@hug.get('/use-operation-from-file/{operation}/{filename}/')
 def use_operation_from_file(
     operation: str,
     filename: str,
@@ -40,5 +42,12 @@ def use_operation_from_file(
     Execute an operation gave an operation and one input file. Optionally you
     can give a plugin as last parameter.
     """
-    result = dm.use_operation_from_file(operation, filename, plugin)
-    return OperationResult({'result': result})
+    try:
+        result = dm.use_operation_from_file(operation, filename, plugin)
+        return OperationResult({'result': result})
+    except OperationNotFound:
+        return OperationResult({'result': 'Operation not found'})
+    except FileNotFoundError:
+        return OperationResult({'result': 'File not found'})
+    except Exception:
+        return OperationResult({'result': 'unexpected error'})
