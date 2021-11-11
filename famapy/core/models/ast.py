@@ -127,6 +127,8 @@ def eliminate_complex_operators(ast: AST) -> AST:
         new_node = eliminate_exclusion(node)
     elif node.data == ASTOperation.NOT:
         new_node = eliminate_complex_operators(AST(node.left)).root
+        node.left = new_node
+        return AST(node)
     else:
         node.left = eliminate_complex_operators(AST(node.left)).root
         node.right = eliminate_complex_operators(AST(node.right)).root
