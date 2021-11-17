@@ -45,7 +45,12 @@ def use_operation_from_file(
     """
 
     try:
-        pass
+        plg = plugin if plugin != "None" else None
+        config = configuration if configuration != "None" else None
+
+        result = dm.use_operation_from_file(
+            operation, filename, plugin_name=plg, config_text=config)
+        return OperationResult({'result': result})
     except OperationNotFound:
         return OperationResult({'error': 'Operation not found'})
     except FileNotFoundError:
@@ -54,10 +59,3 @@ def use_operation_from_file(
         return OperationResult({'error': 'Configuration not set'})
     except Exception:
         return OperationResult({'error': 'unexpected error'})
-
-    plugin = plugin if plugin != "None" else None
-    configuration = configuration if configuration != "None" else None
-
-    result = dm.use_operation_from_file(
-        operation, filename, plugin_name=plugin, config_text=configuration)
-    return OperationResult({'result': result})
