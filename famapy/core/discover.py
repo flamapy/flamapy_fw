@@ -8,7 +8,7 @@ from typing import Any, Optional, Type
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
 from famapy.core.exceptions import TransformationNotFound
-from famapy.core.models import VariabilityModel, Configuration
+from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation
 from famapy.core.plugins import (
     Operations,
@@ -24,7 +24,7 @@ LOGGER = logging.getLogger('discover')
 
 
 def filter_modules_from_plugin_paths() -> list[ModuleType]:
-    results: list[ModuleType] = list()
+    results: list[ModuleType] = []
     for path in PLUGIN_PATHS:
         try:
             module: ModuleType = import_module(path)

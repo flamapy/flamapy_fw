@@ -1,5 +1,5 @@
 from types import ModuleType
-from typing import Any, Callable, Type, cast
+from typing import Any, Callable, Optional, Type, cast
 from collections import UserList
 
 from famapy.core.exceptions import (
@@ -19,11 +19,11 @@ from famapy.core.transformations import (
 from famapy.core.utils import extract_filename_extension
 
 
-class Transformations(UserList[Type[Transformation]]):  # pylint: disable=too-many-ancestors
+class Transformations(UserList[Type[Transformation]]):
     data: list[Type[Transformation]]
 
 
-class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancestors
+class Operations(UserList[Type[Operation]]):
     data: list[Type[Operation]]
 
     def search_by_name(self, name: str) -> Type[Operation]:
@@ -35,7 +35,7 @@ class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancesto
         try:
             operation = next(candidates, None)
         except StopIteration:
-            raise OperationNotFound
+            raise OperationNotFound from None
         else:
             if not operation:
                 raise OperationNotFound
@@ -58,7 +58,7 @@ class Plugin:
         try:
             transformation = next(candidates, None)
         except StopIteration:
-            raise TransformationNotFound
+            raise TransformationNotFound from None
         else:
             if not transformation:
                 raise TransformationNotFound
@@ -70,17 +70,19 @@ class Plugin:
     def append_transformations(self, transformation: Type[Transformation]) -> None:
         self.transformations.append(transformation)
 
-    def use_operation(self, name: str, src: VariabilityModel, config: str) -> Operation:
+    def use_operation(self, name: str, src: VariabilityModel,
+                      config: Optional[str] = None) -> Operation:
         operation = self.operations.search_by_name(name)()
         operation = self.set_operation_config(operation, config)
         return operation.execute(model=src)
 
-    def set_operation_config(self, operation: Operation, config: str) -> Operation:
+    @classmethod
+    def set_operation_config(cls, operation: Operation, config: Optional[str] = None) -> Operation:
 
         if "set_configuration" in dir(operation):
             if config is None:
                 raise ConfigurationNotFound
-            operation.parse_configuration(configuration=config)
+            operation.parse_configuration(configuration=config)  # type: ignore
 
         return operation
 
@@ -144,7 +146,7 @@ class Plugin:
         }
 
 
-class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
+class Plugins(UserList[Plugin]):
     data: list[Plugin]
 
     def __get_plugin_by_filter(self, plugin_filter: Callable[[Plugin], bool]) -> Plugin:
@@ -152,7 +154,7 @@ class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
         try:
             plugin = next(candidates)
         except StopIteration:
-            raise PluginNotFound
+            raise PluginNotFound from None
         return plugin
 
     def get_plugin_by_name(self, name: str) -> Plugin:
@@ -168,8 +170,9 @@ class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
     ) -> Plugin:
 
         def plugin_filter(plugin: Plugin) -> bool:
-            # type: ignore
-            return isinstance(variability_model, plugin.variability_model)
+
+            return isinstance(
+                variability_model, plugin.variability_model)  # type: ignore
 
         return self.__get_plugin_by_filter(plugin_filter)
 
