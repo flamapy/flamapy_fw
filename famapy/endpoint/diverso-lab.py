@@ -1,9 +1,9 @@
-from typing import Any, Optional
+from typing import Any
 
 import hug
 
 from famapy.core.discover import DiscoverMetamodels
-from famapy.core.exceptions import OperationNotFound
+from famapy.core.exceptions import ConfigurationNotFound, OperationNotFound
 from typing import NewType
 
 
@@ -35,19 +35,29 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 def use_operation_from_file(
     operation: str,
     filename: str,
-    plugin: Optional[str] = None,
+    plugin: str,
+    configuration: str,
     versions: int = 1
 ) -> OperationResult:
     """
     Execute an operation gave an operation and one input file. Optionally you
     can give a plugin as last parameter.
     """
+
     try:
-        result = dm.use_operation_from_file(operation, filename, plugin)
-        return OperationResult({'result': result})
+        pass
     except OperationNotFound:
-        return OperationResult({'result': 'Operation not found'})
+        return OperationResult({'error': 'Operation not found'})
     except FileNotFoundError:
-        return OperationResult({'result': 'File not found'})
+        return OperationResult({'error': 'File not found'})
+    except ConfigurationNotFound:
+        return OperationResult({'error': 'Configuration not set'})
     except Exception:
-        return OperationResult({'result': 'unexpected error'})
+        return OperationResult({'error': 'unexpected error'})
+
+    plugin = plugin if plugin != "None" else None
+    configuration = configuration if configuration != "None" else None
+
+    result = dm.use_operation_from_file(
+        operation, filename, plugin_name=plugin, config_text=configuration)
+    return OperationResult({'result': result})
