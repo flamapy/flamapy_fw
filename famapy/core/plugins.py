@@ -3,6 +3,7 @@ from typing import Any, Callable, Type, cast
 from collections import UserList
 
 from famapy.core.exceptions import (
+    ConfigurationNotFound,
     OperationNotFound,
     PluginNotFound,
     TransformationNotFound,
@@ -69,9 +70,19 @@ class Plugin:
     def append_transformations(self, transformation: Type[Transformation]) -> None:
         self.transformations.append(transformation)
 
-    def use_operation(self, name: str, src: VariabilityModel) -> Operation:
-        operation = self.operations.search_by_name(name)
-        return operation().execute(model=src)
+    def use_operation(self, name: str, src: VariabilityModel, config: str) -> Operation:
+        operation = self.operations.search_by_name(name)()
+        operation = self.set_operation_config(operation, config)
+        return operation.execute(model=src)
+
+    def set_operation_config(self, operation: Operation, config: str) -> Operation:
+
+        if "set_configuration" in dir(operation):
+            if config is None:
+                raise ConfigurationNotFound
+            operation.parse_configuration(configuration=config)
+
+        return operation
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)
@@ -157,7 +168,8 @@ class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
     ) -> Plugin:
 
         def plugin_filter(plugin: Plugin) -> bool:
-            return isinstance(variability_model, plugin.variability_model)  # type: ignore
+            # type: ignore
+            return isinstance(variability_model, plugin.variability_model)
 
         return self.__get_plugin_by_filter(plugin_filter)
 

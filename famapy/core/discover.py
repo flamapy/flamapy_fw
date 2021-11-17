@@ -8,7 +8,7 @@ from typing import Any, Optional, Type
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
 from famapy.core.exceptions import TransformationNotFound
-from famapy.core.models import VariabilityModel
+from famapy.core.models import VariabilityModel, Configuration
 from famapy.core.operations import Operation
 from famapy.core.plugins import (
     Operations,
@@ -170,7 +170,8 @@ class DiscoverMetamodels:
         self,
         operation_name: str,
         file: str,
-        plugin_name: Optional[str] = None
+        plugin_name: Optional[str] = None,
+        config_text: Optional[str] = None
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -181,17 +182,20 @@ class DiscoverMetamodels:
             vm_temp = plugin.use_transformation_t2m(file)
         else:
             vm_temp = self.__transform_to_model_from_file(file)
-            plugin = self.plugins.get_plugin_by_extension(vm_temp.get_extension())
+            plugin = self.plugins.get_plugin_by_extension(
+                vm_temp.get_extension())
 
             if operation_name not in self.get_name_operations_by_plugin(plugin.name):
-                transformation_way = self.__search_transformation_way(plugin, operation_name)
+                transformation_way = self.__search_transformation_way(
+                    plugin, operation_name)
 
                 for (_, dst) in transformation_way:
                     _plugin = self.plugins.get_plugin_by_extension(dst)
                     vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
                     plugin = _plugin
 
-        operation = plugin.use_operation(operation_name, vm_temp)
+        operation = plugin.use_operation(
+            operation_name, vm_temp, config_text)
         return operation.get_result()
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
@@ -213,13 +217,13 @@ class DiscoverMetamodels:
         plugin: Plugin,
         operation_name: str
     ) -> list[tuple[str, str]]:
-
         '''
         Search way to reach plugin with operation_name using m2m transformations
         '''
         way: list[tuple[str, str]] = []
 
-        plugins_with_operation = self.get_plugins_with_operation(operation_name)
+        plugins_with_operation = self.get_plugins_with_operation(
+            operation_name)
         m2m_transformations = self.get_transformations_m2m()
 
         input_extension = plugin.get_extension()
