@@ -22,10 +22,12 @@ class OperationConfigurator():
 
         operation = self.operation
 
+        # Sample feature class for operations expecting a .name from a feature
         class SampleFeature():
             def __init__(self, name: str) -> None:
                 self.name = name
 
+        # Behavior for every different operation
         if issubclass(operation, (ValidProduct)):
             valid_product = operation()
             csvreader = self.get_configuration_from_csv("valid_product.csv")
@@ -35,6 +37,17 @@ class OperationConfigurator():
             valid_product.set_configuration(Configuration(elements))
 
             return valid_product
+
+        if issubclass(operation, (ValidConfiguration)):
+            valid_configuration = operation()
+            csvreader = self.get_configuration_from_csv(
+                "valid_configuration.csv")
+            elements = {}
+            for row in csvreader:
+                elements[SampleFeature(row[0])] = (row[1] == "True")
+            valid_configuration.set_configuration(Configuration(elements))
+
+            return valid_configuration
 
         raise OperationNotFound
 
