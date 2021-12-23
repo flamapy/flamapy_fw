@@ -2,6 +2,7 @@ from types import ModuleType
 from typing import Any, Callable, Type, cast
 from collections import UserList
 
+from famapy.core.models.operation_configurator import OperationConfigurator
 from famapy.core.exceptions import (
     OperationNotFound,
     PluginNotFound,
@@ -18,11 +19,11 @@ from famapy.core.transformations import (
 from famapy.core.utils import extract_filename_extension
 
 
-class Transformations(UserList[Type[Transformation]]):  # pylint: disable=too-many-ancestors
+class Transformations(UserList[Type[Transformation]]):
     data: list[Type[Transformation]]
 
 
-class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancestors
+class Operations(UserList[Type[Operation]]):
     data: list[Type[Operation]]
 
     def search_by_name(self, name: str) -> Type[Operation]:
@@ -71,7 +72,20 @@ class Plugin:
 
     def use_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
-        return operation().execute(model=src)
+        configured_operation = self.configure_operation(operation, src)
+        return configured_operation.execute(model=src)
+
+    @classmethod
+    def configure_operation(cls, operation: Type[Operation], src: VariabilityModel) -> Operation:
+
+        configuration_builder = OperationConfigurator(operation, src)
+
+        if configuration_builder.is_operation_configurable():
+            result = configuration_builder.configure_from_csv()
+        else:
+            result = operation()
+
+        return result
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)
@@ -133,7 +147,7 @@ class Plugin:
         }
 
 
-class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
+class Plugins(UserList[Plugin]):
     data: list[Plugin]
 
     def __get_plugin_by_filter(self, plugin_filter: Callable[[Plugin], bool]) -> Plugin:
@@ -157,7 +171,10 @@ class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
     ) -> Plugin:
 
         def plugin_filter(plugin: Plugin) -> bool:
-            return isinstance(variability_model, plugin.variability_model)  # type: ignore
+
+            return isinstance(variability_model,
+                              plugin.variability_model)  # type: ignore
+            # TODO: Check if this error can be ignored
 
         return self.__get_plugin_by_filter(plugin_filter)
 
