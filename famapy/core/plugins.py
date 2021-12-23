@@ -35,7 +35,7 @@ class Operations(UserList[Type[Operation]]):
         try:
             operation = next(candidates, None)
         except StopIteration:
-            raise OperationNotFound
+            raise OperationNotFound from StopIteration
         else:
             if not operation:
                 raise OperationNotFound
@@ -58,7 +58,7 @@ class Plugin:
         try:
             transformation = next(candidates, None)
         except StopIteration:
-            raise TransformationNotFound
+            raise TransformationNotFound from StopIteration
         else:
             if not transformation:
                 raise TransformationNotFound
@@ -155,7 +155,7 @@ class Plugins(UserList[Plugin]):
         try:
             plugin = next(candidates)
         except StopIteration:
-            raise PluginNotFound
+            raise PluginNotFound from StopIteration
         return plugin
 
     def get_plugin_by_name(self, name: str) -> Plugin:
