@@ -50,14 +50,15 @@ class OperationConfigurator():
             return valid_configuration
 
         if issubclass(operation, (Filter)):
-            filter = operation()
-            csvreader = self.get_configuration_from_csv("filter.csv")
+            _filter = operation()
+            csvreader = self.get_configuration_from_csv(
+                "filter.csv")
             elements = {}
             for row in csvreader:
                 elements[SampleFeature(row[0])] = (row[1].strip() == "True")
-            filter.set_configuration(Configuration(elements))
+            _filter.set_configuration(Configuration(elements))
 
-            return filter
+            return _filter
 
         raise OperationNotFound
 
