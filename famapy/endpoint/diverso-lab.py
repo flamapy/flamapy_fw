@@ -1,11 +1,9 @@
-from typing import Any, Optional
-from famapy.core.exceptions import OperationNotFound, PluginNotFound, TransformationNotFound, ConfigurationNotFound
+from typing import Any, NewType, Optional
 
 import hug
-
 from famapy.core.discover import DiscoverMetamodels
-from typing import NewType
-
+from famapy.core.exceptions import (ConfigurationNotFound, OperationNotFound,
+                                    PluginNotFound, TransformationNotFound)
 
 dm = DiscoverMetamodels()
 
