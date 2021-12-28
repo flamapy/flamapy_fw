@@ -2,7 +2,7 @@ import csv
 
 from typing import Type, Any, Tuple
 
-from famapy.core.exceptions import OperationNotFound
+from famapy.core.exceptions import OperationNotFound, ConfigurationNotFound
 from famapy.core.models.configuration import Configuration
 from famapy.core.models.variability_model import VariabilityModel
 from famapy.core.operations import (Commonality, Filter, Sampling,
@@ -66,7 +66,7 @@ class OperationConfigurator():
     def get_configuration_from_csv(cls, path: str) -> list[list[str]]:
         # Returns a list of list
         if not file_exists(path):
-            raise FileNotFoundError
+            raise ConfigurationNotFound
 
         with open(path, 'r', encoding='utf-8') as csvfile:
             csvreader = list(csv.reader(csvfile))
