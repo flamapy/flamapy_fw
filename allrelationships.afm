@@ -1,0 +1,10 @@
+%Relationships
+A :  B [C];
+B :  [1,1]{D E};
+C :  [1,2]{F G};
+
+%Attributes
+
+%Constraints
+E REQUIRES F;
+D EXCLUDES G;
