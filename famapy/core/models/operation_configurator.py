@@ -18,6 +18,7 @@ class OperationConfigurator():
         self.model = model
         self.configuration: Configuration = Configuration({})
 
+    # pylint: disable=too-many-branches, useless-suppression
     def configure_from_csv(self) -> Operation:
 
         operation = self.operation
@@ -59,6 +60,17 @@ class OperationConfigurator():
             _filter.set_configuration(Configuration(elements))
 
             return _filter
+
+        if issubclass(operation, (Commonality)):
+            commonality = operation()
+            csvreader = self.get_configuration_from_csv(
+                "commonality.csv")
+            elements = {}
+            for row in csvreader:
+                elements[SampleFeature(row[0])] = True
+            commonality.set_configuration(Configuration(elements))
+
+            return commonality
 
         raise OperationNotFound
 
