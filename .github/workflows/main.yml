@@ -3,29 +3,30 @@ name: Python analisys
 on: [push, pull_request]
 
 jobs:
-  name: Python Testing
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Cache Instalation
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}.${{ hashFiles('test-requirements.txt') }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r test-requirements.txt
-    - name: prospector
-      run: |
-        prospector
-    - name: mypy
-      run: |
-        mypy famapy
-    - name: pytest
-      run: |
-        python -m pytest
+  python_testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Cache Instalation
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}.${{ hashFiles('test-requirements.txt') }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r test-requirements.txt
+      - name: prospector
+        run: |
+          prospector
+      - name: mypy
+        run: |
+          mypy famapy
+      - name: pytest
+        run: |
+          python -m pytest
