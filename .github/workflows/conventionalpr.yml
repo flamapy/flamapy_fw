@@ -2,7 +2,7 @@
 name: Conventional Commit Parser
 on:
   pull_request:
-    branches: [main, master]
+    branches: [main, master, release]
     types: [opened, reopened, edited, review_requested, synchronize]
     
 jobs:

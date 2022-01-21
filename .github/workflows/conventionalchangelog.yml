@@ -2,8 +2,7 @@ name: Conventional Changelog
 on:
   push:
     branches:
-      - main
-      - master
+      - release
 jobs:
   deploy:
     runs-on: ubuntu-latest
