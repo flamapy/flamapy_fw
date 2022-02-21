@@ -16,3 +16,7 @@ class ElementNotFound(Exception):
 
 class DuplicatedFeature(Exception):
     pass
+
+
+class ConfigurationNotFound(Exception):
+    pass

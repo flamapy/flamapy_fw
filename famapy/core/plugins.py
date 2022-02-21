@@ -2,6 +2,7 @@ from types import ModuleType
 from typing import Any, Callable, Type, cast
 from collections import UserList
 
+from famapy.core.models.operation_configurator import OperationConfigurator
 from famapy.core.exceptions import (
     OperationNotFound,
     PluginNotFound,
@@ -33,8 +34,8 @@ class Operations(UserList[Type[Operation]]):
 
         try:
             operation = next(candidates, None)
-        except StopIteration as exception:
-            raise OperationNotFound from exception
+        except StopIteration:
+            raise OperationNotFound from StopIteration
         else:
             if not operation:
                 raise OperationNotFound
@@ -56,8 +57,8 @@ class Plugin:
         candidates = filter(filter_transformation, self.transformations)
         try:
             transformation = next(candidates, None)
-        except StopIteration as exception:
-            raise TransformationNotFound from exception
+        except StopIteration:
+            raise TransformationNotFound from StopIteration
         else:
             if not transformation:
                 raise TransformationNotFound
@@ -71,7 +72,20 @@ class Plugin:
 
     def use_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
-        return operation().execute(model=src)
+        configured_operation = self.configure_operation(operation, src)
+        return configured_operation.execute(model=src)
+
+    @classmethod
+    def configure_operation(cls, operation: Type[Operation], src: VariabilityModel) -> Operation:
+
+        configuration_builder = OperationConfigurator(operation, src)
+
+        if configuration_builder.is_operation_configurable():
+            result = configuration_builder.configure_from_csv()
+        else:
+            result = operation()
+
+        return result
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)
@@ -140,8 +154,8 @@ class Plugins(UserList[Plugin]):
         candidates = filter(plugin_filter, self.data)
         try:
             plugin = next(candidates)
-        except StopIteration as exception:
-            raise PluginNotFound from exception
+        except StopIteration:
+            raise PluginNotFound from StopIteration
         return plugin
 
     def get_plugin_by_name(self, name: str) -> Plugin:
@@ -157,7 +171,10 @@ class Plugins(UserList[Plugin]):
     ) -> Plugin:
 
         def plugin_filter(plugin: Plugin) -> bool:
-            return isinstance(variability_model, plugin.variability_model)  # type: ignore
+
+            return isinstance(variability_model,
+                              plugin.variability_model)  # type: ignore
+            # TODO: Check if this error can be ignored
 
         return self.__get_plugin_by_filter(plugin_filter)
 
