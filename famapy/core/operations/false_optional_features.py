@@ -13,5 +13,5 @@ class FalseOptionalFeatures(Operation):
     """
 
     @abstractmethod
-    def get_false_optional_features(self, feature_model) -> list[Any]:
+    def get_false_optional_features(self) -> list[Any]:
         pass
