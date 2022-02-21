@@ -24,6 +24,15 @@ class Node:
 
     def is_op(self) -> bool:
         return isinstance(self.data, ASTOperation)
+    
+    def is_unary_op(self) -> bool:
+        return self.is_op() and self.data in [ASTOperation.NOT]
+    
+    def is_unique_feature(self) -> bool:
+        return not self.is_op() and self.left is None and self.right is None
+
+    def is_binary_op(self) -> bool:
+        return not self.is_unique_feature() and not self.is_unary_op()
 
     def __str__(self) -> str:
         data = self.data.name if self.is_op() else self.data
@@ -39,6 +48,34 @@ class Node:
 
         return str(data)
 
+    def pretty_str(self) -> str:
+        data = self.data.name if self.is_op() else self.data
+        # Left node
+        if self.left is None:
+            left = ''
+        elif self.left.is_op():
+            left = f'{self.left.pretty_str()}'
+        else:
+            left = self.left
+        # Right node
+        if self.right is None:
+            right = ''
+        elif self.right.is_op():
+            right = f'{self.right.pretty_str()}'
+        else:
+            right = self.right
+
+        if self.is_unique_feature():
+            return f'{data}'
+        elif self.is_unary_op():
+            return f'{data} {left}'
+        else:  # binary operation
+            if self.left.is_binary_op():
+                left = f'({left})'
+            if self.right.is_binary_op():
+                right = f'({right})'
+            return f'{left} {data} {right}'
+        
 
 class AST:
     """Abstract Syntax Tree (AST) to store constraints."""
@@ -75,6 +112,9 @@ class AST:
 
     def __str__(self) -> str:
         return str(self.root)
+    
+    def pretty_str(self) -> str:
+        return self.root.pretty_str()
 
 
 def convert_into_cnf(ast: AST) -> AST:
