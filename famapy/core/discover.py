@@ -24,7 +24,7 @@ LOGGER = logging.getLogger('discover')
 
 
 def filter_modules_from_plugin_paths() -> list[ModuleType]:
-    results: list[ModuleType] = list()
+    results: list[ModuleType] = []
     for path in PLUGIN_PATHS:
         try:
             module: ModuleType = import_module(path)
@@ -181,10 +181,12 @@ class DiscoverMetamodels:
             vm_temp = plugin.use_transformation_t2m(file)
         else:
             vm_temp = self.__transform_to_model_from_file(file)
-            plugin = self.plugins.get_plugin_by_extension(vm_temp.get_extension())
+            plugin = self.plugins.get_plugin_by_extension(
+                vm_temp.get_extension())
 
             if operation_name not in self.get_name_operations_by_plugin(plugin.name):
-                transformation_way = self.__search_transformation_way(plugin, operation_name)
+                transformation_way = self.__search_transformation_way(
+                    plugin, operation_name)
 
                 for (_, dst) in transformation_way:
                     _plugin = self.plugins.get_plugin_by_extension(dst)
@@ -213,13 +215,13 @@ class DiscoverMetamodels:
         plugin: Plugin,
         operation_name: str
     ) -> list[tuple[str, str]]:
-
         '''
         Search way to reach plugin with operation_name using m2m transformations
         '''
         way: list[tuple[str, str]] = []
 
-        plugins_with_operation = self.get_plugins_with_operation(operation_name)
+        plugins_with_operation = self.get_plugins_with_operation(
+            operation_name)
         m2m_transformations = self.get_transformations_m2m()
 
         input_extension = plugin.get_extension()

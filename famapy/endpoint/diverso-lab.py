@@ -1,10 +1,9 @@
-from typing import Any, Optional
+from typing import Any, NewType, Optional
 
 import hug
-
 from famapy.core.discover import DiscoverMetamodels
-from typing import NewType
-
+from famapy.core.exceptions import (ConfigurationNotFound, OperationNotFound,
+                                    PluginNotFound, TransformationNotFound)
 
 dm = DiscoverMetamodels()
 
@@ -30,6 +29,7 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 
 
 @hug.cli()
+@hug.get('/use-operation-from-file/{operation}/{filename}/')
 def use_operation_from_file(
     operation: str,
     filename: str,
@@ -40,5 +40,19 @@ def use_operation_from_file(
     Execute an operation gave an operation and one input file. Optionally you
     can give a plugin as last parameter.
     """
-    result = dm.use_operation_from_file(operation, filename, plugin)
+    try:
+        result = dm.use_operation_from_file(operation, filename, plugin)
+    except OperationNotFound:
+        return OperationResult({'Error': 'Operation not found'})
+    except PluginNotFound:
+        return OperationResult({'Error': 'Plugin not found'})
+    except TransformationNotFound:
+        return OperationResult({'Error': 'Transformation not found'})
+    except FileNotFoundError:
+        return OperationResult({'Error': 'File not found'})
+    except ConfigurationNotFound:
+        return OperationResult({'Error': 'Configuration file not found'})
+    except Exception:
+        return OperationResult({'Error': 'Unexpected error'})
+
     return OperationResult({'result': result})
