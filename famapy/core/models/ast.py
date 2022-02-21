@@ -29,7 +29,7 @@ class Node:
         return self.is_op() and self.data in [ASTOperation.NOT]
 
     def is_unique_feature(self) -> bool:
-        return not self.is_op() and self.left is None and self.right is None
+        return not self.is_op() and self.left is None
 
     def is_binary_op(self) -> bool:
         return not self.is_unique_feature() and not self.is_unary_op()
@@ -50,20 +50,19 @@ class Node:
 
     @staticmethod
     def _get_pretty_str_node(node: 'Node') -> str:
-        if node is None:
-            res = ''
-        elif node.is_op():
+        res = ''
+        if node.is_op():
             res = f'{node.pretty_str()}'
             if node.is_binary_op():
                 res = f'({res})'
         else:
-            res = node
+            res = str(node)
         return res
 
     def pretty_str(self) -> str:
         data = self.data.value if self.is_op() else self.data
-        left = Node._get_pretty_str_node(self.left)
-        right = Node._get_pretty_str_node(self.right)
+        left = Node._get_pretty_str_node(self.left) if self.left is not None else ''
+        right = Node._get_pretty_str_node(self.right) if self.right is not None else ''
 
         if self.is_unique_feature():
             res = f'{data}'

@@ -18,11 +18,11 @@ from famapy.core.transformations import (
 from famapy.core.utils import extract_filename_extension
 
 
-class Transformations(UserList[Type[Transformation]]):  # pylint: disable=too-many-ancestors
+class Transformations(UserList[Type[Transformation]]):
     data: list[Type[Transformation]]
 
 
-class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancestors
+class Operations(UserList[Type[Operation]]):
     data: list[Type[Operation]]
 
     def search_by_name(self, name: str) -> Type[Operation]:
@@ -33,8 +33,8 @@ class Operations(UserList[Type[Operation]]):  # pylint: disable=too-many-ancesto
 
         try:
             operation = next(candidates, None)
-        except StopIteration:
-            raise OperationNotFound
+        except StopIteration as exception:
+            raise OperationNotFound from exception
         else:
             if not operation:
                 raise OperationNotFound
@@ -56,8 +56,8 @@ class Plugin:
         candidates = filter(filter_transformation, self.transformations)
         try:
             transformation = next(candidates, None)
-        except StopIteration:
-            raise TransformationNotFound
+        except StopIteration as exception:
+            raise TransformationNotFound from exception
         else:
             if not transformation:
                 raise TransformationNotFound
@@ -133,15 +133,15 @@ class Plugin:
         }
 
 
-class Plugins(UserList[Plugin]):  # pylint: disable=too-many-ancestors
+class Plugins(UserList[Plugin]):
     data: list[Plugin]
 
     def __get_plugin_by_filter(self, plugin_filter: Callable[[Plugin], bool]) -> Plugin:
         candidates = filter(plugin_filter, self.data)
         try:
             plugin = next(candidates)
-        except StopIteration:
-            raise PluginNotFound
+        except StopIteration as exception:
+            raise PluginNotFound from exception
         return plugin
 
     def get_plugin_by_name(self, name: str) -> Plugin:

@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Any
 
 from famapy.core.operations import Operation
+from famapy.core.models import VariabilityModel
 
 
 class FalseOptionalFeatures(Operation):
@@ -13,5 +14,5 @@ class FalseOptionalFeatures(Operation):
     """
 
     @abstractmethod
-    def get_false_optional_features(self, feature_model) -> list[Any]:
+    def get_false_optional_features(self, feature_model: VariabilityModel) -> list[Any]:
         pass

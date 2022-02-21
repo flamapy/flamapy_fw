@@ -24,7 +24,7 @@ LOGGER = logging.getLogger('discover')
 
 
 def filter_modules_from_plugin_paths() -> list[ModuleType]:
-    results: list[ModuleType] = list()
+    results: list[ModuleType] = []
     for path in PLUGIN_PATHS:
         try:
             module: ModuleType = import_module(path)
