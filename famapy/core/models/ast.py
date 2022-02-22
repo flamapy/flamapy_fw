@@ -143,7 +143,7 @@ def eliminate_equivalence(node: Node) -> Node:
 
 
 def eliminate_exclusion(node: Node) -> Node:
-    """Replace P EXCLUDES !Q with !P ∨ !Q."""
+    """Replace P EXCLUDES Q with !P ∨ !Q."""
     left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
     right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
     return AST.create_binary_operation(ASTOperation.OR, left, right).root 
