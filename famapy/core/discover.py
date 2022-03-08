@@ -42,7 +42,7 @@ class DiscoverMetamodels:
     def search_classes(self, module: ModuleType) -> list[Any]:
         classes = []
         for _, file_name, ispkg in iter_modules(
-            module.__path__, module.__name__ + '.'  # type: ignore
+            module.__path__, module.__name__ + '.'
         ):
             if ispkg:
                 classes += self.search_classes(import_module(file_name))
@@ -55,7 +55,7 @@ class DiscoverMetamodels:
         plugins = Plugins()
         for pkg in self.module_paths:
             for _, plugin_name, ispkg in iter_modules(
-                pkg.__path__, pkg.__name__ + '.'  # type: ignore
+                pkg.__path__, pkg.__name__ + '.'
             ):
                 if not ispkg:
                     continue
