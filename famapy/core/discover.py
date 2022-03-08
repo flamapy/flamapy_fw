@@ -24,7 +24,7 @@ LOGGER = logging.getLogger('discover')
 
 
 def filter_modules_from_plugin_paths() -> list[ModuleType]:
-    results: list[ModuleType] = list()
+    results: list[ModuleType] = []
     for path in PLUGIN_PATHS:
         try:
             module: ModuleType = import_module(path)
@@ -42,7 +42,7 @@ class DiscoverMetamodels:
     def search_classes(self, module: ModuleType) -> list[Any]:
         classes = []
         for _, file_name, ispkg in iter_modules(
-            module.__path__, module.__name__ + '.'  # type: ignore
+            module.__path__, module.__name__ + '.'
         ):
             if ispkg:
                 classes += self.search_classes(import_module(file_name))
@@ -55,7 +55,7 @@ class DiscoverMetamodels:
         plugins = Plugins()
         for pkg in self.module_paths:
             for _, plugin_name, ispkg in iter_modules(
-                pkg.__path__, pkg.__name__ + '.'  # type: ignore
+                pkg.__path__, pkg.__name__ + '.'
             ):
                 if not ispkg:
                     continue
@@ -181,10 +181,12 @@ class DiscoverMetamodels:
             vm_temp = plugin.use_transformation_t2m(file)
         else:
             vm_temp = self.__transform_to_model_from_file(file)
-            plugin = self.plugins.get_plugin_by_extension(vm_temp.get_extension())
+            plugin = self.plugins.get_plugin_by_extension(
+                vm_temp.get_extension())
 
             if operation_name not in self.get_name_operations_by_plugin(plugin.name):
-                transformation_way = self.__search_transformation_way(plugin, operation_name)
+                transformation_way = self.__search_transformation_way(
+                    plugin, operation_name)
 
                 for (_, dst) in transformation_way:
                     _plugin = self.plugins.get_plugin_by_extension(dst)
@@ -213,13 +215,13 @@ class DiscoverMetamodels:
         plugin: Plugin,
         operation_name: str
     ) -> list[tuple[str, str]]:
-
         '''
         Search way to reach plugin with operation_name using m2m transformations
         '''
         way: list[tuple[str, str]] = []
 
-        plugins_with_operation = self.get_plugins_with_operation(operation_name)
+        plugins_with_operation = self.get_plugins_with_operation(
+            operation_name)
         m2m_transformations = self.get_transformations_m2m()
 
         input_extension = plugin.get_extension()

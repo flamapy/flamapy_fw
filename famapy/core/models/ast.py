@@ -29,8 +29,17 @@ class Node:
     def is_op(self) -> bool:
         return isinstance(self.data, ASTOperation)
 
+    def is_unary_op(self) -> bool:
+        return self.is_op() and self.data in [ASTOperation.NOT]
+
+    def is_unique_feature(self) -> bool:
+        return not self.is_op() and self.left is None
+
+    def is_binary_op(self) -> bool:
+        return not self.is_unique_feature() and not self.is_unary_op()
+
     def __str__(self) -> str:
-        data = self.data.name if self.is_op() else self.data
+        data = self.data.value if self.is_op() else self.data
 
         if self.left and self.right:
             return f'{data}[{self.left}][{self.right}]'
@@ -42,6 +51,30 @@ class Node:
             return f'{data}[][{self.right}]'
 
         return str(data)
+
+    @staticmethod
+    def _get_pretty_str_node(node: 'Node') -> str:
+        res = ''
+        if node.is_op():
+            res = f'{node.pretty_str()}'
+            if node.is_binary_op():
+                res = f'({res})'
+        else:
+            res = str(node)
+        return res
+
+    def pretty_str(self) -> str:
+        data = self.data.value if self.is_op() else self.data
+        left = Node._get_pretty_str_node(self.left) if self.left is not None else ''
+        right = Node._get_pretty_str_node(self.right) if self.right is not None else ''
+
+        if self.is_unique_feature():
+            res = f'{data}'
+        elif self.is_unary_op():
+            res = f'{data} {left}'
+        else:  # binary operation
+            res = f'{left} {data} {right}'
+        return res
 
 
 class AST:
@@ -80,6 +113,9 @@ class AST:
     def __str__(self) -> str:
         return str(self.root)
 
+    def pretty_str(self) -> str:
+        return self.root.pretty_str()
+
 
 def convert_into_cnf(ast: AST) -> AST:
     """Convert to negation normal form.
@@ -111,7 +147,7 @@ def eliminate_equivalence(node: Node) -> Node:
 
 
 def eliminate_exclusion(node: Node) -> Node:
-    """Replace P EXCLUDES !Q with !P ∨ !Q."""
+    """Replace P EXCLUDES Q with !P ∨ !Q."""
     left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
     right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
     return AST.create_binary_operation(ASTOperation.OR, left, right).root
@@ -131,6 +167,8 @@ def eliminate_complex_operators(ast: AST) -> AST:
         new_node = eliminate_exclusion(node)
     elif node.data == ASTOperation.NOT:
         new_node = eliminate_complex_operators(AST(node.left)).root
+        node.left = new_node
+        return AST(node)
     else:
         node.left = eliminate_complex_operators(AST(node.left)).root
         node.right = eliminate_complex_operators(AST(node.right)).root

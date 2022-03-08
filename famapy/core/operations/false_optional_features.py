@@ -5,10 +5,12 @@ from famapy.core.operations import Operation
 
 
 class FalseOptionalFeatures(Operation):
+    """A feature is defined as `false optional` if the selection of its parent makes the feature
+    itself selected as well, although it is defined as optional and not mandatory.
 
-    @abstractmethod
-    def __init__(self) -> None:
-        pass
+    A feature in a group can be also `false optional`.
+    In general, false optional features should be marked as mandatory for maintainability purposes.
+    """
 
     @abstractmethod
     def get_false_optional_features(self) -> list[Any]:

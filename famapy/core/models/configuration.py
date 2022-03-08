@@ -10,6 +10,9 @@ class Configuration():
     def __init__(self, elements: dict[Any, bool]) -> None:
         self.elements = elements
 
+    def get_selected_elements(self) -> list[Any]:
+        return [e for e in self.elements if self.elements[e]]
+
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Configuration):
             return self.elements == other.elements
