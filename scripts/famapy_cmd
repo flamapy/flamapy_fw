@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+hug -f famapy/endpoint/diverso-lab.py ${@: 1}
