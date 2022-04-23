@@ -1,0 +1,16 @@
+# Table of contents
+
+* [Contributing](README.md)
+* [Famapy](<README (1).md>)
+* [Security Policy](SECURITY.md)
+* [NAME](skel\_metamodel/README.md)
+* [docs](docs/README.md)
+  * [source](docs/source/README.md)
+    * [1.-Home](docs/source/1.-Home.md)
+    * [2.-Installation](docs/source/2.-Installation.md)
+    * [3.-Usage](docs/source/3.-Usage.md)
+    * [4.-Development](docs/source/4.-Development.md)
+    * [5.-Contributing](docs/source/5.-Contributing.md)
+    * [6.-Deployment](docs/source/6.-Deployment.md)
+    * [7.-Maintenance](docs/source/7.-Maintenance.md)
+    * [Would this work as expected?](docs/source/random\_page\_test.md)
