@@ -6,7 +6,7 @@ from famapy.metamodels.__NAME___metamodel.models.models import __NAME__Model
 class __NAME__ModelToText(ModelToText):
 
     @staticmethod
-    def get_destiny_extension() -> str:
+    def get_destination_extension() -> str:
         return '__EXT__'
 
     def __init__(self, path: str, model: __NAME__Model):
