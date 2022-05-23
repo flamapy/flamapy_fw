@@ -13,7 +13,7 @@ class M2M(ModelToModel):
         return 'ext'
 
     @staticmethod
-    def get_destiny_extension() -> str:
+    def get_destination_extension() -> str:
         return 'ext'
 
     def __init__(self, source_model: VariabilityModel) -> None:
@@ -27,7 +27,7 @@ class M2M(ModelToModel):
 class M2T(ModelToText):
 
     @staticmethod
-    def get_destiny_extension() -> str:
+    def get_destination_extension() -> str:
         return 'ext'
 
     def __init__(self, path: str, source_model: VariabilityModel) -> None:
