@@ -2,7 +2,6 @@ from types import ModuleType
 from typing import Any, Callable, Type, cast
 from collections import UserList
 
-from famapy.core.models.operation_configurator import OperationConfigurator
 from famapy.core.exceptions import (
     OperationNotFound,
     PluginNotFound,
