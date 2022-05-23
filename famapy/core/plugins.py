@@ -72,7 +72,7 @@ class Plugin:
     def use_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
         return operation().execute(model=src)
-        
+
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)
 
