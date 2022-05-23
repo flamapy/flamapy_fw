@@ -4,6 +4,8 @@ from importlib import import_module
 from pkgutil import iter_modules
 from types import ModuleType
 from typing import Any, Optional, Type
+from xmlrpc.client import Boolean
+from core.famapy.core.models.configuration import Configuration
 
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
@@ -170,7 +172,8 @@ class DiscoverMetamodels:
         self,
         operation_name: str,
         file: str,
-        plugin_name: Optional[str] = None
+        plugin_name: Optional[str] = None,
+        confiuration_file: Optional[str] = None
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -193,8 +196,19 @@ class DiscoverMetamodels:
                     vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
                     plugin = _plugin
 
-        operation = plugin.use_operation(operation_name, vm_temp)
+        operation = plugin.get_operation(operation_name, vm_temp)
+        if (self.__operation_requires_configuration(operation)):
+            print("yes")
+            configuration = None # TODO call the transformation to load the configuraiton
+            operation.set_configuration(configuration)
+        
+        operation = plugin.use_operation(operation, vm_temp)
+
         return operation.get_result()
+
+    def __operation_requires_configuration(self,operation) -> Boolean:
+        method_list = [func for func in dir(operation) if callable(getattr(operation, func))]
+        return 'set_configuration' in method_list
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
         t2m_transformations = self.get_transformations_t2m()

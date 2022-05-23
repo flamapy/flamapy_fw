@@ -69,9 +69,12 @@ class Plugin:
     def append_transformations(self, transformation: Type[Transformation]) -> None:
         self.transformations.append(transformation)
 
-    def use_operation(self, name: str, src: VariabilityModel) -> Operation:
+    def get_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
         return operation().execute(model=src)
+
+    def use_operation(self, operation: Operation, src: VariabilityModel) -> Operation:
+        return operation.execute(model=src)
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)
