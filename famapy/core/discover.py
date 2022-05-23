@@ -5,11 +5,12 @@ from pkgutil import iter_modules
 from types import ModuleType
 from typing import Any, Optional, Type
 from xmlrpc.client import Boolean
-from core.famapy.core.models.configuration import Configuration
+from core.famapy.metamodels.configuration_metamodel.models.configuration import Configuration
 
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
 from famapy.core.exceptions import TransformationNotFound
+from famapy.core.exceptions import ConfigurationNotFound
 from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation
 from famapy.core.plugins import (
@@ -173,7 +174,7 @@ class DiscoverMetamodels:
         operation_name: str,
         file: str,
         plugin_name: Optional[str] = None,
-        confiuration_file: Optional[str] = None
+        configuration_file: Optional[str] = None
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -198,8 +199,9 @@ class DiscoverMetamodels:
 
         operation = plugin.get_operation(operation_name, vm_temp)
         if (self.__operation_requires_configuration(operation)):
-            print("yes")
-            configuration = None # TODO call the transformation to load the configuraiton
+            if(configuration_file is None):
+                raise ConfigurationNotFound()
+            configuration = self.__transform_to_model_from_file(configuration_file)
             operation.set_configuration(configuration)
         
         operation = plugin.use_operation(operation, vm_temp)

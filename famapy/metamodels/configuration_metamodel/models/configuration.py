@@ -1,7 +1,11 @@
 from typing import Any
+from famapy.core.models import VariabilityModel
 
+class Configuration(VariabilityModel):
 
-class Configuration():
+    @staticmethod
+    def get_extension() -> str:
+        return 'configuration'
     """A configuration is a selection of elements in a variability model.
 
     It is represented as a dictionary of elements of Any type -> bool.
