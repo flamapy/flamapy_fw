@@ -72,20 +72,7 @@ class Plugin:
 
     def use_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
-        configured_operation = self.configure_operation(operation, src)
-        return configured_operation.execute(model=src)
-
-    @classmethod
-    def configure_operation(cls, operation: Type[Operation], src: VariabilityModel) -> Operation:
-
-        configuration_builder = OperationConfigurator(operation, src)
-
-        if configuration_builder.is_operation_configurable():
-            result = configuration_builder.configure_from_csv()
-        else:
-            result = operation()
-
-        return result
+        return operation.execute(model=src)
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)
