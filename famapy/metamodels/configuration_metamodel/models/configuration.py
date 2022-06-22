@@ -1,6 +1,7 @@
 from typing import Any
 from famapy.core.models import VariabilityModel
 
+
 class Configuration(VariabilityModel):
 
     @staticmethod

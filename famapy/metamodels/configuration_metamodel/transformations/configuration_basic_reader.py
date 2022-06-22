@@ -1,13 +1,12 @@
-from abc import abstractmethod
-
 import csv
 
 from famapy.core.transformations.text_to_model import TextToModel
 from famapy.core.models.variability_model import VariabilityElement
 
-from core.famapy.metamodels.configuration_metamodel.models.configuration import Configuration
+from famapy.metamodels.configuration_metamodel.models.configuration import Configuration
 from famapy.core.utils import file_exists
 from famapy.core.exceptions import ConfigurationNotFound
+
 
 class ConfigurationBasicReader(TextToModel):
     @staticmethod
@@ -18,12 +17,12 @@ class ConfigurationBasicReader(TextToModel):
         self._path = path
 
     def transform(self) -> Configuration:
-        csv_reader=self.get_configuration_from_csv(self._path)
+        csv_reader = self.get_configuration_from_csv(self._path)
         elements = {}
         for row in csv_reader:
             elements[VariabilityElement(row[0])] = True
         return Configuration(elements)
-    
+
     def get_configuration_from_csv(self, path: str) -> list[list[str]]:
         # Returns a list of list
         if not file_exists(path):

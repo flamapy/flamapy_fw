@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from core.famapy.metamodels.configuration_metamodel.models.configuration import Configuration
+from famapy.metamodels.configuration_metamodel.models.configuration import Configuration
 from famapy.core.operations import Operation
 
 
