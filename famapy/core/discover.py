@@ -3,7 +3,8 @@ import logging
 from importlib import import_module
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Any, Optional, Type
+from typing import Any, Optional, Protocol, Type
+from typing_extensions import runtime_checkable
 
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
@@ -19,9 +20,16 @@ from famapy.core.plugins import (
 from famapy.core.transformations import Transformation
 from famapy.core.transformations.text_to_model import TextToModel
 from famapy.core.transformations.model_to_model import ModelToModel
+from famapy.metamodels.configuration_metamodel.models.configuration import Configuration
 
 
 LOGGER = logging.getLogger('discover')
+
+
+@runtime_checkable
+class OperationWithConfiguration(Protocol):
+    def set_configuration(self, configuration: Configuration) -> None:
+        pass
 
 
 def filter_modules_from_plugin_paths() -> list[ModuleType]:
@@ -163,8 +171,9 @@ class DiscoverMetamodels:
         plugin = self.plugins.get_plugin_by_extension(dst)
         return plugin.use_transformation_m2m(src, dst)
 
-    def use_operation(self, src: VariabilityModel, operation: str) -> Operation:
+    def use_operation(self, src: VariabilityModel, operation_name: str) -> Operation:
         plugin = self.plugins.get_plugin_by_variability_model(src)
+        operation = plugin.get_operation(operation_name, src)
         return plugin.use_operation(operation, src)
 
     def use_operation_from_file(
@@ -196,7 +205,7 @@ class DiscoverMetamodels:
                     plugin = _plugin
 
         operation = plugin.get_operation(operation_name, vm_temp)
-        if self.__operation_requires_configuration(operation):
+        if isinstance(operation, OperationWithConfiguration):
             if configuration_file is None:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
@@ -205,10 +214,6 @@ class DiscoverMetamodels:
         operation = plugin.use_operation(operation, vm_temp)
 
         return operation.get_result()
-
-    def __operation_requires_configuration(self, operation: Operation) -> bool:
-        method_list = [func for func in dir(operation) if callable(getattr(operation, func))]
-        return 'set_configuration' in method_list
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
         t2m_transformations = self.get_transformations_t2m()
