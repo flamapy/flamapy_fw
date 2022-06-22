@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="famapy",
-    version="0.7.1",
+    version="0.8.dev0",
     author="Víctor Ramírez de la Corte",
     author_email="me@virako.es",
     description="FaMaPy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.",
