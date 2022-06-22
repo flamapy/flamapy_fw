@@ -33,8 +33,9 @@ setuptools.setup(
             'coverage',
         ]
     },
-    scripts=[
-        'scripts/famapy_admin.py',
-        'scripts/famapy_cmd',
-    ]
+    entry_points={
+        'console_scripts': [
+            'famapy-admin = famapy.commands:famapy_admin',
+        ],
+    },
 )
