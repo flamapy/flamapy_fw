@@ -5,7 +5,7 @@ import os
 import sys
 from shutil import copytree
 
-import hug
+from hug import development_runner
 
 
 def parser() -> argparse.ArgumentParser:
@@ -65,7 +65,7 @@ def cmd_cli() -> None:
     if not subcommand:
         subcommand = ["help"]
     sys.argv = [".", "-m", "famapy.endpoint.diverso_lab", "cli", "-c"] + subcommand
-    hug.development_runner.hug.interface.cli()
+    development_runner.hug.interface.cli()
 
 
 def famapy_admin() -> None:
