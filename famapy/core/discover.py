@@ -3,8 +3,7 @@ import logging
 from importlib import import_module
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Any, Optional, Protocol, Type
-from typing_extensions import runtime_checkable
+from typing import Any, Optional, Protocol, Type, runtime_checkable
 
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
