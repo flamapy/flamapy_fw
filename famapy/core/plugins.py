@@ -2,7 +2,6 @@ from types import ModuleType
 from typing import Any, Callable, Type, cast
 from collections import UserList
 
-from famapy.core.models.operation_configurator import OperationConfigurator
 from famapy.core.exceptions import (
     OperationNotFound,
     PluginNotFound,
@@ -70,22 +69,12 @@ class Plugin:
     def append_transformations(self, transformation: Type[Transformation]) -> None:
         self.transformations.append(transformation)
 
-    def use_operation(self, name: str, src: VariabilityModel) -> Operation:
+    def get_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
-        configured_operation = self.configure_operation(operation, src)
-        return configured_operation.execute(model=src)
+        return operation().execute(model=src)
 
-    @classmethod
-    def configure_operation(cls, operation: Type[Operation], src: VariabilityModel) -> Operation:
-
-        configuration_builder = OperationConfigurator(operation, src)
-
-        if configuration_builder.is_operation_configurable():
-            result = configuration_builder.configure_from_csv()
-        else:
-            result = operation()
-
-        return result
+    def use_operation(self, operation: Operation, src: VariabilityModel) -> Operation:
+        return operation.execute(model=src)
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
         extension = extract_filename_extension(src)

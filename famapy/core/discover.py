@@ -3,11 +3,12 @@ import logging
 from importlib import import_module
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Any, Optional, Type
+from typing import Any, Optional, Protocol, Type, runtime_checkable
 
 from famapy.core.config import PLUGIN_PATHS
 from famapy.core.exceptions import OperationNotFound
 from famapy.core.exceptions import TransformationNotFound
+from famapy.core.exceptions import ConfigurationNotFound
 from famapy.core.models import VariabilityModel
 from famapy.core.operations import Operation
 from famapy.core.plugins import (
@@ -18,9 +19,16 @@ from famapy.core.plugins import (
 from famapy.core.transformations import Transformation
 from famapy.core.transformations.text_to_model import TextToModel
 from famapy.core.transformations.model_to_model import ModelToModel
+from famapy.metamodels.configuration_metamodel.models.configuration import Configuration
 
 
 LOGGER = logging.getLogger('discover')
+
+
+@runtime_checkable
+class OperationWithConfiguration(Protocol):
+    def set_configuration(self, configuration: Configuration) -> None:
+        pass
 
 
 def filter_modules_from_plugin_paths() -> list[ModuleType]:
@@ -162,15 +170,17 @@ class DiscoverMetamodels:
         plugin = self.plugins.get_plugin_by_extension(dst)
         return plugin.use_transformation_m2m(src, dst)
 
-    def use_operation(self, src: VariabilityModel, operation: str) -> Operation:
+    def use_operation(self, src: VariabilityModel, operation_name: str) -> Operation:
         plugin = self.plugins.get_plugin_by_variability_model(src)
+        operation = plugin.get_operation(operation_name, src)
         return plugin.use_operation(operation, src)
 
     def use_operation_from_file(
         self,
         operation_name: str,
         file: str,
-        plugin_name: Optional[str] = None
+        plugin_name: Optional[str] = None,
+        configuration_file: Optional[str] = None
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -193,7 +203,15 @@ class DiscoverMetamodels:
                     vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
                     plugin = _plugin
 
-        operation = plugin.use_operation(operation_name, vm_temp)
+        operation = plugin.get_operation(operation_name, vm_temp)
+        if isinstance(operation, OperationWithConfiguration):
+            if configuration_file is None:
+                raise ConfigurationNotFound()
+            configuration = self.__transform_to_model_from_file(configuration_file)
+            operation.set_configuration(configuration)
+
+        operation = plugin.use_operation(operation, vm_temp)
+
         return operation.get_result()
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
