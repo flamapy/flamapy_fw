@@ -1,4 +1,6 @@
-### [v0.8.1](https://github.com/diverso-lab/core/compare/v0.8.0...v0.8.1) (2022-06-23)
+### [v0.8.2](https://github.com/diverso-lab/core/compare/v0.8.1...v0.8.2) (2022-06-23)
+
+### [0.8.1](https://github.com/diverso-lab/core/compare/v0.8.0...v0.8.1) (2022-06-23)
 
 
 ### Bug Fixes
