@@ -1,4 +1,11 @@
-## [v0.8.0](https://github.com/diverso-lab/core/compare/v0.7.1...v0.8.0) (2022-06-23)
+### [v0.8.1](https://github.com/diverso-lab/core/compare/v0.8.0...v0.8.1) (2022-06-23)
+
+
+### Bug Fixes
+
+* publish package when create release or prerelease ([0a86a23](https://github.com/diverso-lab/core/commit/0a86a236468c168950f4a3a05635aaaac2ea16a4))
+
+## [0.8.0](https://github.com/diverso-lab/core/compare/v0.7.1...v0.8.0) (2022-06-23)
 
 
 ### Features
@@ -20,20 +27,4 @@
 * add famapy_cmd as command tool ([73e128b](https://github.com/diverso-lab/core/commit/73e128bcfa44f629c4d794526eb51811db8c1256))
 
 ## [0.7.0](https://github.com/diverso-lab/core/compare/v0.6.1...v0.7.0) (2022-03-08)
-
-
-### Features
-
-* Adding AST ([8349473](https://github.com/diverso-lab/core/commit/8349473605e677a82d3f6981a2e66446c8d3a119))
-
-
-### Bug Fixes
-
-*  Added redundant parenthesis removal preprocessing ([da9f404](https://github.com/diverso-lab/core/commit/da9f404219b6b9372ff747d530622e640c953cf4))
-* Apparently it works ([32b19b4](https://github.com/diverso-lab/core/commit/32b19b42e77557b213e1662e705e75bc945ff35c))
-* Changing style coding by prospector ([20a879e](https://github.com/diverso-lab/core/commit/20a879ee501fa0a9aa04da33fb09bd62989e8009))
-* Checking prospector and mypy for new version of AST ([140bbd7](https://github.com/diverso-lab/core/commit/140bbd74d9cad687ed737f3bd0a7416fca0fa9da))
-* Fixed problem when detecting parentheses ([72f7db1](https://github.com/diverso-lab/core/commit/72f7db1ea53c62410003600933ce866a31c8c845))
-* Fixing "lOS" from "OS Independent" ([9b59499](https://github.com/diverso-lab/core/commit/9b5949963acd3048822cb50878f661c33d6501aa))
-* Fixing MyPy static prototyping ([cc20755](https://github.com/diverso-lab/core/commit/cc20755a9174ba624bb9220e967dda4f2f63c98c))
 
