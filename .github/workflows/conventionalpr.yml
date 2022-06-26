@@ -1,12 +1,11 @@
-
 name: Conventional Commit Parser
 on:
   pull_request:
-    branches: [main, master, release]
+    branches: [main, master, develop]
     types: [opened, reopened, edited, review_requested, synchronize]
-    
+
 jobs:
-  build:
+  conventional_commit:
     name: Conventional Commits
     runs-on: ubuntu-latest
     steps:
