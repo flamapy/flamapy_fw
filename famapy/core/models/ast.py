@@ -7,6 +7,7 @@ class ASTOperation(Enum):
     EXCLUDES = 'EXCLUDES'
     AND = 'AND'
     OR = 'OR'
+    XOR = 'XOR'
     IMPLIES = 'IMPLIES'
     NOT = 'NOT'
     EQUIVALENCE = 'EQUIVALENCE'
