@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Any
 
-from famapy.core.models import Configuration
+from famapy.metamodels.configuration_metamodel.models.configuration import Configuration
 from famapy.core.operations import Operation
 
 

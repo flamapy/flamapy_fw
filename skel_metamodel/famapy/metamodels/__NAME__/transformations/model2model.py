@@ -11,7 +11,7 @@ class TODOTo__NAME__(ModelToModel):
         return 'TODO'  # TODO: modify source extension
 
     @staticmethod
-    def get_destiny_extension() -> str:
+    def get_destination_extension() -> str:
         return '__EXT__'
 
     def __init__(self, source_model: VariabilityModel):

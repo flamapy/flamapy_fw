@@ -3,7 +3,7 @@ test-warnings: true
 doc-warnings: false
 
 ignore-paths:
-  - scripts
+  - build
   - tests
   - skel_metamodel
   - main.py

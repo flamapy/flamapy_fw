@@ -18,7 +18,7 @@ class TestDiscover:
 
     def test_discover(self):
         search = DiscoverMetamodels()
-        assert len(search.plugins) == 0
+        assert len(search.plugins) == 1
 
     def test_invalid_model_implementation(self):
         with raises(TypeError) as error:
@@ -87,7 +87,7 @@ class TestDiscoverApplyFunctions:
 
         operation = search.use_operation(
             src=variability_model,
-            operation='Operation1'
+            operation_name='Operation1'
         )
 
         assert operation.get_result() == '123456'
