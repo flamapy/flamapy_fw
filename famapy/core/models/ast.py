@@ -14,10 +14,6 @@ class ASTOperation(Enum):
 
 
 class Node:
-    operations = ['requires', 'excludes', 'and',
-                  'or', 'implies', 'not', 'equivalence']
-    afm_operations = ['iff', '>', '<', '>=', '<=', '==', '!=', '+', '-', '*', '/', '%', '^', '=']
-    operations = operations + afm_operations
 
     def __init__(self, data: Any, left: 'Node' = None, right: 'Node' = None):  # type: ignore
         self.data = data
@@ -119,7 +115,7 @@ class AST:
 
 
 def convert_into_cnf(ast: AST) -> AST:
-    """Convert to negation normal form.
+    """Convert to conjunctive normal form.
 
     Three steps are performed:
       1. Eliminate implications, equivalences, and excludes.
@@ -252,7 +248,7 @@ def distribute_ors(ast: AST) -> AST:
 
 
 def get_clauses(node: Node) -> list[Any]:
-    """Return the list of clauses represented by the AST root node in normal conjuntive form."""
+    """Return the list of clauses represented by the AST root node in conjunctive normal form."""
     if node is None or not node.is_op():
         return []
     if node.data == ASTOperation.NOT:
