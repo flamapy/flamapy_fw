@@ -20,7 +20,7 @@ class Node:
         self.left = left
         self.right = right
 
-    def is_feature(self) -> bool:
+    def is_term(self) -> bool:
         return not self.is_op()
 
     def is_op(self) -> bool:
@@ -29,11 +29,11 @@ class Node:
     def is_unary_op(self) -> bool:
         return self.is_op() and self.data in [ASTOperation.NOT]
 
-    def is_unique_feature(self) -> bool:
+    def is_unique_term(self) -> bool:
         return not self.is_op() and self.left is None
 
     def is_binary_op(self) -> bool:
-        return not self.is_unique_feature() and not self.is_unary_op()
+        return not self.is_unique_term() and not self.is_unary_op()
 
     def __str__(self) -> str:
         data = self.data.value if self.is_op() else self.data
@@ -65,7 +65,7 @@ class Node:
         left = Node._get_pretty_str_node(self.left) if self.left is not None else ''
         right = Node._get_pretty_str_node(self.right) if self.right is not None else ''
 
-        if self.is_unique_feature():
+        if self.is_unique_term():
             res = f'{data}'
         elif self.is_unary_op():
             res = f'{data} {left}'
