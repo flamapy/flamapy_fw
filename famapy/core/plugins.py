@@ -71,7 +71,7 @@ class Plugin:
 
     def get_operation(self, name: str, src: VariabilityModel) -> Operation:
         operation = self.operations.search_by_name(name)
-        return operation().execute(model=src)
+        return operation()
 
     def use_operation(self, operation: Operation, src: VariabilityModel) -> Operation:
         return operation.execute(model=src)
