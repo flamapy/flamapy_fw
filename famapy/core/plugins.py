@@ -69,7 +69,7 @@ class Plugin:
     def append_transformations(self, transformation: Type[Transformation]) -> None:
         self.transformations.append(transformation)
 
-    def get_operation(self, name: str, src: VariabilityModel) -> Operation:
+    def get_operation(self, name: str) -> Operation:
         operation = self.operations.search_by_name(name)
         return operation()
 
