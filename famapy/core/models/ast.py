@@ -37,16 +37,12 @@ class Node:
 
     def __str__(self) -> str:
         data = self.data.value if self.is_op() else self.data
-
         if self.left and self.right:
             return f'{data}[{self.left}][{self.right}]'
-
         if self.left and not self.right:
             return f'{data}[{self.left}][]'
-
         if not self.left and self.right:
             return f'{data}[][{self.right}]'
-
         return str(data)
 
     @staticmethod
@@ -102,10 +98,7 @@ class AST:
 
     def get_clauses(self) -> list[list[Any]]:
         ast = self.to_cnf()
-        clauses = get_clauses(ast.root)
-        if len(clauses) > 0 and not isinstance(clauses[0], list):
-            return [clauses]
-        return clauses
+        return get_clauses(ast)
 
     def __str__(self) -> str:
         return str(self.root)
@@ -114,180 +107,178 @@ class AST:
         return self.root.pretty_str()
 
 
+def convert_into_nnf(ast: AST) -> AST:
+    ast = simplify_formula(ast)
+    return propagate_negation(ast.root)
+
+
 def convert_into_cnf(ast: AST) -> AST:
-    """Convert to conjunctive normal form.
+    ast = simplify_formula(ast)
+    ast = propagate_negation(ast.root)
+    return to_cnf(ast)
 
-    Three steps are performed:
-      1. Eliminate implications, equivalences, and excludes.
-      2. Move NOTs inwards by repeatdly applying De Morgan's Law and eliminate doble negations.
-      3. Distribute ORs invwards over ANDs, applying the Distribute property.
+
+def simplify_formula(ast: AST) -> AST:
+    """Convert a propositional formula to an equivalent formula without '=>', '<=>', 'XOR',
+    'REQUIRES', 'EXCLUDES'.
+
+    Adapted from [Büning, Hans Kleine, and Theodor Lettmann.
+    Propositional logic: deduction and algorithms. Vol. 48. Cambridge University Press, 1999.]
     """
-    ast = eliminate_complex_operators(ast)
-    ast = move_nots_inwards(ast)
-    ast = distribute_ors(ast)
-    return ast
-
-
-def eliminate_implication(node: Node) -> Node:
-    """Replace P => Q with !P ∨ Q."""
-    left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
-    return AST.create_binary_operation(ASTOperation.OR, left, node.right).root
-
-
-def eliminate_equivalence(node: Node) -> Node:
-    """Replace P <=> Q with (P ∨ !Q) ∧ (!P ∨ Q)."""
-    pnot = AST.create_unary_operation(ASTOperation.NOT, node.left).root
-    qnot = AST.create_unary_operation(ASTOperation.NOT, node.right).root
-    left = AST.create_binary_operation(ASTOperation.OR, node.left, qnot).root
-    right = AST.create_binary_operation(ASTOperation.OR, pnot, node.right).root
-    return AST.create_binary_operation(ASTOperation.AND, left, right).root
-
-
-def eliminate_exclusion(node: Node) -> Node:
-    """Replace P EXCLUDES Q with !P ∨ !Q."""
-    left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
-    right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
-    return AST.create_binary_operation(ASTOperation.OR, left, right).root
-
-
-def eliminate_complex_operators(ast: AST) -> AST:
-    """Eliminate implications, equivalences, and excludes"""
-    node = ast.root
-    if node is None or not node.is_op():
-        return ast
-    new_node = None
-    if node.data in (ASTOperation.REQUIRES, ASTOperation.IMPLIES):
-        new_node = eliminate_implication(node)
-    elif node.data == ASTOperation.EQUIVALENCE:
-        new_node = eliminate_equivalence(node)
-    elif node.data == ASTOperation.EXCLUDES:
-        new_node = eliminate_exclusion(node)
-    elif node.data == ASTOperation.NOT:
-        new_node = eliminate_complex_operators(AST(node.left)).root
-        node.left = new_node
-        return AST(node)
+    logic_op = ast.root.data
+    left = ast.root.left
+    right = ast.root.right
+    if logic_op in (ASTOperation.REQUIRES, ASTOperation.IMPLIES):
+        # Replace P => Q with !P v Q.
+        left = simplify_formula(AST(left)).root
+        right = simplify_formula(AST(right)).root
+        result = AST.create_binary_operation(ASTOperation.OR, Node(ASTOperation.NOT, left), right)
+    elif logic_op == ASTOperation.EXCLUDES:
+        # Replace P EXCLUDES Q with P => !Q.
+        left = simplify_formula(AST(left)).root
+        right = simplify_formula(AST(right)).root
+        result = AST.create_binary_operation(ASTOperation.IMPLIES,
+                                             left, Node(ASTOperation.NOT, right))
+    elif logic_op == ASTOperation.EQUIVALENCE:
+        # Replace P <=> Q with P => Q ∧ Q => P.
+        left = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES,
+                                                            left, right)).root
+        right = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES,
+                                                             right, left)).root
+        result = AST.create_binary_operation(ASTOperation.AND, left, right)
+    elif logic_op == ASTOperation.XOR:
+        # Replace P XOR Q with (P ∧ !Q) v (!P ∧ Q).
+        left = simplify_formula(AST.create_binary_operation(ASTOperation.AND,
+                                                            left,
+                                                            Node(ASTOperation.NOT, right))).root
+        left = simplify_formula(AST.create_binary_operation(ASTOperation.AND,
+                                                            Node(ASTOperation.NOT, left),
+                                                            right)).root
+        result = AST.create_binary_operation(ASTOperation.OR, left, right)
+    elif logic_op == ASTOperation.AND:
+        left = simplify_formula(AST(left)).root
+        right = simplify_formula(AST(right)).root
+        result = AST.create_binary_operation(ASTOperation.AND, left, right)
+    elif logic_op == ASTOperation.OR:
+        left = simplify_formula(AST(left)).root
+        right = simplify_formula(AST(right)).root
+        result = AST.create_binary_operation(ASTOperation.OR, left, right)
+    elif logic_op == ASTOperation.NOT:
+        left = simplify_formula(AST(left)).root
+        result = AST.create_unary_operation(ASTOperation.NOT, left)
     else:
-        node.left = eliminate_complex_operators(AST(node.left)).root
-        node.right = eliminate_complex_operators(AST(node.right)).root
-        return AST(node)
-    return AST(new_node)
-
-
-def apply_demorganlaw(node: Node, operation: ASTOperation) -> Node:
-    """Apply De Morgan's Law.
-
-    If operation is AND, replace !(P ∨ Q) with (!P) ∧ (!Q);
-    if operation is OR, replace !(P ∧ Q) with (!P) ∨ (!Q).
-    """
-    left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
-    right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
-    new_node = AST.create_binary_operation(operation, left, right).root
-    return new_node
-
-
-def move_nots_inwards(ast: AST) -> AST:
-    """Move NOTs inwards by repeatedly applying De Morgan's Law,
-    and eliminate doble negations by replacing !!P with P.
-    """
-    node = ast.root
-    if node is None or not node.is_op():
-        return ast
-    if node.data != ASTOperation.NOT:
-        node.left = move_nots_inwards(AST(node.left)).root
-        node.right = move_nots_inwards(AST(node.right)).root
-        return AST(node)
-    if not node.left.is_op():
-        return AST(node)
-    new_node = None
-    if node.left.data == ASTOperation.OR:
-        new_node = apply_demorganlaw(node.left, ASTOperation.AND)
-    elif node.left.data == ASTOperation.AND:
-        new_node = apply_demorganlaw(node.left, ASTOperation.OR)
-    elif node.left.data == ASTOperation.NOT:
-        # Eliminate doble negation
-        new_node = node.left.left
-    else:
-        new_node = node
-    return move_nots_inwards(AST(new_node))
-
-
-def apply_distribution(node: Node, and_node: Node) -> Node:
-    """Apply distribution property.
-
-    Replace P ∨ (Q ∧ R) with (P ∨ Q) ∧ (P ∨ R).
-    """
-    left = AST.create_binary_operation(ASTOperation.OR, node, and_node.left).root
-    right = AST.create_binary_operation(ASTOperation.OR, node, and_node.right).root
-    return AST.create_binary_operation(ASTOperation.AND, left, right).root
-
-
-def distribute_ors(ast: AST) -> AST:
-    """Distribute ORs inwards over ANDs."""
-    node = ast.root
-    result = None
-    if node is None or not node.is_op():
         result = ast
-    elif node.data != ASTOperation.OR:
-        node.left = distribute_ors(AST(node.left)).root
-        node.right = distribute_ors(AST(node.right)).root
-        result = AST(node)
-    elif not node.left.is_op() and not node.right.is_op():
-        result = ast
-    else:
-        if node.left.is_op() and node.left.data == ASTOperation.AND:
-            new_node = apply_distribution(node.right, node.left)
-            result = distribute_ors(AST(new_node))
-        elif node.right.is_op() and node.right.data == ASTOperation.AND:
-            new_node = apply_distribution(node.left, node.right)
-            result = distribute_ors(AST(new_node))
+    return result
+
+
+def to_cnf(formula: AST) -> AST:
+    """Convert a propositional formula in NNF to an equivalent formula in conjunctive normal form.
+
+    Adapted and fixed from [Alexander Knüppel. The Role of Complex Constraints in Feature Modeling.
+    Master's Thesis. 2016].
+    """
+    res = formula
+    node = formula.root
+    if node.data == ASTOperation.AND:
+        res = AST.create_binary_operation(ASTOperation.AND,
+                                          to_cnf(AST(node.left)).root,
+                                          to_cnf(AST(node.right)).root)
+    elif node.data == ASTOperation.OR:
+        node.left = to_cnf(AST(node.left)).root
+        node.right = to_cnf(AST(node.right)).root
+        if node.left.data == ASTOperation.AND:
+            res = AST.create_binary_operation(ASTOperation.AND,
+                                              AST.create_binary_operation(ASTOperation.OR,
+                                                                          node.left.left,
+                                                                          node.right).root,
+                                              AST.create_binary_operation(ASTOperation.OR,
+                                                                          node.left.right,
+                                                                          node.right).root)
+            res = to_cnf(res)
+        elif node.right.data == ASTOperation.AND:
+            res = AST.create_binary_operation(ASTOperation.AND,
+                                              AST.create_binary_operation(ASTOperation.OR,
+                                                                          node.left,
+                                                                          node.right.left).root,
+                                              AST.create_binary_operation(ASTOperation.OR,
+                                                                          node.left,
+                                                                          node.right.right).root)
+            res = to_cnf(res)
         else:
-            node.left = distribute_ors(AST(node.left)).root
-            node.right = distribute_ors(AST(node.right)).root
+            res = AST.create_binary_operation(ASTOperation.OR, node.left, node.right)
+    return res
+
+
+def to_nnf(ast: AST) -> AST:
+    """Convert a simplified propositional formula to an equivalent formula in negation normal form.
+
+    A simplified formula only contains '∧', 'v', and 'not'.
+
+    Adapted from [Alexander Knüppel. The Role of Complex Constraints in Feature Modeling.
+    Master's Thesis. 2016].
+    """
+    return propagate_negation(ast.root)
+
+
+def propagate_negation(node: Node, negated: bool = False) -> AST:
+    result = None
+    if node.data == ASTOperation.NOT:
+        negated = not negated
+        result = propagate_negation(node.left, negated)
+    elif node.data == ASTOperation.AND:
+        if negated:
+            result = AST.create_binary_operation(ASTOperation.OR,
+                                                 propagate_negation(node.left, negated).root,
+                                                 propagate_negation(node.right, negated).root)
+        else:
+            result = AST.create_binary_operation(ASTOperation.AND,
+                                                 propagate_negation(node.left, negated).root,
+                                                 propagate_negation(node.right, negated).root)
+    elif node.data == ASTOperation.OR:
+        if negated:
+            result = AST.create_binary_operation(ASTOperation.AND,
+                                                 propagate_negation(node.left, negated).root,
+                                                 propagate_negation(node.right, negated).root)
+        else:
+            result = AST.create_binary_operation(ASTOperation.OR,
+                                                 propagate_negation(node.left, negated).root,
+                                                 propagate_negation(node.right, negated).root)
+    else:
+        if negated:
+            result = AST.create_unary_operation(ASTOperation.NOT, node)
+        else:
             result = AST(node)
     return result
 
 
-def get_clauses(node: Node) -> list[Any]:
+def get_clauses(ast: AST) -> list[list[Any]]:
     """Return the list of clauses represented by the AST root node in conjunctive normal form."""
-    if node is None or not node.is_op():
-        return []
-    if node.data == ASTOperation.NOT:
-        return ['-' + node.left.data]
-    if node.data == ASTOperation.AND:  # Each AND gives us two clauses
-        return get_clauses_from_and_node(node)
-    if node.data == ASTOperation.OR:
-        return get_clause_from_or_node(node)
-    return []
-
-
-def get_clauses_from_and_node(node: Node) -> list[list[Any]]:
-    clauses = []
-    clauses_left = get_clauses(node.left)  # Recursive AND
-    # recursive ANDs may introduce additional clauses
-    if len(clauses_left) > 0 and isinstance(clauses_left[0], list):
-        for clause in clauses_left:
-            clauses.append(clause)
-    else:
-        clauses.append(clauses_left)
-
-    clauses_right = get_clauses(node.right)  # Recursive AND
-    # recursive ANDs may introduce additional clauses
-    if len(clauses_right) > 0 and isinstance(clauses_right[0], list):
-        for clause in clauses_right:
-            clauses.append(clause)
-    else:
-        clauses.append(clauses_right)
-    return clauses
+    node = ast.root
+    result = []
+    if node.is_term():
+        result = [[node.data]]
+    elif node.data == ASTOperation.NOT:
+        result = [['-' + node.left.data]]
+    elif node.data == ASTOperation.OR:
+        result = [get_clause_from_or_node(node)]
+    elif node.data == ASTOperation.AND:  # Each AND gives us two clauses
+        result.extend(get_clauses(AST(node.left)))
+        result.extend(get_clauses(AST(node.right)))
+    return result
 
 
 def get_clause_from_or_node(node: Node) -> list[Any]:
     clause = []
-    if node.left.is_op():
-        clause += get_clauses(node.left)  # recursive OR belongs to the same clause
+    if node.left.is_op() and node.left.data == ASTOperation.OR:
+        # recursive OR belongs to the same clause
+        clause.extend(get_clause_from_or_node(node.left))
     else:
-        clause.append(node.left.data)
-    if node.right.is_op():
-        clause += get_clauses(node.right)  # recursive OR belongs to the same clause
+        term = node.left.data if node.left.is_term() else f'-{node.left.left.data}'
+        clause.append(term)
+    if node.right.is_op() and node.right.data == ASTOperation.OR:
+        # recursive OR belongs to the same clause
+        clause.extend(get_clause_from_or_node(node.right))
     else:
-        clause.append(node.right.data)
+        term = node.right.data if node.right.is_term() else f'-{node.right.left.data}'
+        clause.append(term)
     return clause
