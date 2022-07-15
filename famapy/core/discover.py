@@ -172,7 +172,7 @@ class DiscoverMetamodels:
 
     def use_operation(self, src: VariabilityModel, operation_name: str) -> Operation:
         plugin = self.plugins.get_plugin_by_variability_model(src)
-        operation = plugin.get_operation(operation_name, src)
+        operation = plugin.get_operation(operation_name)
         return plugin.use_operation(operation, src)
 
     def use_operation_from_file(
@@ -203,7 +203,7 @@ class DiscoverMetamodels:
                     vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
                     plugin = _plugin
 
-        operation = plugin.get_operation(operation_name, vm_temp)
+        operation = plugin.get_operation(operation_name)
         if isinstance(operation, OperationWithConfiguration):
             if configuration_file is None:
                 raise ConfigurationNotFound()
