@@ -293,28 +293,32 @@ def get_clauses_from_and_node(node: Node) -> list[list[Any]]:
     # recursive ANDs may introduce additional clauses
     if len(clauses_left) > 0 and isinstance(clauses_left[0], list):
         for clause in clauses_left:
-            clauses.append(clause)
+            if clause not in clauses:
+                clauses.append(clause)
     else:
-        clauses.append(clauses_left)
+        if clauses_left not in clauses:
+            clauses.append(clauses_left)
 
     clauses_right = get_clauses(node.right)  # Recursive AND
     # recursive ANDs may introduce additional clauses
     if len(clauses_right) > 0 and isinstance(clauses_right[0], list):
         for clause in clauses_right:
-            clauses.append(clause)
+            if clause not in clauses:
+                clauses.append(clause)
     else:
-        clauses.append(clauses_right)
+        if clauses_right not in clauses:
+            clauses.append(clauses_right)
     return clauses
 
 
 def get_clause_from_or_node(node: Node) -> list[Any]:
-    clause = []
+    clause = set()
     if node.left.is_op():
-        clause += get_clauses(node.left)  # recursive OR belongs to the same clause
+        clause.update(get_clauses(node.left))  # recursive OR belongs to the same clause
     else:
-        clause.append(node.left.data)
+        clause.add(node.left.data)
     if node.right.is_op():
-        clause += get_clauses(node.right)  # recursive OR belongs to the same clause
+        clause.update(get_clauses(node.right))  # recursive OR belongs to the same clause
     else:
-        clause.append(node.right.data)
-    return clause
+        clause.add(node.right.data)
+    return list(clause)
