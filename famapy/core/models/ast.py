@@ -136,13 +136,13 @@ def convert_into_cnf(ast: AST) -> AST:
 
 
 def eliminate_implication(node: Node) -> Node:
-    """Replace P => Q with !P ∨ Q."""
+    """Replace P => Q with !P v Q."""
     left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
     return AST.create_binary_operation(ASTOperation.OR, left, node.right).root
 
 
 def eliminate_equivalence(node: Node) -> Node:
-    """Replace P <=> Q with (P ∨ !Q) ∧ (!P ∨ Q)."""
+    """Replace P <=> Q with (P v !Q) ∧ (!P v Q)."""
     pnot = AST.create_unary_operation(ASTOperation.NOT, node.left).root
     qnot = AST.create_unary_operation(ASTOperation.NOT, node.right).root
     left = AST.create_binary_operation(ASTOperation.OR, node.left, qnot).root
@@ -151,7 +151,14 @@ def eliminate_equivalence(node: Node) -> Node:
 
 
 def eliminate_exclusion(node: Node) -> Node:
-    """Replace P EXCLUDES Q with !P ∨ !Q."""
+    """Replace P EXCLUDES Q with !P v !Q."""
+    left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
+    right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
+    return AST.create_binary_operation(ASTOperation.OR, left, right).root
+
+
+def eliminate_xor(node: Node) -> Node:
+    """Replace P XOR Q with !P v !Q."""
     left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
     right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
     return AST.create_binary_operation(ASTOperation.OR, left, right).root
@@ -169,6 +176,8 @@ def eliminate_complex_operators(ast: AST) -> AST:
         new_node = eliminate_equivalence(node)
     elif node.data == ASTOperation.EXCLUDES:
         new_node = eliminate_exclusion(node)
+    elif node.data == ASTOperation.XOR:
+        new_node = eliminate_xor(node)
     elif node.data == ASTOperation.NOT:
         new_node = eliminate_complex_operators(AST(node.left)).root
         node.left = new_node
@@ -177,14 +186,16 @@ def eliminate_complex_operators(ast: AST) -> AST:
         node.left = eliminate_complex_operators(AST(node.left)).root
         node.right = eliminate_complex_operators(AST(node.right)).root
         return AST(node)
+    new_node.left = eliminate_complex_operators(AST(new_node.left)).root
+    new_node.right = eliminate_complex_operators(AST(new_node.right)).root
     return AST(new_node)
 
 
 def apply_demorganlaw(node: Node, operation: ASTOperation) -> Node:
     """Apply De Morgan's Law.
 
-    If operation is AND, replace !(P ∨ Q) with (!P) ∧ (!Q);
-    if operation is OR, replace !(P ∧ Q) with (!P) ∨ (!Q).
+    If operation is AND, replace !(P v Q) with (!P) ∧ (!Q);
+    if operation is OR, replace !(P ∧ Q) with (!P) v (!Q).
     """
     left = AST.create_unary_operation(ASTOperation.NOT, node.left).root
     right = AST.create_unary_operation(ASTOperation.NOT, node.right).root
@@ -221,7 +232,7 @@ def move_nots_inwards(ast: AST) -> AST:
 def apply_distribution(node: Node, and_node: Node) -> Node:
     """Apply distribution property.
 
-    Replace P ∨ (Q ∧ R) with (P ∨ Q) ∧ (P ∨ R).
+    Replace P v (Q ∧ R) with (P v Q) ∧ (P v R).
     """
     left = AST.create_binary_operation(ASTOperation.OR, node, and_node.left).root
     right = AST.create_binary_operation(ASTOperation.OR, node, and_node.right).root
