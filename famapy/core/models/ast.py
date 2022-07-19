@@ -122,16 +122,10 @@ def convert_into_cnf(ast: AST) -> AST:
       2. Move NOTs inwards by repeatdly applying De Morgan's Law and eliminate doble negations.
       3. Distribute ORs invwards over ANDs, applying the Distribute property.
     """
-    print(f'AST1: {ast}')
     ast = eliminate_complex_operators(ast)
-    print(f'AST2: {ast}')
     ast = move_nots_inwards(ast)
-    print(f'AST3: {ast}')
-    print(f'is CNF?: {is_cnf(ast)}')
     while not is_cnf(ast):
         ast = distribute_ors(ast)
-        print(f'AST_or: {ast}')
-    print(f'AST in CNF: {ast}')
     return ast
 
 
@@ -302,23 +296,21 @@ def get_clauses_from_and_node(node: Node) -> list[list[Any]]:
     clauses = []
     clauses_left = get_clauses(node.left)  # Recursive AND
     # recursive ANDs may introduce additional clauses
-    if len(clauses_left) > 0 and isinstance(clauses_left[0], list):
-        for clause in clauses_left:
-            if clause not in clauses:
-                clauses.append(clause)
-    else:
-        if clauses_left not in clauses:
-            clauses.append(clauses_left)
+    clauses = add_clauses(clauses, clauses_left)
 
     clauses_right = get_clauses(node.right)  # Recursive AND
     # recursive ANDs may introduce additional clauses
-    if len(clauses_right) > 0 and isinstance(clauses_right[0], list):
-        for clause in clauses_right:
+    clauses = add_clauses(clauses, clauses_right)
+    return clauses
+
+
+def add_clauses(clauses: list[Any], clauses_to_add: list[Any]) -> list[Any]:
+    if len(clauses_to_add) > 0 and isinstance(clauses_to_add[0], list):
+        for clause in clauses_to_add:
             if clause not in clauses:
                 clauses.append(clause)
-    else:
-        if clauses_right not in clauses:
-            clauses.append(clauses_right)
+    elif clauses_to_add not in clauses:
+        clauses.append(clauses_to_add)
     return clauses
 
 
