@@ -122,9 +122,16 @@ def convert_into_cnf(ast: AST) -> AST:
       2. Move NOTs inwards by repeatdly applying De Morgan's Law and eliminate doble negations.
       3. Distribute ORs invwards over ANDs, applying the Distribute property.
     """
+    print(f'AST1: {ast}')
     ast = eliminate_complex_operators(ast)
+    print(f'AST2: {ast}')
     ast = move_nots_inwards(ast)
-    ast = distribute_ors(ast)
+    print(f'AST3: {ast}')
+    print(f'is CNF?: {is_cnf(ast)}')
+    while not is_cnf(ast):
+        ast = distribute_ors(ast)
+        print(f'AST_or: {ast}')
+    print(f'AST in CNF: {ast}')
     return ast
 
 
@@ -244,6 +251,26 @@ def distribute_ors(ast: AST) -> AST:
             node.left = distribute_ors(AST(node.left)).root
             node.right = distribute_ors(AST(node.right)).root
             result = AST(node)
+    return result
+
+
+def is_cnf(ast: AST) -> bool:
+    node = ast.root
+    if node is None or not node.is_op():
+        result = True
+    elif node.data != ASTOperation.OR:
+        result = is_cnf(AST(node.left))
+        result = result and is_cnf(AST(node.right))
+    elif not node.left.is_op() and not node.right.is_op():
+        result = True
+    else:
+        if node.left.is_op() and node.left.data == ASTOperation.AND:
+            result = False
+        elif node.right.is_op() and node.right.data == ASTOperation.AND:
+            result = False
+        else:
+            result = is_cnf(AST(node.left))
+            result = result and is_cnf(AST(node.right))
     return result
 
 
