@@ -6,15 +6,15 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-    name="famapy",
-    version="1.0.0",
-    author="Víctor Ramírez de la Corte",
-    author_email="me@virako.es",
-    description="FaMaPy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.",
+    name="flamapy",
+    version="1.0.0.dev0",
+    author="Flamapy",
+    author_email="flamapy@us.es",
+    description="Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/FaMaPy/core",
-    packages=setuptools.find_namespace_packages(include=['famapy.*']),
+    url="https://github.com/flamapy/core",
+    packages=setuptools.find_namespace_packages(include=['flamapy.*']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
@@ -35,7 +35,7 @@ setuptools.setup(
     },
     entry_points={
         'console_scripts': [
-            'famapy-admin = famapy.commands:famapy_admin',
+            'flamapy-admin = flamapy.commands:flamapy_admin',
         ],
     },
 )

@@ -1,6 +1,6 @@
 # Contributing
 
-As an open source project, FaMaPy welcomes contributions of many forms.
+As an open source project, Flamapy welcomes contributions of many forms.
 
 Examples of contributions include:
 

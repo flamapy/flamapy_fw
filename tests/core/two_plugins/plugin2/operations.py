@@ -1,4 +1,4 @@
-from famapy.core.operations import Operation
+from flamapy.core.operations import Operation
 
 
 class Operation2(Operation):

@@ -1,5 +1,5 @@
-# Famapy
-FaMaPy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.
+# Flamapy
+Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.
 
 The main features of the framework are:
 * Easy to extend by enabling the creation of new plugins following a semi-automatic generator approach.
@@ -8,8 +8,8 @@ The main features of the framework are:
 * Support multiple operations. It is developed, having in mind multi-model operations such as those depicted by Familiar  and single-model operations.
 
 ## Available plugins
-[famapy-fm](https://github.com/diverso-lab/fm_metamodel)
-[famapy-sat](https://github.com/diverso-lab/pysat_metamodel)
+[flamapy-fm](https://github.com/flamapy/fm_metamodel)
+[flamapy-sat](https://github.com/flamapy/pysat_metamodel)
 
 ## Documentation
 

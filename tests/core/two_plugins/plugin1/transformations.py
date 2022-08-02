@@ -1,6 +1,6 @@
 from typing import Any
 
-from famapy.core.transformations import (
+from flamapy.core.transformations import (
     ModelToModel,
     ModelToText,
     TextToModel,
