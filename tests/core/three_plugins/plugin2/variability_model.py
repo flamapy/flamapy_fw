@@ -1,4 +1,4 @@
-from famapy.core.models import VariabilityModel
+from flamapy.core.models import VariabilityModel
 
 
 class ExampleModel(VariabilityModel):

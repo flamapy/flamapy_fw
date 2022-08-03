@@ -2,11 +2,11 @@ import tempfile
 from pytest import raises
 from unittest import TestCase, mock
 
-from famapy.core import discover
-from famapy.core.exceptions import OperationNotFound
-from famapy.core.discover import DiscoverMetamodels
-from famapy.core.models import VariabilityModel
-from famapy.core.plugins import PluginNotFound
+from flamapy.core import discover
+from flamapy.core.exceptions import OperationNotFound
+from flamapy.core.discover import DiscoverMetamodels
+from flamapy.core.models import VariabilityModel
+from flamapy.core.plugins import PluginNotFound
 
 import one_plugin
 import two_plugins

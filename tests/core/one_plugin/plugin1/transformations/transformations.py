@@ -1,9 +1,9 @@
-from famapy.core.transformations import (
+from flamapy.core.transformations import (
     ModelToModel,
     ModelToText,
     TextToModel,
 )
-from famapy.core.models import VariabilityModel
+from flamapy.core.models import VariabilityModel
 from one_plugin.plugin1.models.variability_model import ExampleModel
 
 

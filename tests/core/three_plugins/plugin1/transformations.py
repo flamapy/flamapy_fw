@@ -1,4 +1,4 @@
-from famapy.core.transformations import (
+from flamapy.core.transformations import (
     ModelToText,
     TextToModel,
 )

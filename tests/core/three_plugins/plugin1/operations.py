@@ -1,5 +1,5 @@
-from famapy.core.operations import Valid
-from famapy.core.models.variability_model import VariabilityModel
+from flamapy.core.operations import Valid
+from flamapy.core.models.variability_model import VariabilityModel
 
 
 class Operation1(Valid):

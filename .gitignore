@@ -1,7 +1,7 @@
 build
 env
 htmlcov
-famapy/metamodels
+flamapy/metamodels
 
 *.pyc
 __pycache__

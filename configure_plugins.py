@@ -29,7 +29,7 @@ if not PLUGIN_PATHS:
 
 # Create symbolic link
 
-CORE_PLUGIN_DIRECTORY = 'famapy/metamodels/'
+CORE_PLUGIN_DIRECTORY = 'flamapy/metamodels/'
 if not os.path.exists(CORE_PLUGIN_DIRECTORY):
     os.mkdir(CORE_PLUGIN_DIRECTORY)
 
@@ -41,8 +41,8 @@ for plugin_path in PLUGIN_PATHS:
 
     plugin_directories = setuptools.find_namespace_packages(
         plugin_path,
-        include=['famapy.metamodels.*'],
-        exclude=['famapy.metamodels.*.*']
+        include=['flamapy.metamodels.*'],
+        exclude=['flamapy.metamodels.*.*']
     )
 
     for plugin_directory in plugin_directories:

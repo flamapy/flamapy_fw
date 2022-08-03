@@ -15,21 +15,21 @@ lint:
 	prospector
 
 mypy:
-	mypy famapy
+	mypy flamapy
 
 test:
 	python -m pytest -sv
 
 cov:
-	coverage run --source=famapy -m pytest
+	coverage run --source=flamapy -m pytest
 	coverage report
 	coverage html
 
 start:
-	hug -f famapy/endpoint/diverso-lab.py
+	hug -f flamapy/endpoint/diverso-lab.py
 
 start-cli:
-	hug -f famapy/endpoint/diverso-lab.py -c
+	hug -f flamapy/endpoint/diverso-lab.py -c
 
 dev:
 	python3.9 -m venv env
@@ -41,4 +41,4 @@ git-pull:
 	echo ${PLUGIN_PATHS} | awk -F: '{ for (i=1; i<=NF; i++) {cd $i;git pull}}'
 clean:
 	rm -rf ./env
-	rm -rf ./famapy/metamodels/
+	rm -rf ./flamapy/metamodels/

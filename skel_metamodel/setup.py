@@ -14,7 +14,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="",
-    packages=setuptools.find_namespace_packages(include=['famapy.*']),
+    packages=setuptools.find_namespace_packages(include=['flamapy.*']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
@@ -25,6 +25,6 @@ setuptools.setup(
         # Add your requires here
     ],
     dependency_links=[
-        'https://github.com/FaMaPy/core/tarball/master#egg=package-1.0'
+        'https://github.com/flamapy/core/tarball/master#egg=package-1.0'
     ]
 )
