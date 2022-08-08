@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 from shutil import copytree
 
 from hug import development_runner
@@ -45,9 +46,9 @@ def cmd_new_plugin(options: argparse.Namespace) -> None:
     # Generating structure
     print("Generating structure ...")
 
-    copy_files = copytree(src, dst)
+    copy_files = copytree(src, dst, dirs_exist_ok=True)
 
-    for copy_file in copy_files:
+    for copy_file in Path(copy_files).glob('**/.*'):
         with open(copy_file, "r", encoding="utf-8") as file:
             lines = file.readlines()
         with open(copy_file, "w", encoding="utf-8") as filewrite:
