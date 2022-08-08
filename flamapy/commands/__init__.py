@@ -48,7 +48,9 @@ def cmd_new_plugin(options: argparse.Namespace) -> None:
 
     copy_files = copytree(src, dst, dirs_exist_ok=True)
 
-    for copy_file in Path(copy_files).glob('**/.*'):
+    for copy_file in Path(copy_files).glob('**/*'):
+        if copy_file.is_dir():
+            continue
         with open(copy_file, "r", encoding="utf-8") as file:
             lines = file.readlines()
         with open(copy_file, "w", encoding="utf-8") as filewrite:
