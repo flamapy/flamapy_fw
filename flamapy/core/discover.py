@@ -253,25 +253,27 @@ class DiscoverMetamodels:
             for m2m in m2m_transformations:
                 in_m2m = m2m.get_source_extension()
                 out_m2m = m2m.get_destination_extension()
-
-                if in_m2m == input_extension:
+                
+                if out_m2m == output_extension:
                     _next = (in_m2m, out_m2m)
+                                       
                     if _next in tmp_way:
                         continue
 
-                    tmp_way.append(_next)
-                    if output_extension == out_m2m:
+                    tmp_way.insert(0,_next)
+                    
+                    if input_extension == in_m2m:
                         return tmp_way
 
-                    return __search_recursive_way(out_m2m, output_extension, tmp_way)
+                    return __search_recursive_way(input_extension, in_m2m, tmp_way)
 
             return tmp_way
 
         for _plugin in plugins_with_operation:
             output_extension = _plugin.get_extension()
             way = __search_recursive_way(input_extension, output_extension, [])
-
+            print(way)
             if way and output_extension == way[-1][1]:
                 return way
-
+                
         raise NotImplementedError('Way to execute operation not found')
