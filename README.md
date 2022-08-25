@@ -13,7 +13,7 @@ The main features of the framework are:
 
 ## Documentation
 
-All the proyect related documentation can be found in wiki format at [wiki](https://github.com/diverso-lab/core/wiki)
+All the proyect related documentation can be found in wiki format at [wiki](https://flamapy.github.io/docs/)
 
 ## Changelog
 Detailed changes for each release are documented in the [release notes](https://github.com/diverso-lab/core/releases)
