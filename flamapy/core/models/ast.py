@@ -134,11 +134,11 @@ def simplify_formula(ast: AST) -> AST:
         right = simplify_formula(AST(right)).root
         result = AST.create_binary_operation(ASTOperation.OR, Node(ASTOperation.NOT, left), right)
     elif logic_op == ASTOperation.EXCLUDES:
-        # Replace P EXCLUDES Q with P => !Q.
+        # Replace P EXCLUDES Q with !P v !Q.
         left = simplify_formula(AST(left)).root
         right = simplify_formula(AST(right)).root
-        result = AST.create_binary_operation(ASTOperation.IMPLIES,
-                                             left, Node(ASTOperation.NOT, right))
+        result = AST.create_binary_operation(ASTOperation.OR, Node(ASTOperation.NOT, left), 
+                                             Node(ASTOperation.NOT, right))
     elif logic_op == ASTOperation.EQUIVALENCE:
         # Replace P <=> Q with P => Q ∧ Q => P.
         left = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES,
