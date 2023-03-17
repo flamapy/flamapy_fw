@@ -1,0 +1,45 @@
+features
+    eCommerce { abstract }
+        mandatory
+            Server { abstract }
+                mandatory
+                    PHP
+                        mandatory
+                            v74
+                    Storage
+                        alternative
+                            LOW
+                            ENOUGH
+            Web { abstract }
+                mandatory
+                    Catalog
+                    Search
+                        alternative
+                            BASIC
+                            ADVANCED
+                    Shopping 
+                        mandatory
+                            Cart
+                            Payment
+                                or
+                                    PayPal
+                                    CreditCard
+                                    Mobile
+                    Security
+                        alternative
+                            HIGH
+                            STANDARD
+                optional
+                    Backup
+                    Marketing
+                        optional
+                            SEO
+                            Socials
+                                or
+                                    Twitter
+                                    Facebook
+                                    YouTube
+constraints
+    CreditCard => HIGH
+    Mobile => HIGH
+    LOW => !Backup
