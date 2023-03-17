@@ -11,5 +11,5 @@ class FindLeaves(Operation):
         pass
 
     @abstractmethod
-    def find_leaves_list(self) -> list[Any]:
+    def get_leaves(self) -> list[Any]:
         pass
