@@ -1,4 +1,4 @@
-from typing import Any, NewType, Optional
+from typing import Any, NewType
 
 import hug
 from flamapy.core.discover import DiscoverMetamodels
@@ -37,7 +37,8 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 def use_operation_from_file(
     operation: str,
     filename: str,
-    plugin: Optional[str] = None,
+    plugin: str = None,
+    configuration_file: str = None,
     versions: int = 1
 ) -> OperationResult:
     """
@@ -45,7 +46,7 @@ def use_operation_from_file(
     can give a plugin as last parameter.
     """
     try:
-        result = dm.use_operation_from_file(operation, filename, plugin)
+        result = dm.use_operation_from_file(operation, filename, plugin, configuration_file)
     except OperationNotFound:
         return OperationResult({'Error': 'Operation not found'})
     except PluginNotFound:
