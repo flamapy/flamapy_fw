@@ -1,4 +1,4 @@
-from typing import Any, NewType
+from typing import Any, NewType, Optional
 
 import hug
 from flamapy.core.discover import DiscoverMetamodels
@@ -17,7 +17,7 @@ OperationResult = NewType('OperationResult', dict[str, Any])
 
 
 @hug.cli()
-@hug.get('/get-plugins/', versions=1)
+@hug.get('/get-plugins/')
 def get_plugins() -> PluginsType:
     """ Get availables plugins """
     plugins = dm.get_plugins()
@@ -26,7 +26,7 @@ def get_plugins() -> PluginsType:
 
 @hug.cli()
 @hug.get('/get-operations/{plugin}/')
-def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDict:
+def get_operations_name_by_plugin(plugin: str) -> OperationDict:
     """ Get availables operations gave a plugin name """
     operations = dm.get_name_operations_by_plugin(plugin)
     return OperationDict({'operations': operations})
@@ -37,9 +37,8 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 def use_operation_from_file(
     operation: str,
     filename: str,
-    plugin: str = None,
-    configuration_file: str = None,
-    versions: int = 1
+    plugin: Optional[str] = None,
+    configuration_file: Optional[str] = None,
 ) -> OperationResult:
     """
     Execute an operation gave an operation and one input file. Optionally you
@@ -47,6 +46,7 @@ def use_operation_from_file(
     """
     try:
         result = dm.use_operation_from_file(operation, filename, plugin, configuration_file)
+        return OperationResult({'result': result})
     except OperationNotFound:
         return OperationResult({'Error': 'Operation not found'})
     except PluginNotFound:
@@ -57,7 +57,3 @@ def use_operation_from_file(
         return OperationResult({'Error': 'File not found'})
     except ConfigurationNotFound:
         return OperationResult({'Error': 'Configuration file not found'})
-    except Exception:
-        return OperationResult({'Error': 'Unexpected error'})
-
-    return OperationResult({'result': result})
