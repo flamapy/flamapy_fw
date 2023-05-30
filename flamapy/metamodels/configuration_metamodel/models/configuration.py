@@ -7,10 +7,6 @@ class Configuration(VariabilityModel):
     @staticmethod
     def get_extension() -> str:
         return 'configuration'
-    """A configuration is a selection of elements in a variability model.
-
-    It is represented as a dictionary of elements of Any type -> bool.
-    """
 
     def __init__(self, elements: dict[Any, bool]) -> None:
         self.elements = elements

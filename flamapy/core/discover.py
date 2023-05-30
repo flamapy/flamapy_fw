@@ -169,11 +169,11 @@ class DiscoverMetamodels:
     def use_transformation_m2m(self, src: VariabilityModel, dst: str) -> VariabilityModel:
         plugin = self.plugins.get_plugin_by_extension(dst)
         return plugin.use_transformation_m2m(src, dst)
-    
+
     def get_operation(self, src: VariabilityModel, operation_name: str) -> Operation:
         plugin = self.plugins.get_plugin_by_variability_model(src)
         return plugin.get_operation(operation_name)
-    
+
     def use_operation(self, src: VariabilityModel, operation_name: str) -> Operation:
         plugin = self.plugins.get_plugin_by_variability_model(src)
         operation = plugin.get_operation(operation_name)
@@ -212,8 +212,7 @@ class DiscoverMetamodels:
             if configuration_file is None:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
-            operation.set_configuration(cast(Configuration, configuration)
-)
+            operation.set_configuration(cast(Configuration, configuration))
 
         operation = plugin.use_operation(operation, vm_temp)
 

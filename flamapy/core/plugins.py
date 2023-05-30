@@ -35,9 +35,9 @@ class Operations(UserList[Type[Operation]]):
             operation = next(candidates, None)
         except StopIteration:
             raise OperationNotFound from StopIteration
-        else:
-            if not operation:
-                raise OperationNotFound
+
+        if not operation:
+            raise OperationNotFound
         return operation
 
 
@@ -58,9 +58,9 @@ class Plugin:
             transformation = next(candidates, None)
         except StopIteration:
             raise TransformationNotFound from StopIteration
-        else:
-            if not transformation:
-                raise TransformationNotFound
+
+        if not transformation:
+            raise TransformationNotFound
         return transformation
 
     def append_operation(self, operation: Type[Operation]) -> None:
