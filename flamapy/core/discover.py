@@ -3,7 +3,7 @@ import logging
 from importlib import import_module
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Any, Optional, Protocol, Type, runtime_checkable
+from typing import Any, Optional, Protocol, Type, runtime_checkable, cast
 
 from flamapy.core.config import PLUGIN_PATHS
 from flamapy.core.exceptions import OperationNotFound
@@ -212,7 +212,8 @@ class DiscoverMetamodels:
             if configuration_file is None:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
-            operation.set_configuration(configuration)
+            operation.set_configuration(cast(Configuration, configuration)
+)
 
         operation = plugin.use_operation(operation, vm_temp)
 
