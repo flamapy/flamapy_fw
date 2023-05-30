@@ -37,8 +37,8 @@ def get_operations_name_by_plugin(plugin: str, versions: int = 1) -> OperationDi
 def use_operation_from_file(
     operation: str,
     filename: str,
-    plugin: str = None,
-    configuration_file: Optional[str] = "None",
+    plugin: Optional[str] = None,
+    configuration_file: Optional[str] = None,
     versions: int = 1
 ) -> OperationResult:
     """
