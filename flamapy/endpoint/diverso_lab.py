@@ -1,4 +1,4 @@
-from typing import Any, NewType
+from typing import Any, NewType, Optional
 
 import hug
 from flamapy.core.discover import DiscoverMetamodels
@@ -38,7 +38,7 @@ def use_operation_from_file(
     operation: str,
     filename: str,
     plugin: str = None,
-    configuration_file: str = None,
+    configuration_file: Optional[str] = "None",
     versions: int = 1
 ) -> OperationResult:
     """
