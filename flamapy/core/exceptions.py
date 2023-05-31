@@ -1,22 +1,26 @@
-class PluginNotFound(Exception):
+class FlamaException(Exception):
     pass
 
 
-class OperationNotFound(Exception):
+class PluginNotFound(FlamaException):
     pass
 
 
-class TransformationNotFound(Exception):
+class OperationNotFound(FlamaException):
     pass
 
 
-class ElementNotFound(Exception):
+class TransformationNotFound(FlamaException):
     pass
 
 
-class DuplicatedFeature(Exception):
+class ElementNotFound(FlamaException):
     pass
 
 
-class ConfigurationNotFound(Exception):
+class DuplicatedFeature(FlamaException):
+    pass
+
+
+class ConfigurationNotFound(FlamaException):
     pass
