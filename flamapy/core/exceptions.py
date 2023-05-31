@@ -24,5 +24,3 @@ class DuplicatedFeature(FlamaException):
 
 class ConfigurationNotFound(FlamaException):
     pass
-
-
