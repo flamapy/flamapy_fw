@@ -1,6 +1,7 @@
 class FlamaException(Exception):
     pass
 
+
 class PluginNotFound(FlamaException):
     pass
 
