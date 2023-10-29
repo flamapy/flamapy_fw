@@ -1,0 +1,26 @@
+{
+  "customizations":{
+    "codespaces":{
+      "repositories":{
+        "flamapy/fm_metamodel":{
+          "permissions":{
+            "contents":"write",
+            "pull_requests":"write"
+          }
+        },
+        "flamapy/pysat_metamodel":{
+          "permissions":{
+            "contents":"write",
+            "pull_requests":"write"
+          }
+        },
+        "flamapy/bdd_metamodel":{
+          "permissions":{
+            "contents":"write",
+            "pull_requests":"write"
+          }
+        }
+      }
+    }
+  }
+}
