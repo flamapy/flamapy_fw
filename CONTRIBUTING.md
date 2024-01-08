@@ -171,7 +171,7 @@ At Flama, we adhere to the principles of [Conventional Commits](https://www.conv
 Adhering to the Conventional Commits format helps ensure our commit history is readable and navigable. This practice is not just for maintainers but for anyone who contributes to Flama. By following these standards, you help us keep our project organized and our community aligned.
 
 ## Join The Project Team
-Feel free to show interest by emailing us at flamapy@us.es or joinign our telegram group. 
+Feel free to show interest by emailing us at flamapy@us.es or joinign our [telegram group](https://t.me/+ACFjaVH2ynUxNTZk). 
 
 <!-- omit in toc -->
 ## Attribution
