@@ -179,6 +179,46 @@ class DiscoverMetamodels:
         operation = plugin.get_operation(operation_name)
         return plugin.use_operation(operation, src)
 
+
+    def use_operation_from_vm(
+        self,
+        operation_name: str,
+        vm_orig: VariabilityModel,
+        plugin_name: Optional[str] = None,
+        configuration_file: Optional[str] = None
+    ) -> Any:
+
+        if operation_name not in self.get_name_operations():
+            raise OperationNotFound()
+
+        if plugin_name is not None:
+            plugin = self.plugins.get_plugin_by_name(plugin_name)
+            #vm_temp = plugin.use_transformation_t2m(file)
+        else:
+            #vm_temp = self.__transform_to_model_from_file(file)
+            plugin = self.plugins.get_plugin_by_extension(
+                vm_orig.get_extension())
+
+            if operation_name not in self.get_name_operations_by_plugin(plugin.name):
+                transformation_way = self.__search_transformation_way(
+                    plugin, operation_name)
+
+                for (_, dst) in transformation_way:
+                    _plugin = self.plugins.get_plugin_by_extension(dst)
+                    vm_temp = _plugin.use_transformation_m2m(vm_temp, dst)
+                    plugin = _plugin
+
+        operation = plugin.get_operation(operation_name)
+        if isinstance(operation, OperationWithConfiguration):
+            if configuration_file is None:
+                raise ConfigurationNotFound()
+            configuration = self.__transform_to_model_from_file(configuration_file)
+            operation.set_configuration(cast(Configuration, configuration))
+
+        operation = plugin.use_operation(operation, vm_temp)
+
+        return operation.get_result()
+    
     def use_operation_from_file(
         self,
         operation_name: str,
@@ -186,7 +226,7 @@ class DiscoverMetamodels:
         plugin_name: Optional[str] = None,
         configuration_file: Optional[str] = None
     ) -> Any:
-
+        
         if operation_name not in self.get_name_operations():
             raise OperationNotFound()
 
@@ -215,7 +255,6 @@ class DiscoverMetamodels:
             operation.set_configuration(cast(Configuration, configuration))
 
         operation = plugin.use_operation(operation, vm_temp)
-
         return operation.get_result()
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:

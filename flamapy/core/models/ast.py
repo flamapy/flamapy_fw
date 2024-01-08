@@ -11,6 +11,26 @@ class ASTOperation(Enum):
     IMPLIES = 'IMPLIES'
     NOT = 'NOT'
     EQUIVALENCE = 'EQUIVALENCE'
+    # Comparison operators
+    EQUALS = 'EQUALS'
+    LOWER = 'LOWER'
+    GREATER = 'GREATER'
+    LOWER_EQUALS  = 'LOWER_EQUALS'
+    GREATER_EQUALS = 'GREATER_EQUALS'
+    NOT_EQUALS = 'NOT_EQUALS'
+    # Arithmetic operators
+    ADD = 'ADD'
+    SUB = 'SUB'
+    MUL = 'MUL'
+    DIV = 'DIV'
+    # Aggregation operators
+    SUM ='SUM'
+    AVG = 'AVG'
+    # Set operators
+    LEN = 'LEN'
+    # Numeric agregation operators
+    FLOOR = 'FLOOR'
+    CEIL = 'CEIL'
 
 
 class Node:
