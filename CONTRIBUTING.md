@@ -18,7 +18,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 - [I Want To Contribute](#i-want-to-contribute)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
-- [Your First Code Contribution](#your-first-code-contribution)
+- [Contributing code](#contributing-code)
 - [Improving The Documentation](#improving-the-documentation)
 - [Styleguides](#styleguides)
 - [Commit Messages](#commit-messages)
@@ -39,21 +39,6 @@ If you then still feel the need to ask a question and need clarification, we rec
 - Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
 
 We will then take care of the issue as soon as possible.
-
-<!--
-You might want to create a separate issue tag for questions and include it in this description. People should then tag their issues accordingly.
-
-Depending on how large the project is, you may want to outsource the questioning, e.g. to Stack Overflow or Gitter. You may add additional contact and information possibilities:
-- IRC
-- Slack
-- Gitter
-- Stack Overflow tag
-- Blog
-- FAQ
-- Roadmap
-- E-Mail List
-- Forum
--->
 
 ## I Want To Contribute
 
@@ -120,14 +105,11 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/flamap
 - Use a **clear and descriptive title** for the issue to identify the suggestion.
 - Provide a **step-by-step description of the suggested enhancement** in as many details as possible.
 - **Describe the current behavior** and **explain which behavior you expected to see instead** and why. At this point you can also tell which alternatives do not work for you.
-- You may want to **include screenshots and animated GIFs** which help you demonstrate the steps or point out the part which the suggestion is related to. You can use [this tool](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows, and [this tool](https://github.com/colinkeenan/silentcast) or [this tool](https://github.com/GNOME/byzanz) on Linux. <!-- this should only be included if the project has a GUI -->
 - **Explain why this enhancement would be useful** to most Flama users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
-<!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
+### Contributing code
 
-### Your First Code Contribution
-
-Make sure that you follow the [tutorial](https://flamapy.github.io/) available in the website to prepare your first commit.
+Make sure that you follow the tutorial available in the [website](https://flamapy.github.io/) beforehand to prepare your first commit.
 
 #### Are you already part of the community? 
 As a main contributor within our community, such as those affiliated with universities involved in Flama's development, you are entrusted with the ability to commit directly to the development branch. This comes with the critical responsibility of ensuring that every commit maintains our code quality standards. It is essential that you run both mypy and prospector successfully before finalizing each commit, upholding the integrity and reliability of our codebase.
@@ -154,7 +136,7 @@ In our commitment to maintain high-quality code, we enforce strict adherence to 
 - **mypy**: We use `mypy` for static type checking. It helps catch type errors and inconsistencies in our Python code. Before submitting your code, ensure that it passes all `mypy` checks without errors.
 - **prospector**: `prospector` is a comprehensive linting tool we use to identify potential coding issues. It covers code style, best practices, and potential errors. Your code should adhere to the guidelines identified by `prospector` and should pass all its checks.
   
-To streamline your development process, we recommend setting up both `mypy` and `prospector` in your local development environment. This allows you to catch and address issues early, reducing the likelihood of failed checks during the pull request process. For detailed setup and usage instructions, refer to our [Development Environment Setup Guide](#development-environment-setup-guide).
+To streamline your development process, we recommend setting up both `mypy` and `prospector` in your local development environment. This allows you to catch and address issues early, reducing the likelihood of failed checks during the pull request process. 
 
 By following these standards, you contribute not only functional code but also code that aligns with our quality and stylistic expectations. This practice helps us maintain a clean, efficient, and robust codebase for Flama.
 
