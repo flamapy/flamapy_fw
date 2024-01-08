@@ -116,17 +116,6 @@ As a main contributor within our community, such as those affiliated with univer
 
 For contributors who are not part of this core group, we have a slightly different process. We ask you to kindly fork the repository and submit your contributions via a pull request to the develop branch. This approach allows us to maintain a structured and collaborative workflow, ensuring each contribution is thoroughly reviewed and seamlessly integrated. By following these guidelines, you help us sustain the quality and consistency of Flama, making it a robust and reliable tool for all users.
 
-### Improving The Documentation
-Good documentation is just as important as good code in an open-source project like Flama. It's the gateway for new users and a reference for existing ones. Whether you're fixing typos, clarifying existing content, or adding new sections, your contributions make the project more accessible to everyone. When contributing to the documentation:
-
-- **Clarity and Conciseness**: Strive to be clear and concise. Remember, readers come from various backgrounds, and what seems obvious to you might not be to someone else.
-- **Consistent Language**: Use language consistent with the existing documentation. Pay attention to the tone and style to ensure a seamless reading experience.
-- **Examples and Tutorials**: Where possible, supplement explanations with examples or tutorials. They can be invaluable in helping users understand how to use Flama effectively.
-- **Keep It Up-To-Date**: Technology evolves rapidly, and documentation should reflect these changes. Help us keep the documentation current by updating it as the project grows and evolves.
-- **Technical Accuracy**: Ensure technical accuracy in your contributions. Double-check commands, configurations, and code snippets for correctness.
-
-Before submitting changes to the documentation, preview them to catch any formatting issues. If you're introducing significant changes or new sections, consider opening an issue first to discuss it with the community. This collaborative approach helps us maintain comprehensive and user-friendly documentation.
-
 ## Styleguides
 
 ### Code Quality and Standards
