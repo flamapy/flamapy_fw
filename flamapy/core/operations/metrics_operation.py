@@ -22,7 +22,10 @@ class Metrics(Operation):
         self.model: Optional[VariabilityModel] = None
 
     @abstractmethod
-    def calculate_metamodel_metrics(self) -> List[Dict[str, Any]]:
+    def calculate_metamodel_metrics(
+        self,
+        model: VariabilityModel,
+    ) -> List[Dict[str, Any]]:
         """Return a list of metrics for each metamodel"""  
 
     def only_these_metrics(self, filter: List[str]) -> None:
