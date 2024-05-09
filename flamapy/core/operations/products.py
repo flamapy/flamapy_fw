@@ -1,7 +1,7 @@
 from abc import abstractmethod
-from typing import Any
 
 from flamapy.core.operations import Operation
+from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
 
 
 class Products(Operation):
@@ -11,5 +11,5 @@ class Products(Operation):
         pass
 
     @abstractmethod
-    def get_products(self) -> list[Any]:
+    def get_products(self) -> list[Configuration]:
         pass
