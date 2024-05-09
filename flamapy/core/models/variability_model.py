@@ -10,5 +10,6 @@ class VariabilityModel(ABC):
 
 
 class VariabilityElement():
+
     def __init__(self, name: str) -> None:
         self.name = name

@@ -1,8 +1,10 @@
 class FlamaException(Exception):
     pass
 
+
 class ParsingException(Exception):
     pass
+
 
 class PluginNotFound(FlamaException):
     pass
