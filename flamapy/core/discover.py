@@ -179,7 +179,6 @@ class DiscoverMetamodels:
         operation = plugin.get_operation(operation_name)
         return plugin.use_operation(operation, src)
 
-
     def use_operation_from_vm(
         self,
         operation_name: str,
@@ -218,7 +217,7 @@ class DiscoverMetamodels:
         operation = plugin.use_operation(operation, vm_temp)
 
         return operation.get_result()
-    
+
     def use_operation_from_file(
         self,
         operation_name: str,
@@ -226,7 +225,7 @@ class DiscoverMetamodels:
         plugin_name: Optional[str] = None,
         configuration_file: Optional[str] = None
     ) -> Any:
-        
+
         if operation_name not in self.get_name_operations():
             raise OperationNotFound()
 

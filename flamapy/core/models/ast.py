@@ -15,7 +15,7 @@ class ASTOperation(Enum):
     EQUALS = 'EQUALS'
     LOWER = 'LOWER'
     GREATER = 'GREATER'
-    LOWER_EQUALS  = 'LOWER_EQUALS'
+    LOWER_EQUALS = 'LOWER_EQUALS'
     GREATER_EQUALS = 'GREATER_EQUALS'
     NOT_EQUALS = 'NOT_EQUALS'
     # Arithmetic operators
@@ -24,7 +24,7 @@ class ASTOperation(Enum):
     MUL = 'MUL'
     DIV = 'DIV'
     # Aggregation operators
-    SUM ='SUM'
+    SUM = 'SUM'
     AVG = 'AVG'
     # Set operators
     LEN = 'LEN'
