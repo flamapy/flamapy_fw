@@ -1,14 +1,15 @@
 from abc import abstractmethod
 
 from flamapy.core.operations import Operation
+from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
 
 
-class Valid(Operation):
+class Configurations(Operation):
 
     @abstractmethod
     def __init__(self) -> None:
         pass
 
     @abstractmethod
-    def is_valid(self) -> bool:
+    def get_configurations(self) -> list[Configuration]:
         pass

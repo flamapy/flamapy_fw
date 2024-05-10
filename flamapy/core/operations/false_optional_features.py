@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Any
 
 from flamapy.core.operations import Operation
-
+from flamapy.core.models.variability_model import VariabilityElement
 
 class FalseOptionalFeatures(Operation):
     """A feature is defined as `false optional` if the selection of its parent makes the feature
@@ -13,5 +13,5 @@ class FalseOptionalFeatures(Operation):
     """
 
     @abstractmethod
-    def get_false_optional_features(self) -> list[Any]:
+    def get_false_optional_features(self) -> list[VariabilityElement]:
         pass

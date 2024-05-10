@@ -3,12 +3,12 @@ from abc import abstractmethod
 from flamapy.core.operations import Operation
 
 
-class ProductsNumber(Operation):
+class Satisfiable(Operation):
 
     @abstractmethod
     def __init__(self) -> None:
         pass
 
     @abstractmethod
-    def get_products_number(self) -> int:
+    def is_satisfiable(self) -> bool:
         pass

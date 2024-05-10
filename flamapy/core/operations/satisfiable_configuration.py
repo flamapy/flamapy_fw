@@ -4,16 +4,16 @@ from flamapy.metamodels.configuration_metamodel.models.configuration import Conf
 from flamapy.core.operations import Operation
 
 
-class ValidConfiguration(Operation):
+class SatistiableConfiguration(Operation):
 
     @abstractmethod
     def __init__(self) -> None:
         pass
 
     @abstractmethod
-    def set_configuration(self, configuration: Configuration) -> None:
+    def set_configuration(self, configuration: Configuration, is_full: bool) -> None:
         pass
 
     @abstractmethod
-    def is_valid(self) -> bool:
+    def is_satisfiable(self) -> bool:
         pass
