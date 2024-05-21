@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-    name="flamapy",
-    version="1.7.0.dev0",
+    name="flamapy-fw",
+    version="1.0.0.dev0",
     author="Flamapy",
     author_email="flamapy@us.es",
     description="Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.",
@@ -21,9 +21,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.9',
-    install_requires=[
-        'hug>=2.6.1',
-    ],
     extras_require={
         'dev': [
             'pytest',
