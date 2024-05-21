@@ -12,7 +12,7 @@ from .false_optional_features import \
 from .filter import Filter  # pylint: disable=cyclic-import
 from .configurations import Configuration  # pylint: disable=cyclic-import
 from .configurations_number import ConfigurationsNumber  # pylint: disable=cyclic-import
-from .estimated_products_number import EstimatedProductsNumber  # pylint: disable=cyclic-import
+from .estimated_configurations_number import EstimatedConfigurationsNumber  # pylint: disable=cyclic-import
 from .satisfiable import Satisfiable  # pylint: disable=cyclic-import
 from .satisfiable_configuration import \
     SatistiableConfiguration  # pylint: disable=cyclic-import
@@ -24,5 +24,5 @@ from .metrics_operation import Metrics  # pylint: disable=cyclic-import
 __all__ = ["Commonality", "DeadFeatures", "CoreFeatures", "FalseOptionalFeatures", 
            "ErrorDetection", "ErrorDiagnosis", "Operation", "Variability", "CountLeafs", 
            "AverageBranchingFactor", "Filter", "Sampling", 
-           "EstimatedProductsNumber", "AtomicSets", 'Metrics', 
+           "EstimatedConfigurationsNumber", "AtomicSets", 'Metrics', 
            "Satisfiable", "SatistiableConfiguration", "Configuration", "ConfigurationsNumber"]
