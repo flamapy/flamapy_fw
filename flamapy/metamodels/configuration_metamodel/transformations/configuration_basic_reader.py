@@ -20,7 +20,7 @@ class ConfigurationBasicReader(TextToModel):
         csv_reader = self.get_configuration_from_csv(self._path)
         elements = {}
         for row in csv_reader:
-            elements[VariabilityElement(row[0])] = True
+            elements[row[0]] = True
         return Configuration(elements)
 
     def get_configuration_from_csv(self, path: str) -> list[list[str]]:

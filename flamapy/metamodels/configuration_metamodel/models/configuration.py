@@ -8,7 +8,7 @@ class Configuration(VariabilityModel):
     def get_extension() -> str:
         return 'configuration'
 
-    def __init__(self, elements: dict[VariabilityElement, bool]) -> None:
+    def __init__(self, elements: dict[Any, bool]) -> None:
         self.elements = elements
 
     def get_selected_elements(self) -> list[Any]:
@@ -23,10 +23,7 @@ class Configuration(VariabilityModel):
         return hash(frozenset(self.elements.items()))
 
     def __str__(self) -> str:
-        return ', '.join([e.name for e in self.elements if hasattr(e, 'name')])
+        return ', '.join([str(e) for e in self.get_selected_elements()])
     
     def __iter__(self):
         return iter(self.elements)
-
-    def has(self, name: str) -> bool:
-        return any(name == element.name for element in self.elements.keys())
