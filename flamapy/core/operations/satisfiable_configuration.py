@@ -4,7 +4,7 @@ from flamapy.metamodels.configuration_metamodel.models.configuration import Conf
 from flamapy.core.operations import Operation
 
 
-class SatistiableConfiguration(Operation):
+class SatisfiableConfiguration(Operation):
 
     @abstractmethod
     def __init__(self) -> None:
