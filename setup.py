@@ -4,10 +4,16 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+def read_requirements(file):
+    with open(file, "r") as fh:
+        return fh.read().splitlines()
+
+# Read development requirements from the dev-requirements.txt file
+dev_requirements = read_requirements("requirements-dev.txt")
 
 setuptools.setup(
     name="flamapy-fw",
-    version="2.0.0.dev1",
+    version="2.0.0.dev2",
     author="Flamapy",
     author_email="flamapy@us.es",
     description="Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem.",
@@ -22,13 +28,7 @@ setuptools.setup(
     ],
     python_requires='>=3.9',
     extras_require={
-        'dev': [
-            'pytest',
-            'pytest-mock',
-            'prospector',
-            'mypy',
-            'coverage',
-        ]
+        'dev': dev_requirements
     },
     entry_points={
         'console_scripts': [
