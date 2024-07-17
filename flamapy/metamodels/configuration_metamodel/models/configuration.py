@@ -1,5 +1,5 @@
 from typing import Any
-from flamapy.core.models import VariabilityModel, VariabilityElement
+from flamapy.core.models import VariabilityModel
 
 
 class Configuration(VariabilityModel):
@@ -24,6 +24,6 @@ class Configuration(VariabilityModel):
 
     def __str__(self) -> str:
         return ', '.join([str(e) for e in self.get_selected_elements()])
-    
+
     def __iter__(self):
         return iter(self.elements)

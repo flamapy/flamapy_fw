@@ -1,7 +1,6 @@
 import csv
 
 from flamapy.core.transformations.text_to_model import TextToModel
-from flamapy.core.models.variability_model import VariabilityElement
 
 from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
 from flamapy.core.utils import file_exists

@@ -189,7 +189,7 @@ class DiscoverMetamodels:
 
         if operation_name not in self.get_name_operations():
             raise OperationNotFound()
-
+        vm_temp = vm_orig
         if plugin_name is not None:
             plugin = self.plugins.get_plugin_by_name(plugin_name)
             #vm_temp = plugin.use_transformation_t2m(file)
