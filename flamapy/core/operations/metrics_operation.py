@@ -1,8 +1,8 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 import logging
 import json 
 
-from typing import Any, Optional, Collection
+from typing import Any, Optional, Collection, Type
 
 from flamapy.core.exceptions import FlamaException
 from flamapy.core.transformations.model_to_model import ModelToModel
@@ -12,13 +12,18 @@ from flamapy.core.models import VariabilityModel
 LOGGER = logging.getLogger('Metrics')
 
 
-class Metrics(Operation):
+class Metrics(Operation, metaclass=ABCMeta):
     """This is intended to host a set of metrics calculations for a variability model.
 
     This abstract class will recruit all its implementations and agregate the results
     """
     filter: Optional[list[str]] = None
     result: list[dict[str, Any]] = []
+
+    @property
+    @abstractmethod
+    def model_type_extension(self) -> str:
+        """Return the model type extension for the specific metric."""
 
     def __init__(self) -> None:
         self.model: Optional[VariabilityModel] = None
@@ -37,24 +42,24 @@ class Metrics(Operation):
         for subclass in Metrics.__subclasses__(): 
             # We first have to identify the metamodels that are being used and 
             # transform this model to the correspointing metamodel
-            metrics_operation = subclass()
+            metrics_operation = subclass()  # type: ignore
             if self.model.__class__.get_extension() == metrics_operation.model_type_extension:
                 # If its the metamodel that math the model, calculate the metrics
                 # Then we calculate the metrics for each metamodel
-                sub_metric = subclass()
+                sub_metric = subclass()  # type: ignore
                 sub_metric.filter = self.filter
-                self.result.append(sub_metric.calculate_metamodel_metrics(model))
+                self.result.extend(sub_metric.calculate_metamodel_metrics(model))
             else:
                 # If not, search a transformation, transform and call the calutation
                 m_to_m = self._search_transformations(self.model.__class__.get_extension(), 
                                                       metrics_operation.model_type_extension)
                 dest_model = m_to_m(self.model).transform()
-                sub_metric = subclass()
+                sub_metric = subclass()  # type: ignore
                 sub_metric.filter = self.filter
-                self.result.append(sub_metric.calculate_metamodel_metrics(dest_model))
+                self.result.extend(sub_metric.calculate_metamodel_metrics(dest_model))
         return self
 
-    def _search_transformations(self, orig: str, dest: str) -> ModelToModel:
+    def _search_transformations(self, orig: str, dest: str) -> Type[ModelToModel]:
         try:
             for m_to_m in ModelToModel.__subclasses__():
                 _orig = m_to_m.get_source_extension()

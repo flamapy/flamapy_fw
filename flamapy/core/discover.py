@@ -100,7 +100,7 @@ class DiscoverMetamodels:
         operations = []
         for operation in self.get_operations():
             operations.append(operation.__name__)
-            base = operation.__base__.__name__
+            base = operation.__base__.__name__ if operation.__base__ else ''
             if base != 'ABC':
                 operations.append(base)
 
@@ -146,7 +146,7 @@ class DiscoverMetamodels:
         operations = []
         for operation in self.get_operations_by_plugin(plugin_name):
             operations.append(operation.__name__)
-            base = operation.__base__.__name__
+            base = operation.__base__.__name__ if operation.__base__ else ''
             if base != 'ABC':
                 operations.append(base)
 
