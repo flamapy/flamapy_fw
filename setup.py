@@ -32,7 +32,7 @@ setuptools.setup(
     },
     entry_points={
         'console_scripts': [
-            'flamapy-admin = flamapy.commands:flamapy_admin',
+            'flamapy = flamapy.commands:flamapy_cli',
         ],
     },
 )

@@ -38,17 +38,20 @@ class Metrics(Operation):
             # We first have to identify the metamodels that are being used and 
             # transform this model to the correspointing metamodel
             metrics_operation = subclass()
-
             if self.model.__class__.get_extension() == metrics_operation.model_type_extension:
                 # If its the metamodel that math the model, calculate the metrics
                 # Then we calculate the metrics for each metamodel
-                self.result.append(subclass().calculate_metamodel_metrics(model))
+                sub_metric = subclass()
+                sub_metric.filter = self.filter
+                self.result.append(sub_metric.calculate_metamodel_metrics(model))
             else:
                 # If not, search a transformation, transform and call the calutation
                 m_to_m = self._search_transformations(self.model.__class__.get_extension(), 
                                                       metrics_operation.model_type_extension)
                 dest_model = m_to_m(self.model).transform()
-                self.result.append(subclass().calculate_metamodel_metrics(dest_model))
+                sub_metric = subclass()
+                sub_metric.filter = self.filter
+                self.result.append(sub_metric.calculate_metamodel_metrics(dest_model))
         return self
 
     def _search_transformations(self, orig: str, dest: str) -> ModelToModel:
