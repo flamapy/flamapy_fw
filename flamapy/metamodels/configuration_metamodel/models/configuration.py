@@ -24,7 +24,7 @@ class Configuration(VariabilityModel):
 
     def __str__(self) -> str:
         return ', '.join([str(e) for e in self.get_selected_elements()])
-    
+
     def __repr__(self) -> str:
         return f"Configuration({self.elements})"
 
