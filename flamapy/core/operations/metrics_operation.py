@@ -1,8 +1,8 @@
-from abc import abstractmethod, ABCMeta
+from abc import abstractmethod
 import logging
 import json 
 
-from typing import Any, Optional, Collection, Type
+from typing import Any, Optional, Collection
 
 from flamapy.core.exceptions import FlamaException
 from flamapy.core.transformations.model_to_model import ModelToModel
@@ -12,18 +12,13 @@ from flamapy.core.models import VariabilityModel
 LOGGER = logging.getLogger('Metrics')
 
 
-class Metrics(Operation, metaclass=ABCMeta):
+class Metrics(Operation):
     """This is intended to host a set of metrics calculations for a variability model.
 
     This abstract class will recruit all its implementations and agregate the results
     """
     filter: Optional[list[str]] = None
     result: list[dict[str, Any]] = []
-
-    @property
-    @abstractmethod
-    def model_type_extension(self) -> str:
-        """Return the model type extension for the specific metric."""
 
     def __init__(self) -> None:
         self.model: Optional[VariabilityModel] = None
@@ -42,24 +37,21 @@ class Metrics(Operation, metaclass=ABCMeta):
         for subclass in Metrics.__subclasses__(): 
             # We first have to identify the metamodels that are being used and 
             # transform this model to the correspointing metamodel
-            metrics_operation = subclass()  # type: ignore
+            metrics_operation = subclass()
+
             if self.model.__class__.get_extension() == metrics_operation.model_type_extension:
                 # If its the metamodel that math the model, calculate the metrics
                 # Then we calculate the metrics for each metamodel
-                sub_metric = subclass()  # type: ignore
-                sub_metric.filter = self.filter
-                self.result.extend(sub_metric.calculate_metamodel_metrics(model))
+                self.result.append(subclass().calculate_metamodel_metrics(model))
             else:
                 # If not, search a transformation, transform and call the calutation
                 m_to_m = self._search_transformations(self.model.__class__.get_extension(), 
                                                       metrics_operation.model_type_extension)
                 dest_model = m_to_m(self.model).transform()
-                sub_metric = subclass()  # type: ignore
-                sub_metric.filter = self.filter
-                self.result.extend(sub_metric.calculate_metamodel_metrics(dest_model))
+                self.result.append(subclass().calculate_metamodel_metrics(dest_model))
         return self
 
-    def _search_transformations(self, orig: str, dest: str) -> Type[ModelToModel]:
+    def _search_transformations(self, orig: str, dest: str) -> ModelToModel:
         try:
             for m_to_m in ModelToModel.__subclasses__():
                 _orig = m_to_m.get_source_extension()
@@ -88,26 +80,33 @@ class Metrics(Operation, metaclass=ABCMeta):
         return float(round(len(collection1) / len(collection2), precision))
 
     @staticmethod
-    def construct_result(name: Optional[str] = None,
-                         doc: Optional[str] = None,
-                         result: Optional[Any] = None, 
-                         size: Optional[int] = None, 
-                         ratio: Optional[float] = None
+    def construct_result(name: str,
+                         doc: str,
+                         result: Any, 
+                         size: int = 0, 
+                         ratio: float = 0.0,
+                         parent: Optional[Any] = None,
+                         level: int = 0
                          ) -> dict[str, Any]:
-        """Constructs a dictionary with named keys from the provided list and other arguments.
-
-            property name: The property name.
-            description: The description of the property
-            value (optional): the list of abstract features.
-            size (optional): the length of the list.
-            ratio (optional): the percentage of abstract features with regards the total number 
-                              of features.
+        """Constructs a dictionary with named keys from the provided values.
+        
+        Arguments:
+            name: The property name.
+            doc: The description of the property.
+            result: The value(s).
+            size (optional): The length of the values (number of values).
+            ratio (optional): The percentage of values with regards the total number of possible 
+            values.
+            parent (optional): The parent metrics of which this metric is based on 
+            (for organization purposes).
+            level (optional): The number of ancestors of this metrics (for organization purposes).
         """
-
         return {
-            "name": name or "Default Name",  # Using a default value if name is None
-            "documentation": doc or "Default Documentation",
-            "result": result or [],
-            "size": size or 0,
-            "ratio": ratio or 0.0
+            "name": name,
+            "documentation": doc,
+            "result": result,
+            "size": size,
+            "ratio": ratio,
+            "parent": parent,
+            "level": level
         }
