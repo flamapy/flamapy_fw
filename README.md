@@ -8,8 +8,10 @@ The main features of the framework are:
 * Support multiple operations. It is developed, having in mind multi-model operations such as those depicted by Familiar  and single-model operations.
 
 ## Available plugins
-[flamapy-fm](https://github.com/flamapy/fm_metamodel)
-[flamapy-sat](https://github.com/flamapy/pysat_metamodel)
+[flamapy](https://github.com/flamapy/flamapy). This is a meta-package that installs all plugins for feature modelling analysis and the CLI and Python interfaces. 
+[flamapy-fm](https://github.com/flamapy/fm_metamodel) This is a plugin that provides support for feature modelling. Include several readers/writers from different formats.
+[flamapy-sat](https://github.com/flamapy/pysat_metamodel) This plugin enable different analysis operations that require sat as backend.
+[flamapy-bdd](https://github.com/flamapy/bdd_metamodel) This plugin enable different analysis operations that require bdd as backend. 
 
 ## Documentation
 

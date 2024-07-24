@@ -19,7 +19,9 @@ class ConfigurationBasicReader(TextToModel):
         csv_reader = self.get_configuration_from_csv(self._path)
         elements = {}
         for row in csv_reader:
-            elements[row[0]] = row[1]
+            # Assuming that row[1] is supposed to represent a boolean value
+            # Convert 'true'/'false' strings to actual boolean values
+            elements[row[0]] = row[1].lower() == 'true'
         return Configuration(elements)
 
     def get_configuration_from_csv(self, path: str) -> list[list[str]]:
