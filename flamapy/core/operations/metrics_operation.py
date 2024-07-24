@@ -47,7 +47,7 @@ class Metrics(Operation, metaclass=ABCMeta):
             if self.model.__class__.get_extension() == metrics_operation.model_type_extension:
                 # If its the metamodel that math the model, calculate the metrics
                 # Then we calculate the metrics for each metamodel
-                sub_metric = subclass() # type: ignore
+                sub_metric = subclass()  # type: ignore
                 sub_metric.filter = self.filter
                 self.result.extend(sub_metric.calculate_metamodel_metrics(model))
             else:
