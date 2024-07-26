@@ -73,7 +73,7 @@ class Node:
             if node.is_binary_op():
                 res = f'({res})'
         else:
-            res = safename(str(node))
+            res = str(node)
         return res
 
     def pretty_str(self) -> str:
