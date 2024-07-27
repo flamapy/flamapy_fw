@@ -15,7 +15,7 @@ class ASTOperation(Enum):
     EQUALS = 'EQUALS'
     LOWER = 'LOWER'
     GREATER = 'GREATER'
-    LOWER_EQUALS  = 'LOWER_EQUALS'
+    LOWER_EQUALS = 'LOWER_EQUALS'
     GREATER_EQUALS = 'GREATER_EQUALS'
     NOT_EQUALS = 'NOT_EQUALS'
     # Arithmetic operators
@@ -24,7 +24,7 @@ class ASTOperation(Enum):
     MUL = 'MUL'
     DIV = 'DIV'
     # Aggregation operators
-    SUM ='SUM'
+    SUM = 'SUM'
     AVG = 'AVG'
     # Set operators
     LEN = 'LEN'
@@ -56,7 +56,7 @@ class Node:
         return not self.is_unique_term() and not self.is_unary_op()
 
     def __str__(self) -> str:
-        data = self.data.value if self.is_op() else self.data
+        data = self.data.value if self.is_op() else safename(str(self.data))
         if self.left and self.right:
             return f'{data}[{self.left}][{self.right}]'
         if self.left and not self.right:
@@ -77,7 +77,7 @@ class Node:
         return res
 
     def pretty_str(self) -> str:
-        data = self.data.value if self.is_op() else self.data
+        data = self.data.value if self.is_op() else safename(str(self.data))
         left = Node._get_pretty_str_node(self.left) if self.left is not None else ''
         right = Node._get_pretty_str_node(self.right) if self.right is not None else ''
 
@@ -302,3 +302,7 @@ def get_clause_from_or_node(node: Node) -> list[Any]:
         term = node.right.data if node.right.is_term() else f'-{node.right.left.data}'
         clause.append(term)
     return clause
+
+
+def safename(name: str) -> str:
+    return f'"{name}"' if ' ' in name else name

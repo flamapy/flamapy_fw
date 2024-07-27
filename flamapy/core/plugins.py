@@ -26,8 +26,8 @@ class Operations(UserList[Type[Operation]]):
     data: list[Type[Operation]]
 
     def search_by_name(self, name: str) -> Type[Operation]:
-        candidates = filter(
-            lambda op: name in [op.__name__, op.__base__.__name__],
+        candidates: filter[Type[Operation]] = filter(
+            lambda op: name in [op.__name__, op.__base__.__name__ if op.__base__ else ''],
             self.data
         )
 

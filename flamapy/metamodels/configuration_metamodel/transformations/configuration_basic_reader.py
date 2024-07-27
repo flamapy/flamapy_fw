@@ -1,7 +1,6 @@
 import csv
 
 from flamapy.core.transformations.text_to_model import TextToModel
-from flamapy.core.models.variability_model import VariabilityElement
 
 from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
 from flamapy.core.utils import file_exists
@@ -20,7 +19,9 @@ class ConfigurationBasicReader(TextToModel):
         csv_reader = self.get_configuration_from_csv(self._path)
         elements = {}
         for row in csv_reader:
-            elements[VariabilityElement(row[0])] = True
+            # Assuming that row[1] is supposed to represent a boolean value
+            # Convert 'true'/'false' strings to actual boolean values
+            elements[row[0]] = row[1].lower() == 'true'
         return Configuration(elements)
 
     def get_configuration_from_csv(self, path: str) -> list[list[str]]:

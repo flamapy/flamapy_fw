@@ -3,12 +3,12 @@ from abc import abstractmethod
 from flamapy.core.operations import Operation
 
 
-class Valid(Operation):
+class EstimatedConfigurationsNumber(Operation):
 
     @abstractmethod
     def __init__(self) -> None:
         pass
 
     @abstractmethod
-    def is_valid(self) -> bool:
+    def get_configurations_number(self) -> int:
         pass

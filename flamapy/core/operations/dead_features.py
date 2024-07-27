@@ -1,7 +1,7 @@
 from abc import abstractmethod
-from typing import Any
 
 from flamapy.core.operations import Operation
+from flamapy.core.models.variability_model import VariabilityElement
 
 
 class DeadFeatures(Operation):
@@ -11,5 +11,5 @@ class DeadFeatures(Operation):
         pass
 
     @abstractmethod
-    def get_dead_features(self) -> list[Any]:
+    def get_dead_features(self) -> list[VariabilityElement]:
         pass

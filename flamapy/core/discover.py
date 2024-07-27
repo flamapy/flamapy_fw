@@ -100,7 +100,7 @@ class DiscoverMetamodels:
         operations = []
         for operation in self.get_operations():
             operations.append(operation.__name__)
-            base = operation.__base__.__name__
+            base = operation.__base__.__name__ if operation.__base__ else ''
             if base != 'ABC':
                 operations.append(base)
 
@@ -146,7 +146,7 @@ class DiscoverMetamodels:
         operations = []
         for operation in self.get_operations_by_plugin(plugin_name):
             operations.append(operation.__name__)
-            base = operation.__base__.__name__
+            base = operation.__base__.__name__ if operation.__base__ else ''
             if base != 'ABC':
                 operations.append(base)
 
@@ -179,7 +179,6 @@ class DiscoverMetamodels:
         operation = plugin.get_operation(operation_name)
         return plugin.use_operation(operation, src)
 
-
     def use_operation_from_vm(
         self,
         operation_name: str,
@@ -190,7 +189,7 @@ class DiscoverMetamodels:
 
         if operation_name not in self.get_name_operations():
             raise OperationNotFound()
-
+        vm_temp = vm_orig
         if plugin_name is not None:
             plugin = self.plugins.get_plugin_by_name(plugin_name)
             #vm_temp = plugin.use_transformation_t2m(file)
@@ -218,7 +217,7 @@ class DiscoverMetamodels:
         operation = plugin.use_operation(operation, vm_temp)
 
         return operation.get_result()
-    
+
     def use_operation_from_file(
         self,
         operation_name: str,
@@ -226,7 +225,7 @@ class DiscoverMetamodels:
         plugin_name: Optional[str] = None,
         configuration_file: Optional[str] = None
     ) -> Any:
-        
+
         if operation_name not in self.get_name_operations():
             raise OperationNotFound()
 

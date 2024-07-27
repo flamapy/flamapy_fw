@@ -6,8 +6,6 @@ ignore-paths:
   - build
   - tests
   - skel_metamodel
-  - main.py
-  - main2.py
 
 pycodestyle:
   options:

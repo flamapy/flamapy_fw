@@ -1,69 +1,148 @@
-# Contributing
+<!-- omit in toc -->
+# Contributing to Flama
 
-As an open source project, Flamapy welcomes contributions of many forms.
+First off, thanks for taking the time to contribute! ❤️
 
-Examples of contributions include:
+All types of contributions are encouraged and valued. See the [Table of Contents](#table-of-contents) for different ways to help and details about how this project handles them. Please make sure to read the relevant section before making your contribution. It will make it a lot easier for us maintainers and smooth out the experience for all involved. The community looks forward to your contributions. 🎉
 
-* Code patches
-* Documentation improvements
-* Bug reports and patch reviews
+> And if you like the project, but just don't have time to contribute, that's fine. There are other easy ways to support the project and show your appreciation, which we would also be very happy about:
+> - Star the project
+> - Tweet about it
+> - Refer this project in your project's readme
+> - Mention the project at local meetups and tell your friends/colleagues
 
-Guide to contribute: [Wiki](https://github.com/diverso-lab/core/wiki/Contributing)
+<!-- omit in toc -->
+## Table of Contents
 
-## Code of Conduct
+- [I Have a Question](#i-have-a-question)
+- [I Want To Contribute](#i-want-to-contribute)
+- [Reporting Bugs](#reporting-bugs)
+- [Suggesting Enhancements](#suggesting-enhancements)
+- [Contributing code](#contributing-code)
+- [Styleguides](#styleguides)
+- [Commit Messages](#commit-messages)
+- [Join The Project Team](#join-the-project-team)
 
-### Our Pledge
 
-In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to make
-participation in our project and our community a harassment-free experience for everyone, regardless of age, body size,
-disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education,
-socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
-### Our Standards
+## I Have a Question
 
-Examples of behavior that contributes to creating a positive environment include:
+> If you want to ask a question, we assume that you have read the available [Documentation](https://flamapy.github.io/).
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+Before you ask a question, it is best to search for existing [Issues](https://github.com/flamapy/core/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
 
-Examples of unacceptable behavior by participants include:
+If you then still feel the need to ask a question and need clarification, we recommend the following:
 
-* The use of sexualized language or imagery and unwelcome sexual attention or advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or electronic address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a professional setting
+- Open an [Issue](https://github.com/flamapy/core/issues/new).
+- Provide as much context as you can about what you're running into.
+- Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
 
-### Our Responsibilities
+We will then take care of the issue as soon as possible.
 
-Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take
-appropriate and fair corrective action in response to any instances of unacceptable behavior.
+## I Want To Contribute
 
-Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits,
-issues, and other contributions that are not aligned to this Code of Conduct, or to ban temporarily or permanently any
-contributor for other behaviors that they deem inappropriate, threatening, offensive, or harmful.
+> ### Legal Notice <!-- omit in toc -->
+> When contributing to this project, you must agree that you have authored 100% of the content, that you have the necessary rights to the content and that the content you contribute may be provided under the project license.
 
-### Scope
+### Reporting Bugs
 
-This Code of Conduct applies within all project spaces, and it also applies when an individual is representing the
-project or its community in public spaces. Examples of representing a project or community include using an official
-project e-mail address, posting via an official social media account, or acting as an appointed representative at an
-online or offline event. Representation of a project may be further defined and clarified by project maintainers.
+<!-- omit in toc -->
+#### Before Submitting a Bug Report
 
-### Enforcement
+A good bug report shouldn't leave others needing to chase you up for more information. Therefore, we ask you to investigate carefully, collect information and describe the issue in detail in your report. Please complete the following steps in advance to help us fix any potential bug as fast as possible.
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at
-jagalindo@us.es. All complaints will be reviewed and investigated and will result in a response that is deemed
-necessary and appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to
-the reporter of an incident. Further details of specific enforcement policies may be posted separately.
+- Make sure that you are using the latest version.
+- Determine if your bug is really a bug and not an error on your side e.g. using incompatible environment components/versions (Make sure that you have read the [documentation](https://flamapy.github.io/). If you are looking for support, you might want to check [this section](#i-have-a-question)).
+- To see if other users have experienced (and potentially already solved) the same issue you are having, check if there is not already a bug report existing for your bug or error in the [bug tracker](https://github.com/flamapy/coreissues?q=label%3Abug).
+- Also make sure to search the internet (including Stack Overflow) to see if users outside of the GitHub community have discussed the issue.
+- Collect information about the bug:
+- Stack trace (Traceback)
+- OS, Platform and Version (Windows, Linux, macOS, x86, ARM)
+- Version of the interpreter, compiler, SDK, runtime environment, package manager, depending on what seems relevant.
+- Possibly your input and the output
+- Can you reliably reproduce the issue? And can you also reproduce it with older versions?
 
-Project maintainers who do not follow or enforce the Code of Conduct in good faith may face temporary or permanent
-repercussions as determined by other members of the project’s leadership.
+<!-- omit in toc -->
+#### How Do I Submit a Good Bug Report?
 
-### Attribution
+> You must never report security related issues, vulnerabilities or bugs including sensitive information to the issue tracker, or elsewhere in public. Instead sensitive bugs must be sent by email to .
+<!-- You may add a PGP key to allow the messages to be sent encrypted as well. -->
 
-This Code of Conduct is adapted from the Contributor Covenant, version 1.4, available at
-https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+We use GitHub issues to track bugs and errors. If you run into an issue with the project:
+
+- Open an [Issue](https://github.com/flamapy/core/issues/new). (Since we can't be sure at this point whether it is a bug or not, we ask you not to talk about a bug yet and not to label the issue.)
+- Explain the behavior you would expect and the actual behavior.
+- Please provide as much context as possible and describe the *reproduction steps* that someone else can follow to recreate the issue on their own. This usually includes your code. For good bug reports you should isolate the problem and create a reduced test case.
+- Provide the information you collected in the previous section.
+
+Once it's filed:
+
+- The project team will label the issue accordingly.
+- A team member will try to reproduce the issue with your provided steps. If there are no reproduction steps or no obvious way to reproduce the issue, the team will ask you for those steps and mark the issue as `needs-repro`. Bugs with the `needs-repro` tag will not be addressed until they are reproduced.
+- If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as possibly other tags (such as `critical`), and the issue will be left to be [implemented by someone](#your-first-code-contribution).
+
+<!-- You might want to create an issue template for bugs and errors that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
+
+
+### Suggesting Enhancements
+
+This section guides you through submitting an enhancement suggestion for Flama, **including completely new features and minor improvements to existing functionality**. Following these guidelines will help maintainers and the community to understand your suggestion and find related suggestions.
+
+<!-- omit in toc -->
+#### Before Submitting an Enhancement
+
+- Make sure that you are using the latest version.
+- Read the [documentation](https://flamapy.github.io/) carefully and find out if the functionality is already covered, maybe by an individual configuration.
+- Perform a [search](https://github.com/flamapy/core/issues) to see if the enhancement has already been suggested. If it has, add a comment to the existing issue instead of opening a new one.
+- Find out whether your idea fits with the scope and aims of the project. It's up to you to make a strong case to convince the project's developers of the merits of this feature. Keep in mind that we want features that will be useful to the majority of our users and not just a small subset. If you're just targeting a minority of users, consider writing an add-on/plugin library.
+
+<!-- omit in toc -->
+#### How Do I Submit a Good Enhancement Suggestion?
+
+Enhancement suggestions are tracked as [GitHub issues](https://github.com/flamapy/core/issues).
+
+- Use a **clear and descriptive title** for the issue to identify the suggestion.
+- Provide a **step-by-step description of the suggested enhancement** in as many details as possible.
+- **Describe the current behavior** and **explain which behavior you expected to see instead** and why. At this point you can also tell which alternatives do not work for you.
+- **Explain why this enhancement would be useful** to most Flama users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
+
+### Contributing code
+
+Make sure that you follow the tutorial available in the [website](https://flamapy.github.io/) beforehand to prepare your first commit.
+
+#### Are you already part of the community? 
+As a main contributor within our community, such as those affiliated with universities involved in Flama's development, you are entrusted with the ability to commit directly to the development branch. This comes with the critical responsibility of ensuring that every commit maintains our code quality standards. It is essential that you run both mypy and prospector successfully before finalizing each commit, upholding the integrity and reliability of our codebase.
+
+For contributors who are not part of this core group, we have a slightly different process. We ask you to kindly fork the repository and submit your contributions via a pull request to the develop branch. This approach allows us to maintain a structured and collaborative workflow, ensuring each contribution is thoroughly reviewed and seamlessly integrated. By following these guidelines, you help us sustain the quality and consistency of Flama, making it a robust and reliable tool for all users.
+
+## Styleguides
+
+### Code Quality and Standards
+
+In our commitment to maintain high-quality code, we enforce strict adherence to code standards and quality checks. Two key tools in our workflow are `mypy` and `prospector`. They play a crucial role in ensuring the reliability and maintainability of our code. Here's what you need to know:
+
+- **mypy**: We use `mypy` for static type checking. It helps catch type errors and inconsistencies in our Python code. Before submitting your code, ensure that it passes all `mypy` checks without errors.
+- **prospector**: `prospector` is a comprehensive linting tool we use to identify potential coding issues. It covers code style, best practices, and potential errors. Your code should adhere to the guidelines identified by `prospector` and should pass all its checks.
+  
+To streamline your development process, we recommend setting up both `mypy` and `prospector` in your local development environment. This allows you to catch and address issues early, reducing the likelihood of failed checks during the pull request process. 
+
+By following these standards, you contribute not only functional code but also code that aligns with our quality and stylistic expectations. This practice helps us maintain a clean, efficient, and robust codebase for Flama.
+
+### Commit Messages
+
+At Flama, we adhere to the principles of [Conventional Commits](https://www.conventionalcommits.org/) for our commit messages. This standardized format streamlines our commit history and simplifies the process of generating release notes. When writing your commit messages, please follow these guidelines:
+
+- **Structure**: Each commit message should consist of a header, body, and footer. The header has a special format that includes the type, scope, and subject.
+- **Types**: Use types like `feat` (new feature), `fix` (bug fix), `docs` (changes in documentation), `style` (formatting, missing semi colons, etc.), `refactor` (code change that neither fixes a bug nor adds a feature), `test` (adding missing tests), and `chore` (maintenance tasks).
+- **Scope**: The scope should be the specific feature or area of the code affected by the change.
+- **Descriptive Subject**: The subject contains a succinct description of the change. Use the imperative, present tense: "change" not "changed" nor "changes".
+- **Body and Footer**: The body should include the motivation for the change and contrast it with previous behavior. The footer should reference any relevant issues or pull requests.
+
+Adhering to the Conventional Commits format helps ensure our commit history is readable and navigable. This practice is not just for maintainers but for anyone who contributes to Flama. By following these standards, you help us keep our project organized and our community aligned.
+
+## Join The Project Team
+Feel free to show interest by emailing us at flamapy@us.es or joinign our [telegram group](https://t.me/+ACFjaVH2ynUxNTZk). 
+
+<!-- omit in toc -->
+## Attribution
+This guide is based on the **contributing-gen**. [Make your own](https://github.com/bttger/contributing-gen)!
