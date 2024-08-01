@@ -92,8 +92,8 @@ class Metrics(Operation, metaclass=ABCMeta):
     def construct_result(name: str,
                          doc: str,
                          result: Any, 
-                         size: int = 0, 
-                         ratio: float = 0.0,
+                         size: Optional[int] = None, 
+                         ratio: Optional[float] = None,
                          parent: Optional[Any] = None,
                          level: int = 0
                          ) -> dict[str, Any]:  
