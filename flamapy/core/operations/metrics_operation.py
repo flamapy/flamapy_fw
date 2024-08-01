@@ -39,6 +39,7 @@ class Metrics(Operation, metaclass=ABCMeta):
         self.model = model
         # Identifying all implementations of MetricsOperation
 
+        print(f'subclasses metrics: {Metrics.__subclasses__()}')
         for subclass in Metrics.__subclasses__(): 
             # We first have to identify the metamodels that are being used and 
             # transform this model to the correspointing metamodel
@@ -62,6 +63,7 @@ class Metrics(Operation, metaclass=ABCMeta):
 
     def _search_transformations(self, orig: str, dest: str) -> Type[ModelToModel]:
         try:
+            print(f'subclases: {ModelToModel.__subclasses__()}')
             for m_to_m in ModelToModel.__subclasses__():
                 _orig = m_to_m.get_source_extension()
                 _dest = m_to_m.get_destination_extension()
@@ -69,7 +71,7 @@ class Metrics(Operation, metaclass=ABCMeta):
                     return m_to_m
         except FlamaException:
             LOGGER.exception("No transformation found that is required in the Metrics operation")
-        raise FlamaException("No transformation found")
+        raise FlamaException(f"No transformation found for {orig} -> {dest}")
 
     def get_result(self) -> list[dict[str, Any]]:
         return self.result
