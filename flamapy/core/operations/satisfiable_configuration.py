@@ -11,7 +11,7 @@ class SatisfiableConfiguration(Operation):
         pass
 
     @abstractmethod
-    def set_configuration(self, configuration: Configuration, is_full: bool) -> None:
+    def set_configuration(self, configuration: Configuration) -> None:
         pass
 
     @abstractmethod

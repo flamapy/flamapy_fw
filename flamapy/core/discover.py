@@ -184,7 +184,9 @@ class DiscoverMetamodels:
         operation_name: str,
         vm_orig: VariabilityModel,
         plugin_name: Optional[str] = None,
-        configuration_file: Optional[str] = None
+        configuration_file: Optional[str] = None,
+        is_full: Optional[bool] = False
+
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -212,7 +214,9 @@ class DiscoverMetamodels:
             if configuration_file is None:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
-            operation.set_configuration(cast(Configuration, configuration))
+            configuration = cast(Configuration, configuration)
+            configuration.set_full(is_full)
+            operation.set_configuration(configuration)
 
         operation = plugin.use_operation(operation, vm_temp)
 
@@ -223,7 +227,8 @@ class DiscoverMetamodels:
         operation_name: str,
         file: str,
         plugin_name: Optional[str] = None,
-        configuration_file: Optional[str] = None
+        configuration_file: Optional[str] = None,
+        is_full: Optional[bool] = False
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -251,7 +256,9 @@ class DiscoverMetamodels:
             if configuration_file is None:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
-            operation.set_configuration(cast(Configuration, configuration))
+            configuration = cast(Configuration, configuration)
+            configuration.set_full(is_full)
+            operation.set_configuration(configuration)
 
         operation = plugin.use_operation(operation, vm_temp)
         return operation.get_result()

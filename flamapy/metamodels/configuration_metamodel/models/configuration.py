@@ -10,6 +10,10 @@ class Configuration(VariabilityModel):
 
     def __init__(self, elements: dict[Any, bool]) -> None:
         self.elements = elements
+        self.is_full = False
+
+    def set_full(self, is_full: bool) -> None:
+        self.is_full = is_full
 
     def get_selected_elements(self) -> list[Any]:
         return [e for e in self.elements if self.elements[e]]
