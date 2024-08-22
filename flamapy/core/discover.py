@@ -179,6 +179,7 @@ class DiscoverMetamodels:
         operation = plugin.get_operation(operation_name)
         return plugin.use_operation(operation, src)
 
+    # pylint: disable=too-many-arguments
     def use_operation_from_vm(
         self,
         operation_name: str,
@@ -186,7 +187,6 @@ class DiscoverMetamodels:
         plugin_name: Optional[str] = None,
         configuration_file: Optional[str] = None,
         is_full: Optional[bool] = False
-
     ) -> Any:
 
         if operation_name not in self.get_name_operations():
@@ -215,13 +215,15 @@ class DiscoverMetamodels:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
             configuration = cast(Configuration, configuration)
-            configuration.set_full(is_full)
+            is_full_value = is_full if is_full is not None else False
+            configuration.set_full(is_full_value)
             operation.set_configuration(configuration)
 
         operation = plugin.use_operation(operation, vm_temp)
 
         return operation.get_result()
 
+    # pylint: disable=too-many-arguments
     def use_operation_from_file(
         self,
         operation_name: str,
@@ -257,7 +259,8 @@ class DiscoverMetamodels:
                 raise ConfigurationNotFound()
             configuration = self.__transform_to_model_from_file(configuration_file)
             configuration = cast(Configuration, configuration)
-            configuration.set_full(is_full)
+            is_full_value = is_full if is_full is not None else False
+            configuration.set_full(is_full_value)
             operation.set_configuration(configuration)
 
         operation = plugin.use_operation(operation, vm_temp)
