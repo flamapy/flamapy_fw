@@ -3,29 +3,9 @@ name: Python analysis
 on: [push, pull_request]
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools
-          pip install .
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+ 
   
   ruff:
-    needs: setup  # Wait for setup to complete
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,11 +13,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.9
-      - name: Restore dependencies from cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
+      - name: Installing depencencies
+        run: |
+              python -m pip install --upgrade pip
+              pip install setuptools
+              pip install .
       - name: Installing Ruff linter
         run: |
             pip install ruff
@@ -46,7 +26,6 @@ jobs:
             ruff check .
 
   mypy:
-    needs: setup  # Wait for setup to complete
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,11 +33,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.9
-      - name: Restore dependencies from cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
+      - name: Installing depencencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install setuptools
+            pip install .
       - name: Installing mypy
         run: |
             pip install mypy
@@ -67,7 +46,6 @@ jobs:
           mypy -p flamapy
 
   pytest:
-    needs: setup  # Wait for setup to complete
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,14 +53,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.9
-      - name: Restore dependencies from cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
+      - name: Installing depencencies
+        run: |
+              python -m pip install --upgrade pip
+              pip install setuptools
+              pip install .
       - name: Installing pytest
         run: |
-          pip freeze
+          pip list
           pip install pytest
       - name: Running tests
         run: |
