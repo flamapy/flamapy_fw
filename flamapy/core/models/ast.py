@@ -1,8 +1,10 @@
+import string
 from typing import Any
 from enum import Enum
 
 
 class ASTOperation(Enum):
+    # logical operators
     REQUIRES = 'REQUIRES'
     EXCLUDES = 'EXCLUDES'
     AND = 'AND'
@@ -33,6 +35,35 @@ class ASTOperation(Enum):
     CEIL = 'CEIL'
 
 
+LOGICAL_OPERATORS = [ASTOperation.REQUIRES, 
+                     ASTOperation.EXCLUDES, 
+                     ASTOperation.AND,
+                     ASTOperation.OR, 
+                     ASTOperation.XOR, 
+                     ASTOperation.IMPLIES,
+                     ASTOperation.NOT, 
+                     ASTOperation.EQUIVALENCE]
+
+
+ARITHMETIC_OPERATORS = [ASTOperation.ADD, 
+                        ASTOperation.SUB, 
+                        ASTOperation.MUL, 
+                        ASTOperation.DIV,
+                        ASTOperation.EQUALS,
+                        ASTOperation.LOWER,
+                        ASTOperation.GREATER,
+                        ASTOperation.LOWER_EQUALS,
+                        ASTOperation.GREATER_EQUALS,
+                        ASTOperation.NOT_EQUALS]
+
+
+AGGREGATION_OPERATORS = [ASTOperation.SUM, 
+                         ASTOperation.AVG, 
+                         ASTOperation.LEN,
+                         ASTOperation.FLOOR,
+                         ASTOperation.CEIL]
+
+  
 class Node:
 
     def __init__(self, data: Any, left: 'Node' = None, right: 'Node' = None):  # type: ignore
@@ -53,7 +84,10 @@ class Node:
         return not self.is_op() and self.left is None
 
     def is_binary_op(self) -> bool:
-        return not self.is_unique_term() and not self.is_unary_op()
+        return not self.is_unique_term() and not self.is_unary_op() and not self.is_aggregate_op()
+
+    def is_aggregate_op(self) -> bool:
+        return self.is_op() and self.data in AGGREGATION_OPERATORS
 
     def __str__(self) -> str:
         data = self.data.value if self.is_op() else safename(str(self.data))
@@ -85,6 +119,9 @@ class Node:
             res = f'{data}'
         elif self.is_unary_op():
             res = f'{data} {left}'
+        elif self.is_aggregate_op():
+            if self.right is not None:
+                res = f'{data}({left}, {right})'
         else:  # binary operation
             res = f'{left} {data} {right}'
         return res
@@ -120,6 +157,36 @@ class AST:
         ast = self.to_cnf()
         return get_clauses(ast)
 
+    def get_operators(self) -> list[ASTOperation]:
+        operators = list()
+        stack = [self.root]
+        while stack:
+            node = stack.pop()
+            if node is not None:
+                if node.is_op():
+                    operators.append(node.data)
+                if node.is_unary_op():
+                    stack.append(node.left)
+                elif node.is_binary_op():
+                    stack.append(node.right)
+                    stack.append(node.left)
+        return operators
+
+    def get_operands(self) -> list[Any]:
+        operands = list()
+        stack = [self.root]
+        while stack:
+            node = stack.pop()
+            if node is not None:    
+                if node.is_term():
+                    operands.append(node.data)
+                elif node.is_unary_op():
+                    stack.append(node.left)
+                elif node.is_binary_op():
+                    stack.append(node.right)
+                    stack.append(node.left)
+        return operands
+    
     def __str__(self) -> str:
         return str(self.root)
 
@@ -305,4 +372,16 @@ def get_clause_from_or_node(node: Node) -> list[Any]:
 
 
 def safename(name: str) -> str:
-    return f'"{name}"' if ' ' in name else name
+    if '.' in name:
+        return '.'.join([safe_simple_name(simple_name) for simple_name in name.split('.')])
+    return safe_simple_name(name)
+
+
+def safe_simple_name(name: str) -> str:
+    if name.startswith("'") and name.endswith("'"):
+        return name
+    return f'"{name}"' if any(char not in safecharacters() for char in name) else name
+
+
+def safecharacters() -> str:
+    return string.ascii_letters + string.digits + '_'
