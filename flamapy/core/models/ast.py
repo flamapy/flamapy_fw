@@ -122,6 +122,8 @@ class Node:
         elif self.is_aggregate_op():
             if self.right is not None:
                 res = f'{data}({left}, {right})'
+            else:
+                res = f'{data}({left})'
         else:  # binary operation
             res = f'{left} {data} {right}'
         return res
