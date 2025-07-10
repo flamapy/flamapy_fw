@@ -12,10 +12,12 @@ upload-pypi:
 	python3 -m twine upload --repository pypi dist/*
 
 lint:
-	prospector
+	echo "To lint this project, make sure that you have installed the core" >&2;
+	ruff check .
 
 mypy:
-	mypy flamapy
+	echo "To lint this project, make sure that you have installed the core" >&2;
+	mypy -p flamapy
 
 test:
 	python -m pytest -sv

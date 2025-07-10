@@ -123,7 +123,7 @@ class Node:
             if self.right is not None:
                 res = f'{data}({left}, {right})'
             else:
-                res = f'{data}({left})'
+                res = f'{data}({left})'  # type: ignore[unreachable]
         else:  # binary operation
             res = f'{left} {data} {right}'
         return res
