@@ -1,10 +1,10 @@
 import json
+from typing import cast
 
 from flamapy.core.transformations.model_to_text import ModelToText
 from flamapy.core.models import VariabilityModel
 
 from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
-
 
 
 class ConfigurationJSONWriter(ModelToText):
@@ -15,8 +15,10 @@ class ConfigurationJSONWriter(ModelToText):
 
     def __init__(self, path: str, source_model: VariabilityModel) -> None:
         self._path: str = path
-        self._configuration: Configuration = source_model
+        self._configuration: Configuration = cast(Configuration, source_model)
 
     def transform(self) -> str:
-        with open(self._path, "w", encoding="utf-8") as file:
-            json.dump(self._configuration.elements, file, ensure_ascii=False, indent=4)
+        json_str = json.dumps(self._configuration.elements, ensure_ascii=False, indent=4)
+        with open(self._path, 'w', encoding='utf-8') as file:
+            file.write(json_str)
+        return json_str
