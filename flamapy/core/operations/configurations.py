@@ -5,7 +5,6 @@ from flamapy.metamodels.configuration_metamodel.models.configuration import Conf
 
 
 class Configurations(Operation):
-
     @abstractmethod
     def __init__(self) -> None:
         pass

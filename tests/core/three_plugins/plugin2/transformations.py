@@ -10,11 +10,11 @@ from .variability_model import ExampleModel
 class M2M(ModelToModel):
     @staticmethod
     def get_source_extension() -> str:
-        return 'ext1'
+        return "ext1"
 
     @staticmethod
     def get_destination_extension() -> str:
-        return 'ext2'
+        return "ext2"
 
     def __init__(self, source_model: ExampleModel) -> None:
         pass
@@ -30,7 +30,7 @@ class M2T(ModelToText):
 class T2M(TextToModel):
     @staticmethod
     def get_source_extension() -> str:
-        return 'xml2'
+        return "xml2"
 
     def __init__(self, path: str) -> None:
         pass

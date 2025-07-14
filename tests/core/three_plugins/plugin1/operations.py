@@ -13,4 +13,4 @@ class Operation1(Satisfiable):
         return True
 
     def get_result(self):
-        return ''
+        return ""

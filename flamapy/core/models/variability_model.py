@@ -2,14 +2,12 @@ from abc import ABC, abstractmethod
 
 
 class VariabilityModel(ABC):
-
     @staticmethod
     @abstractmethod
     def get_extension() -> str:
-        """ Plugin file extension """
+        """Plugin file extension"""
 
 
-class VariabilityElement():
-
+class VariabilityElement:
     def __init__(self, name: str) -> None:
         self.name = name

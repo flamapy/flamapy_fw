@@ -5,7 +5,6 @@ from flamapy.core.models.variability_model import VariabilityElement
 
 
 class CoreFeatures(Operation):
-
     @abstractmethod
     def __init__(self) -> None:
         pass

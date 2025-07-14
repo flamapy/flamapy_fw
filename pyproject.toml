@@ -1,0 +1,54 @@
+[tool.ruff]
+line-length = 100  # Matches max-line-length from pycodestyle
+target-version = "py38"  # Adjust if using another Python version
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "C", "PL", "RUF"]  # Includes pycodestyle, pylint, and McCabe complexity
+ignore = [
+    "RUF012",  # Equivalent to Pylint's super-init-not-called
+    "RUF002", # Weird symbols on docstring
+    "RUF001", # Weird symbols string
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10  # Equivalent to enabling mccabe in Prospector
+
+[tool.ruff.lint.per-file-ignores]
+"flamapy/metamodels/fm_metamodel/transformations/pysat_to_fm.py" = ["ALL"]  # Ignore this file entirely
+"tests/*" = ["ALL"]  # Ignore all test files
+"build/*" = ["ALL"]
+"resources/*" = ["ALL"]
+".mypy_cache/*" = ["ALL"]
+"venv/*" = ["ALL"]
+".venv/*" = ["ALL"]
+"env/*" = ["ALL"]
+"flamapy_fm.egg-info/*" = ["ALL"]
+"__pycache__/*" = ["ALL"]
+"skel_metamodel/*" =["ALL"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 100  # Matches your existing pycodestyle setting
+
+# MYPY CONFIGURATION
+[tool.mypy]
+scripts_are_modules = true
+show_traceback = true
+
+# Strict checking
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+warn_no_return = true
+strict_optional = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+# Show error codes for type: ignore comments
+show_error_codes = true
+
+# Suppress missing imports errors
+ignore_missing_imports = true
+
+# Warn about unreachable or redundant code
+warn_unreachable = true

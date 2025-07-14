@@ -5,68 +5,73 @@ from enum import Enum
 
 class ASTOperation(Enum):
     # logical operators
-    REQUIRES = 'REQUIRES'
-    EXCLUDES = 'EXCLUDES'
-    AND = 'AND'
-    OR = 'OR'
-    XOR = 'XOR'
-    IMPLIES = 'IMPLIES'
-    NOT = 'NOT'
-    EQUIVALENCE = 'EQUIVALENCE'
+    REQUIRES = "REQUIRES"
+    EXCLUDES = "EXCLUDES"
+    AND = "AND"
+    OR = "OR"
+    XOR = "XOR"
+    IMPLIES = "IMPLIES"
+    NOT = "NOT"
+    EQUIVALENCE = "EQUIVALENCE"
     # Comparison operators
-    EQUALS = 'EQUALS'
-    LOWER = 'LOWER'
-    GREATER = 'GREATER'
-    LOWER_EQUALS = 'LOWER_EQUALS'
-    GREATER_EQUALS = 'GREATER_EQUALS'
-    NOT_EQUALS = 'NOT_EQUALS'
+    EQUALS = "EQUALS"
+    LOWER = "LOWER"
+    GREATER = "GREATER"
+    LOWER_EQUALS = "LOWER_EQUALS"
+    GREATER_EQUALS = "GREATER_EQUALS"
+    NOT_EQUALS = "NOT_EQUALS"
     # Arithmetic operators
-    ADD = 'ADD'
-    SUB = 'SUB'
-    MUL = 'MUL'
-    DIV = 'DIV'
+    ADD = "ADD"
+    SUB = "SUB"
+    MUL = "MUL"
+    DIV = "DIV"
     # Aggregation operators
-    SUM = 'SUM'
-    AVG = 'AVG'
+    SUM = "SUM"
+    AVG = "AVG"
     # Set operators
-    LEN = 'LEN'
+    LEN = "LEN"
     # Numeric agregation operators
-    FLOOR = 'FLOOR'
-    CEIL = 'CEIL'
+    FLOOR = "FLOOR"
+    CEIL = "CEIL"
 
 
-LOGICAL_OPERATORS = [ASTOperation.REQUIRES, 
-                     ASTOperation.EXCLUDES, 
-                     ASTOperation.AND,
-                     ASTOperation.OR, 
-                     ASTOperation.XOR, 
-                     ASTOperation.IMPLIES,
-                     ASTOperation.NOT, 
-                     ASTOperation.EQUIVALENCE]
+LOGICAL_OPERATORS = [
+    ASTOperation.REQUIRES,
+    ASTOperation.EXCLUDES,
+    ASTOperation.AND,
+    ASTOperation.OR,
+    ASTOperation.XOR,
+    ASTOperation.IMPLIES,
+    ASTOperation.NOT,
+    ASTOperation.EQUIVALENCE,
+]
 
 
-ARITHMETIC_OPERATORS = [ASTOperation.ADD, 
-                        ASTOperation.SUB, 
-                        ASTOperation.MUL, 
-                        ASTOperation.DIV,
-                        ASTOperation.EQUALS,
-                        ASTOperation.LOWER,
-                        ASTOperation.GREATER,
-                        ASTOperation.LOWER_EQUALS,
-                        ASTOperation.GREATER_EQUALS,
-                        ASTOperation.NOT_EQUALS]
+ARITHMETIC_OPERATORS = [
+    ASTOperation.ADD,
+    ASTOperation.SUB,
+    ASTOperation.MUL,
+    ASTOperation.DIV,
+    ASTOperation.EQUALS,
+    ASTOperation.LOWER,
+    ASTOperation.GREATER,
+    ASTOperation.LOWER_EQUALS,
+    ASTOperation.GREATER_EQUALS,
+    ASTOperation.NOT_EQUALS,
+]
 
 
-AGGREGATION_OPERATORS = [ASTOperation.SUM, 
-                         ASTOperation.AVG, 
-                         ASTOperation.LEN,
-                         ASTOperation.FLOOR,
-                         ASTOperation.CEIL]
+AGGREGATION_OPERATORS = [
+    ASTOperation.SUM,
+    ASTOperation.AVG,
+    ASTOperation.LEN,
+    ASTOperation.FLOOR,
+    ASTOperation.CEIL,
+]
 
-  
+
 class Node:
-
-    def __init__(self, data: Any, left: 'Node' = None, right: 'Node' = None):  # type: ignore
+    def __init__(self, data: Any, left: "Node" = None, right: "Node" = None):  # type: ignore
         self.data = data
         self.left = left
         self.right = right
@@ -92,40 +97,40 @@ class Node:
     def __str__(self) -> str:
         data = self.data.value if self.is_op() else safename(str(self.data))
         if self.left and self.right:
-            return f'{data}[{self.left}][{self.right}]'
+            return f"{data}[{self.left}][{self.right}]"
         if self.left and not self.right:
-            return f'{data}[{self.left}][]'
+            return f"{data}[{self.left}][]"
         if not self.left and self.right:
-            return f'{data}[][{self.right}]'
+            return f"{data}[][{self.right}]"
         return str(data)
 
     @staticmethod
-    def _get_pretty_str_node(node: 'Node') -> str:
-        res = ''
+    def _get_pretty_str_node(node: "Node") -> str:
+        res = ""
         if node.is_op():
-            res = f'{node.pretty_str()}'
+            res = f"{node.pretty_str()}"
             if node.is_binary_op():
-                res = f'({res})'
+                res = f"({res})"
         else:
             res = str(node)
         return res
 
     def pretty_str(self) -> str:
         data = self.data.value if self.is_op() else safename(str(self.data))
-        left = Node._get_pretty_str_node(self.left) if self.left is not None else ''
-        right = Node._get_pretty_str_node(self.right) if self.right is not None else ''
+        left = Node._get_pretty_str_node(self.left) if self.left is not None else ""
+        right = Node._get_pretty_str_node(self.right) if self.right is not None else ""
 
         if self.is_unique_term():
-            res = f'{data}'
+            res = f"{data}"
         elif self.is_unary_op():
-            res = f'{data} {left}'
+            res = f"{data} {left}"
         elif self.is_aggregate_op():
             if self.right is not None:
-                res = f'{data}({left}, {right})'
+                res = f"{data}({left}, {right})"
             else:
-                res = f'{data}({left})'  # type: ignore[unreachable]
+                res = f"{data}({left})"  # type: ignore[unreachable]
         else:  # binary operation
-            res = f'{left} {data} {right}'
+            res = f"{left} {data} {right}"
         return res
 
 
@@ -136,23 +141,24 @@ class AST:
         self.root = root
 
     @classmethod
-    def create_simple_binary_operation(cls, operation: ASTOperation,
-                                       left: str, right: str) -> 'AST':
+    def create_simple_binary_operation(
+        cls, operation: ASTOperation, left: str, right: str
+    ) -> "AST":
         return cls(Node(operation, Node(left), Node(right)))
 
     @classmethod
-    def create_simple_unary_operation(cls, operation: ASTOperation, elem: str) -> 'AST':
+    def create_simple_unary_operation(cls, operation: ASTOperation, elem: str) -> "AST":
         return cls(Node(operation, Node(elem)))
 
     @classmethod
-    def create_binary_operation(cls, operation: ASTOperation, left: Node, right: Node) -> 'AST':
+    def create_binary_operation(cls, operation: ASTOperation, left: Node, right: Node) -> "AST":
         return cls(Node(operation, left, right))
 
     @classmethod
-    def create_unary_operation(cls, operation: ASTOperation, elem: Node) -> 'AST':
+    def create_unary_operation(cls, operation: ASTOperation, elem: Node) -> "AST":
         return cls(Node(operation, elem))
 
-    def to_cnf(self) -> 'AST':
+    def to_cnf(self) -> "AST":
         return convert_into_cnf(self)
 
     def get_clauses(self) -> list[list[Any]]:
@@ -160,7 +166,7 @@ class AST:
         return get_clauses(ast)
 
     def get_operators(self) -> list[ASTOperation]:
-        operators = list()
+        operators = []
         stack = [self.root]
         while stack:
             node = stack.pop()
@@ -175,11 +181,11 @@ class AST:
         return operators
 
     def get_operands(self) -> list[Any]:
-        operands = list()
+        operands = []
         stack = [self.root]
         while stack:
             node = stack.pop()
-            if node is not None:    
+            if node is not None:
                 if node.is_term():
                     operands.append(node.data)
                 elif node.is_unary_op():
@@ -188,7 +194,7 @@ class AST:
                     stack.append(node.right)
                     stack.append(node.left)
         return operands
-    
+
     def __str__(self) -> str:
         return str(self.root)
 
@@ -226,23 +232,24 @@ def simplify_formula(ast: AST) -> AST:
         # Replace P EXCLUDES Q with !P v !Q.
         left = simplify_formula(AST(left)).root
         right = simplify_formula(AST(right)).root
-        result = AST.create_binary_operation(ASTOperation.OR, Node(ASTOperation.NOT, left), 
-                                             Node(ASTOperation.NOT, right))
+        result = AST.create_binary_operation(
+            ASTOperation.OR, Node(ASTOperation.NOT, left), Node(ASTOperation.NOT, right)
+        )
     elif logic_op == ASTOperation.EQUIVALENCE:
         # Replace P <=> Q with P => Q ∧ Q => P.
-        left = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES,
-                                                            left, right)).root
-        right = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES,
-                                                             right, left)).root
+        left = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES, left, right)).root
+        right = simplify_formula(
+            AST.create_binary_operation(ASTOperation.IMPLIES, right, left)
+        ).root
         result = AST.create_binary_operation(ASTOperation.AND, left, right)
     elif logic_op == ASTOperation.XOR:
         # Replace P XOR Q with (P ∧ !Q) v (!P ∧ Q).
-        left = simplify_formula(AST.create_binary_operation(ASTOperation.AND,
-                                                            left,
-                                                            Node(ASTOperation.NOT, right))).root
-        left = simplify_formula(AST.create_binary_operation(ASTOperation.AND,
-                                                            Node(ASTOperation.NOT, left),
-                                                            right)).root
+        left = simplify_formula(
+            AST.create_binary_operation(ASTOperation.AND, left, Node(ASTOperation.NOT, right))
+        ).root
+        left = simplify_formula(
+            AST.create_binary_operation(ASTOperation.AND, Node(ASTOperation.NOT, left), right)
+        ).root
         result = AST.create_binary_operation(ASTOperation.OR, left, right)
     elif logic_op == ASTOperation.AND:
         left = simplify_formula(AST(left)).root
@@ -269,29 +276,25 @@ def to_cnf(formula: AST) -> AST:
     res = formula
     node = formula.root
     if node.data == ASTOperation.AND:
-        res = AST.create_binary_operation(ASTOperation.AND,
-                                          to_cnf(AST(node.left)).root,
-                                          to_cnf(AST(node.right)).root)
+        res = AST.create_binary_operation(
+            ASTOperation.AND, to_cnf(AST(node.left)).root, to_cnf(AST(node.right)).root
+        )
     elif node.data == ASTOperation.OR:
         node.left = to_cnf(AST(node.left)).root
         node.right = to_cnf(AST(node.right)).root
         if node.left.data == ASTOperation.AND:
-            res = AST.create_binary_operation(ASTOperation.AND,
-                                              AST.create_binary_operation(ASTOperation.OR,
-                                                                          node.left.left,
-                                                                          node.right).root,
-                                              AST.create_binary_operation(ASTOperation.OR,
-                                                                          node.left.right,
-                                                                          node.right).root)
+            res = AST.create_binary_operation(
+                ASTOperation.AND,
+                AST.create_binary_operation(ASTOperation.OR, node.left.left, node.right).root,
+                AST.create_binary_operation(ASTOperation.OR, node.left.right, node.right).root,
+            )
             res = to_cnf(res)
         elif node.right.data == ASTOperation.AND:
-            res = AST.create_binary_operation(ASTOperation.AND,
-                                              AST.create_binary_operation(ASTOperation.OR,
-                                                                          node.left,
-                                                                          node.right.left).root,
-                                              AST.create_binary_operation(ASTOperation.OR,
-                                                                          node.left,
-                                                                          node.right.right).root)
+            res = AST.create_binary_operation(
+                ASTOperation.AND,
+                AST.create_binary_operation(ASTOperation.OR, node.left, node.right.left).root,
+                AST.create_binary_operation(ASTOperation.OR, node.left, node.right.right).root,
+            )
             res = to_cnf(res)
         else:
             res = AST.create_binary_operation(ASTOperation.OR, node.left, node.right)
@@ -316,27 +319,34 @@ def propagate_negation(node: Node, negated: bool = False) -> AST:
         result = propagate_negation(node.left, negated)
     elif node.data == ASTOperation.AND:
         if negated:
-            result = AST.create_binary_operation(ASTOperation.OR,
-                                                 propagate_negation(node.left, negated).root,
-                                                 propagate_negation(node.right, negated).root)
+            result = AST.create_binary_operation(
+                ASTOperation.OR,
+                propagate_negation(node.left, negated).root,
+                propagate_negation(node.right, negated).root,
+            )
         else:
-            result = AST.create_binary_operation(ASTOperation.AND,
-                                                 propagate_negation(node.left, negated).root,
-                                                 propagate_negation(node.right, negated).root)
+            result = AST.create_binary_operation(
+                ASTOperation.AND,
+                propagate_negation(node.left, negated).root,
+                propagate_negation(node.right, negated).root,
+            )
     elif node.data == ASTOperation.OR:
         if negated:
-            result = AST.create_binary_operation(ASTOperation.AND,
-                                                 propagate_negation(node.left, negated).root,
-                                                 propagate_negation(node.right, negated).root)
+            result = AST.create_binary_operation(
+                ASTOperation.AND,
+                propagate_negation(node.left, negated).root,
+                propagate_negation(node.right, negated).root,
+            )
         else:
-            result = AST.create_binary_operation(ASTOperation.OR,
-                                                 propagate_negation(node.left, negated).root,
-                                                 propagate_negation(node.right, negated).root)
+            result = AST.create_binary_operation(
+                ASTOperation.OR,
+                propagate_negation(node.left, negated).root,
+                propagate_negation(node.right, negated).root,
+            )
+    elif negated:
+        result = AST.create_unary_operation(ASTOperation.NOT, node)
     else:
-        if negated:
-            result = AST.create_unary_operation(ASTOperation.NOT, node)
-        else:
-            result = AST(node)
+        result = AST(node)
     return result
 
 
@@ -347,7 +357,7 @@ def get_clauses(ast: AST) -> list[list[Any]]:
     if node.is_term():
         result = [[node.data]]
     elif node.data == ASTOperation.NOT:
-        result = [['-' + node.left.data]]
+        result = [["-" + node.left.data]]
     elif node.data == ASTOperation.OR:
         result = [get_clause_from_or_node(node)]
     elif node.data == ASTOperation.AND:  # Each AND gives us two clauses
@@ -362,20 +372,20 @@ def get_clause_from_or_node(node: Node) -> list[Any]:
         # recursive OR belongs to the same clause
         clause.extend(get_clause_from_or_node(node.left))
     else:
-        term = node.left.data if node.left.is_term() else f'-{node.left.left.data}'
+        term = node.left.data if node.left.is_term() else f"-{node.left.left.data}"
         clause.append(term)
     if node.right.is_op() and node.right.data == ASTOperation.OR:
         # recursive OR belongs to the same clause
         clause.extend(get_clause_from_or_node(node.right))
     else:
-        term = node.right.data if node.right.is_term() else f'-{node.right.left.data}'
+        term = node.right.data if node.right.is_term() else f"-{node.right.left.data}"
         clause.append(term)
     return clause
 
 
 def safename(name: str) -> str:
-    if '.' in name:
-        return '.'.join([safe_simple_name(simple_name) for simple_name in name.split('.')])
+    if "." in name:
+        return ".".join([safe_simple_name(simple_name) for simple_name in name.split(".")])
     return safe_simple_name(name)
 
 
@@ -386,4 +396,4 @@ def safe_simple_name(name: str) -> str:
 
 
 def safecharacters() -> str:
-    return string.ascii_letters + string.digits + '_'
+    return string.ascii_letters + string.digits + "_"

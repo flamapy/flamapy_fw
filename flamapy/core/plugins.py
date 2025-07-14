@@ -27,8 +27,7 @@ class Operations(UserList[Type[Operation]]):
 
     def search_by_name(self, name: str) -> Type[Operation]:
         candidates: filter[Type[Operation]] = filter(
-            lambda op: name in [op.__name__, op.__base__.__name__ if op.__base__ else ''],
-            self.data
+            lambda op: name in [op.__name__, op.__base__.__name__ if op.__base__ else ""], self.data
         )
 
         try:
@@ -42,7 +41,6 @@ class Operations(UserList[Type[Operation]]):
 
 
 class Plugin:
-
     def __init__(self, module: ModuleType) -> None:
         self.module: ModuleType = module
         self.variability_model: VariabilityModel = None  # type: ignore
@@ -50,8 +48,7 @@ class Plugin:
         self.transformations: Transformations = Transformations()
 
     def __get_transformation(
-        self,
-        filter_transformation: Callable[..., bool]
+        self, filter_transformation: Callable[..., bool]
     ) -> Type[Transformation]:
         candidates = filter(filter_transformation, self.transformations)
         try:
@@ -80,12 +77,13 @@ class Plugin:
         extension = extract_filename_extension(src)
 
         def filter_transformations(transformation: Type[Transformation]) -> bool:
-            return issubclass(transformation, TextToModel) and\
-                transformation.get_source_extension() == extension
+            return (
+                issubclass(transformation, TextToModel)
+                and transformation.get_source_extension() == extension
+            )
 
         transformation: Type[TextToModel] = cast(
-            Type[TextToModel],
-            self.__get_transformation(filter_transformations)
+            Type[TextToModel], self.__get_transformation(filter_transformations)
         )
         result = transformation(src)
         return result.transform()
@@ -94,29 +92,27 @@ class Plugin:
         extension = extract_filename_extension(dst)
 
         def filter_transformations(transformation: Type[Transformation]) -> bool:
-            return issubclass(transformation, ModelToText) and\
-                transformation.get_destination_extension() == extension
+            return (
+                issubclass(transformation, ModelToText)
+                and transformation.get_destination_extension() == extension
+            )
 
         transformation: Type[ModelToText] = cast(
-            Type[ModelToText],
-            self.__get_transformation(filter_transformations)
+            Type[ModelToText], self.__get_transformation(filter_transformations)
         )
         result = transformation(path=dst, source_model=src)
         return result.transform()
 
-    def use_transformation_m2m(
-        self,
-        src: VariabilityModel,
-        dst: str
-    ) -> VariabilityModel:
+    def use_transformation_m2m(self, src: VariabilityModel, dst: str) -> VariabilityModel:
         def filter_transformations(transformation: Type[Transformation]) -> bool:
-            return issubclass(transformation, ModelToModel) and\
-                transformation.get_destination_extension() == dst and\
-                transformation.get_source_extension() == src.get_extension()
+            return (
+                issubclass(transformation, ModelToModel)
+                and transformation.get_destination_extension() == dst
+                and transformation.get_source_extension() == src.get_extension()
+            )
 
         transformation: Type[ModelToModel] = cast(
-            Type[ModelToModel],
-            self.__get_transformation(filter_transformations)
+            Type[ModelToModel], self.__get_transformation(filter_transformations)
         )
         result = transformation(src)
         return result.transform()
@@ -126,13 +122,13 @@ class Plugin:
 
     @property
     def name(self) -> str:
-        return self.module.__name__.split('.')[-1]
+        return self.module.__name__.split(".")[-1]
 
     def get_stats(self) -> dict[str, Any]:
         return {
-            'amount_operations': len(self.operations),
-            'amount_transformations': len(self.transformations),
-            'variability_model': bool(self.variability_model)
+            "amount_operations": len(self.operations),
+            "amount_transformations": len(self.transformations),
+            "variability_model": bool(self.variability_model),
         }
 
 
@@ -148,27 +144,19 @@ class Plugins(UserList[Plugin]):
         return plugin
 
     def get_plugin_by_name(self, name: str) -> Plugin:
-
         def plugin_filter(plugin: Plugin) -> bool:
             return plugin.name == name
 
         return self.__get_plugin_by_filter(plugin_filter)
 
-    def get_plugin_by_variability_model(
-        self,
-        variability_model: VariabilityModel
-    ) -> Plugin:
-
+    def get_plugin_by_variability_model(self, variability_model: VariabilityModel) -> Plugin:
         def plugin_filter(plugin: Plugin) -> bool:
-
-            return isinstance(variability_model,
-                              plugin.variability_model)  # type: ignore
+            return isinstance(variability_model, plugin.variability_model)  # type: ignore
             # TODO: Check if this error can be ignored
 
         return self.__get_plugin_by_filter(plugin_filter)
 
     def get_plugin_by_extension(self, extension: str) -> Plugin:
-
         def plugin_filter(plugin: Plugin) -> bool:
             return extension == plugin.get_extension()
 
@@ -188,7 +176,7 @@ class Plugins(UserList[Plugin]):
             return Operations()
 
     def get_stats(self) -> dict[str, Any]:
-        stats: dict[str, Any] = {'amount_plugins': len(self.data)}
+        stats: dict[str, Any] = {"amount_plugins": len(self.data)}
         for plugin in self.data:
             stats[plugin.name] = plugin.get_stats()
         return stats

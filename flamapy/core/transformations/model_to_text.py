@@ -5,7 +5,6 @@ from flamapy.core.transformations import Transformation
 
 
 class ModelToText(Transformation):
-
     @staticmethod
     @abstractmethod
     def get_destination_extension() -> str:

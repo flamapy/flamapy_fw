@@ -1,3 +1,3 @@
 PLUGIN_PATHS = [
-    'flamapy.metamodels',
+    "flamapy.metamodels",
 ]

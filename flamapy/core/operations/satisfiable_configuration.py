@@ -5,7 +5,6 @@ from flamapy.core.operations import Operation
 
 
 class SatisfiableConfiguration(Operation):
-
     @abstractmethod
     def __init__(self) -> None:
         pass
