@@ -25,6 +25,7 @@ class ConfigurationBasicWriter(ModelToText):
             writer.writerow([key, value])
         csv_content = output.getvalue()
         output.close()
-        with open(self._path, 'w', newline='', encoding='utf-8') as file:
-            file.write(csv_content)
+        if self._path is not None:
+            with open(self._path, 'w', newline='', encoding='utf-8') as file:
+                file.write(csv_content)
         return csv_content

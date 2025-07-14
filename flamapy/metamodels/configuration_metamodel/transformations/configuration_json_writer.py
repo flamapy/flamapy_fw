@@ -19,6 +19,7 @@ class ConfigurationJSONWriter(ModelToText):
 
     def transform(self) -> str:
         json_str = json.dumps(self._configuration.elements, ensure_ascii=False, indent=4)
-        with open(self._path, 'w', encoding='utf-8') as file:
-            file.write(json_str)
+        if self._path is not None:
+            with open(self._path, 'w', encoding='utf-8') as file:
+                file.write(json_str)
         return json_str
