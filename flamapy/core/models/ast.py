@@ -1,4 +1,3 @@
-import string
 from typing import Any
 from enum import Enum
 
@@ -95,7 +94,7 @@ class Node:
         return self.is_op() and self.data in AGGREGATION_OPERATORS
 
     def __str__(self) -> str:
-        data = self.data.value if self.is_op() else safename(str(self.data))
+        data = self.data.value if self.is_op() else str(self.data)
         if self.left and self.right:
             return f"{data}[{self.left}][{self.right}]"
         if self.left and not self.right:
@@ -116,7 +115,7 @@ class Node:
         return res
 
     def pretty_str(self) -> str:
-        data = self.data.value if self.is_op() else safename(str(self.data))
+        data = self.data.value if self.is_op() else str(self.data)
         left = Node._get_pretty_str_node(self.left) if self.left is not None else ""
         right = Node._get_pretty_str_node(self.right) if self.right is not None else ""
 
@@ -381,19 +380,3 @@ def get_clause_from_or_node(node: Node) -> list[Any]:
         term = node.right.data if node.right.is_term() else f"-{node.right.left.data}"
         clause.append(term)
     return clause
-
-
-def safename(name: str) -> str:
-    if "." in name:
-        return ".".join([safe_simple_name(simple_name) for simple_name in name.split(".")])
-    return safe_simple_name(name)
-
-
-def safe_simple_name(name: str) -> str:
-    if name.startswith("'") and name.endswith("'"):
-        return name
-    return f'"{name}"' if any(char not in safecharacters() for char in name) else name
-
-
-def safecharacters() -> str:
-    return string.ascii_letters + string.digits + "_"
