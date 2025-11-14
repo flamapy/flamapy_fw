@@ -50,7 +50,12 @@ class DiscoverMetamodels:
                 classes += self.search_classes(import_module(file_name))
             else:
                 _file = import_module(file_name)
-                classes += inspect.getmembers(_file, inspect.isclass)
+                classes += [
+                    member
+                    for member in inspect.getmembers(_file, inspect.isclass)
+                    if member[1].__module__ == _file.__name__
+                ]
+
         return classes
 
     def discover(self) -> Plugins:
