@@ -1,6 +1,6 @@
 [tool.ruff]
 line-length = 100  # Matches max-line-length from pycodestyle
-target-version = "py38"  # Adjust if using another Python version
+target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "C", "PL", "RUF"]  # Includes pycodestyle, pylint, and McCabe complexity
