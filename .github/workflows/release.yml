@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout git repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Automated Version Bump
         id: changelog
@@ -24,8 +24,8 @@ jobs:
       - name: Get variables
         id: get_variables
         run: |
-          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=IS_PRERELEASE::"${{contains(github.ref, 'dev')}}"
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
+          echo "IS_PRERELEASE=${{contains(github.ref, 'dev')}}" >> $GITHUB_OUTPUT
 
       - name: Publish release github
         uses: softprops/action-gh-release@v1
@@ -36,19 +36,19 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine
+          pip install build twine
 
       - name: Build and publish python package
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          python setup.py sdist bdist_wheel
+          python -m build
           twine upload dist/*
