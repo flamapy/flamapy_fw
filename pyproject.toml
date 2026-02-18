@@ -1,3 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flamapy-fw"
+version = "2.1.0.dev1"
+description = "Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem."
+readme = "README.md"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Flamapy", email = "flamapy@us.es" }]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "prospector",
+    "mypy",
+    "coverage",
+]
+
+[project.scripts]
+flamapy = "flamapy.commands:flamapy_cli"
+
+[project.urls]
+Homepage = "https://github.com/flamapy/core"
+
+[tool.setuptools.packages.find]
+include = ["flamapy.*"]
+
 [tool.ruff]
 line-length = 100  # Matches max-line-length from pycodestyle
 target-version = "py39"
