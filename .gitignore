@@ -1,4 +1,5 @@
 build
+dist
 env
 htmlcov
 flamapy/metamodels
