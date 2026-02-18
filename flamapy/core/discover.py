@@ -256,7 +256,7 @@ class DiscoverMetamodels:
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
         t2m_transformations = self.get_transformations_t2m()
-        extension = file.split(".")[-1]
+        extension = file.rsplit(".", maxsplit=1)[-1]
         t2m_filters = filter(
             lambda t2m: t2m.get_source_extension() == extension, t2m_transformations
         )
