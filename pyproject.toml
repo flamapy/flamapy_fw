@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flamapy-fw"
-version = "2.1.0.dev2"
+version = "2.5.0.dev0"
 description = "Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem."
 readme = "README.md"
 license = "GPL-3.0-or-later"
