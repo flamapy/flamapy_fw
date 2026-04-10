@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from enum import Enum
 
 
@@ -69,11 +69,25 @@ AGGREGATION_OPERATORS = [
 ]
 
 
+class NodeType(Enum):
+    """Semantic type of a leaf node in the AST."""
+    FEATURE = "Feature"
+    LITERAL = "Literal"
+    OPERATOR = "Operator"
+
+
 class Node:
-    def __init__(self, data: Any, left: "Node" = None, right: "Node" = None):  # type: ignore
+    def __init__(
+        self,
+        data: Any,
+        left: "Node" = None,  # type: ignore[assignment]
+        right: "Node" = None,  # type: ignore[assignment]
+        node_type: Optional[NodeType] = None,
+    ):
         self.data = data
         self.left = left
         self.right = right
+        self.node_type = node_type
 
     def is_term(self) -> bool:
         return not self.is_op()
@@ -92,6 +106,19 @@ class Node:
 
     def is_aggregate_op(self) -> bool:
         return self.is_op() and self.data in AGGREGATION_OPERATORS
+
+    def is_feature(self) -> bool:
+        """Return True if this node is explicitly marked as a feature reference."""
+        return self.node_type == NodeType.FEATURE
+
+    def is_literal(self) -> bool:
+        """Return True if this node is a literal value (not a feature reference).
+
+        Falls back to a type-based check for nodes without an explicit node_type.
+        """
+        if self.node_type is not None:
+            return self.node_type == NodeType.LITERAL
+        return isinstance(self.data, (int, float))
 
     def __str__(self) -> str:
         data = self.data.value if self.is_op() else str(self.data)
