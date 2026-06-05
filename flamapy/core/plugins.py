@@ -33,10 +33,10 @@ class Operations(UserList[Type[Operation]]):
         try:
             operation = next(candidates, None)
         except StopIteration:
-            raise OperationNotFound from StopIteration
+            raise OperationNotFound(f"Operation '{name}' not found.") from StopIteration
 
         if not operation:
-            raise OperationNotFound
+            raise OperationNotFound(f"Operation '{name}' not found.")
         return operation
 
 
