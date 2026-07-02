@@ -1,6 +1,8 @@
 from typing import Any, Optional
 from enum import Enum
 
+from flamapy.core.exceptions import FlamaException
+
 
 class ASTOperation(Enum):
     # logical operators
@@ -187,9 +189,30 @@ class AST:
     def to_cnf(self) -> "AST":
         return convert_into_cnf(self)
 
-    def get_clauses(self) -> list[list[Any]]:
+    def get_clauses(self, method: str = 'distributive') -> list[list[Any]]:
+        """Return the CNF clauses of this AST.
+
+        ``method='distributive'`` (default) uses the classic distributive expansion and
+        returns clauses over the formula's own variables. ``method='tseytin'`` uses the
+        Tseytin transformation; the returned clauses may contain fresh auxiliary
+        variables. Use :meth:`get_clauses_with_aux` when those auxiliary variable names
+        are needed (e.g. to register them as non-feature solver variables).
+        """
+        if method == 'tseytin':
+            clauses, _ = tseytin_cnf(self)
+            return clauses
         ast = self.to_cnf()
         return get_clauses(ast)
+
+    def get_clauses_with_aux(self, method: str = 'tseytin') -> tuple[list[list[Any]], list[str]]:
+        """Return ``(clauses, aux_names)`` for the given CNF ``method``.
+
+        For ``'tseytin'`` this exposes the auxiliary variable names introduced by the
+        encoding. For ``'distributive'`` the auxiliary list is always empty.
+        """
+        if method == 'tseytin':
+            return tseytin_cnf(self)
+        return get_clauses(self.to_cnf()), []
 
     def get_operators(self) -> list[ASTOperation]:
         operators = []
@@ -376,6 +399,85 @@ def propagate_negation(node: Node, negated: bool = False) -> AST:
     else:
         result = AST(node)
     return result
+
+
+TSEYTIN_AUX_PREFIX = "__tseytin_"
+
+
+def _negate_literal(literal: Any) -> Any:
+    """Flip the sign of a CNF literal that uses the ``"-name"`` string convention."""
+    if isinstance(literal, str) and literal.startswith("-"):
+        return literal[1:]
+    return "-" + str(literal)
+
+
+def _tseytin_gate_clauses(op: ASTOperation, gate: Any, a: Any, b: Any) -> list[list[Any]]:
+    """Biconditional clauses encoding ``gate <=> (a op b)`` for a binary logical ``op``.
+
+    ``a`` and ``b`` are literals; ``gate`` is the fresh auxiliary literal. Encoding each
+    connective directly (rather than expanding it first) is what keeps the transformation
+    linear in the formula size.
+    """
+    g, na, nb, ng = gate, _negate_literal(a), _negate_literal(b), _negate_literal(gate)
+    if op == ASTOperation.AND:
+        return [[ng, a], [ng, b], [g, na, nb]]
+    if op == ASTOperation.OR:
+        return [[g, na], [g, nb], [ng, a, b]]
+    if op in (ASTOperation.IMPLIES, ASTOperation.REQUIRES):  # a -> b  ==  (not a) or b
+        return [[g, a], [g, nb], [ng, na, b]]
+    if op == ASTOperation.EXCLUDES:  # (not a) or (not b)
+        return [[g, a], [g, b], [ng, na, nb]]
+    if op == ASTOperation.EQUIVALENCE:  # a <-> b
+        return [[ng, na, b], [ng, a, nb], [g, a, b], [g, na, nb]]
+    if op == ASTOperation.XOR:  # a xor b
+        return [[ng, a, b], [ng, na, nb], [g, na, b], [g, a, nb]]
+    raise FlamaException(
+        f"Operation '{op}' is not a propositional connective supported by the Tseytin "
+        f"transformation."
+    )
+
+
+def tseytin_cnf(ast: AST) -> tuple[list[list[Any]], list[str]]:
+    """Return an equisatisfiable CNF of ``ast`` using the Tseytin transformation.
+
+    Unlike the distributive :func:`to_cnf`, this produces a CNF whose size is linear
+    in the size of the formula by introducing one fresh auxiliary variable per gate.
+    Each logical connective is encoded directly (no distributive expansion), so formulas
+    that blow up under :func:`to_cnf` (XOR chains, wide equivalences) stay compact. Gates
+    are encoded as full biconditionals (``g <=> subformula``) so that every model of the
+    original formula extends to exactly one model of the encoding; this preserves model
+    counts and configuration enumeration (once auxiliary variables are projected out).
+
+    Returns a tuple ``(clauses, aux_names)`` where ``clauses`` is a list of clauses
+    (each a list of literals in the same ``"-name"`` string convention as
+    :func:`get_clauses`) and ``aux_names`` lists every auxiliary variable name
+    introduced (each prefixed with :data:`TSEYTIN_AUX_PREFIX`) so callers can register
+    them as solver variables that are not features.
+
+    Raises :class:`FlamaException` if the formula contains a non-propositional operator
+    (arithmetic, comparison or aggregation).
+    """
+    clauses: list[list[Any]] = []
+    aux_names: list[str] = []
+    counter = [0]
+
+    def literal_of(node: Node) -> Any:
+        if node.is_term():
+            return node.data
+        if node.data == ASTOperation.NOT:
+            # Negation of a single literal is free; no gate needed.
+            return _negate_literal(literal_of(node.left))
+        left_lit = literal_of(node.left)
+        right_lit = literal_of(node.right)
+        counter[0] += 1
+        gate = f"{TSEYTIN_AUX_PREFIX}{counter[0]}"
+        aux_names.append(gate)
+        clauses.extend(_tseytin_gate_clauses(node.data, gate, left_lit, right_lit))
+        return gate
+
+    root_literal = literal_of(ast.root)
+    clauses.append([root_literal])  # assert the whole formula is true
+    return clauses, aux_names
 
 
 def get_clauses(ast: AST) -> list[list[Any]]:
