@@ -11,6 +11,7 @@ from flamapy.core.exceptions import TransformationNotFound
 from flamapy.core.exceptions import ConfigurationNotFound
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Operation
+from flamapy.core.operations.descriptor import OperationDescriptor, collect_descriptors
 from flamapy.core.plugins import Operations, Plugin, Plugins
 from flamapy.core.transformations import Transformation
 from flamapy.core.transformations.text_to_model import TextToModel
@@ -103,6 +104,13 @@ class DiscoverMetamodels:
                 operations.append(base)
 
         return operations
+
+    def available_operations(self) -> dict[str, OperationDescriptor]:
+        """Facade descriptors of every discovered operation that declares one, keyed by public name.
+
+        This is the single source the facade, CLI and REST derive their operation surface from.
+        """
+        return collect_descriptors(self.get_operations())
 
     def get_transformations(self) -> list[Type[Transformation]]:
         """Get transformations for all modules"""
