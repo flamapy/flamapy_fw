@@ -263,20 +263,22 @@ def simplify_formula(ast: AST) -> AST:
         )
     elif logic_op == ASTOperation.EQUIVALENCE:
         # Replace P <=> Q with P => Q ∧ Q => P.
-        left = simplify_formula(AST.create_binary_operation(ASTOperation.IMPLIES, left, right)).root
-        right = simplify_formula(
+        new_left = simplify_formula(
+            AST.create_binary_operation(ASTOperation.IMPLIES, left, right)
+        ).root
+        new_right = simplify_formula(
             AST.create_binary_operation(ASTOperation.IMPLIES, right, left)
         ).root
-        result = AST.create_binary_operation(ASTOperation.AND, left, right)
+        result = AST.create_binary_operation(ASTOperation.AND, new_left, new_right)
     elif logic_op == ASTOperation.XOR:
         # Replace P XOR Q with (P ∧ !Q) v (!P ∧ Q).
-        left = simplify_formula(
+        new_left = simplify_formula(
             AST.create_binary_operation(ASTOperation.AND, left, Node(ASTOperation.NOT, right))
         ).root
-        left = simplify_formula(
+        new_right = simplify_formula(
             AST.create_binary_operation(ASTOperation.AND, Node(ASTOperation.NOT, left), right)
         ).root
-        result = AST.create_binary_operation(ASTOperation.OR, left, right)
+        result = AST.create_binary_operation(ASTOperation.OR, new_left, new_right)
     elif logic_op == ASTOperation.AND:
         left = simplify_formula(AST(left)).root
         right = simplify_formula(AST(right)).root

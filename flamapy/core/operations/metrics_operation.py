@@ -19,10 +19,10 @@ class Metrics(Operation, metaclass=ABCMeta):
     """
 
     filter: Optional[list[str]] = None
-    result: list[dict[str, Any]] = []
 
     def __init__(self) -> None:
         self.model: Optional[VariabilityModel] = None
+        self.result: list[dict[str, Any]] = []
 
     @abstractmethod
     def calculate_metamodel_metrics(self, model: VariabilityModel) -> list[dict[str, Any]]:

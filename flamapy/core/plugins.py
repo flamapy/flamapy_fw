@@ -15,7 +15,7 @@ from flamapy.core.transformations import (
     ModelToText,
     ModelToModel,
 )
-from flamapy.core.utils import extract_filename_extension
+from flamapy.core.utils import filename_matches_extension
 
 
 class Transformations(UserList[Type[Transformation]]):
@@ -30,11 +30,7 @@ class Operations(UserList[Type[Operation]]):
             lambda op: name in [op.__name__, op.__base__.__name__ if op.__base__ else ""], self.data
         )
 
-        try:
-            operation = next(candidates, None)
-        except StopIteration:
-            raise OperationNotFound(f"Operation '{name}' not found.") from StopIteration
-
+        operation = next(candidates, None)
         if not operation:
             raise OperationNotFound(f"Operation '{name}' not found.")
         return operation
@@ -51,11 +47,7 @@ class Plugin:
         self, filter_transformation: Callable[..., bool]
     ) -> Type[Transformation]:
         candidates = filter(filter_transformation, self.transformations)
-        try:
-            transformation = next(candidates, None)
-        except StopIteration:
-            raise TransformationNotFound from StopIteration
-
+        transformation = next(candidates, None)
         if not transformation:
             raise TransformationNotFound
         return transformation
@@ -74,31 +66,35 @@ class Plugin:
         return operation.execute(model=src)
 
     def use_transformation_t2m(self, src: str) -> VariabilityModel:
-        extension = extract_filename_extension(src)
-
-        def filter_transformations(transformation: Type[Transformation]) -> bool:
-            return (
-                issubclass(transformation, TextToModel)
-                and transformation.get_source_extension() == extension
-            )
-
+        # Prefer the most specific matching extension (e.g. 'uvl.json' over 'json').
+        candidates = [
+            transformation
+            for transformation in self.transformations
+            if issubclass(transformation, TextToModel)
+            and filename_matches_extension(src, transformation.get_source_extension())
+        ]
+        if not candidates:
+            raise TransformationNotFound
         transformation: Type[TextToModel] = cast(
-            Type[TextToModel], self.__get_transformation(filter_transformations)
+            Type[TextToModel],
+            max(candidates, key=lambda t: len(t.get_source_extension())),
         )
         result = transformation(src)
         return result.transform()
 
     def use_transformation_m2t(self, src: VariabilityModel, dst: str) -> str:
-        extension = extract_filename_extension(dst)
-
-        def filter_transformations(transformation: Type[Transformation]) -> bool:
-            return (
-                issubclass(transformation, ModelToText)
-                and transformation.get_destination_extension() == extension
-            )
-
+        # Prefer the most specific matching extension (e.g. 'uvl.json' over 'json').
+        candidates = [
+            transformation
+            for transformation in self.transformations
+            if issubclass(transformation, ModelToText)
+            and filename_matches_extension(dst, transformation.get_destination_extension())
+        ]
+        if not candidates:
+            raise TransformationNotFound
         transformation: Type[ModelToText] = cast(
-            Type[ModelToText], self.__get_transformation(filter_transformations)
+            Type[ModelToText],
+            max(candidates, key=lambda t: len(t.get_destination_extension())),
         )
         result = transformation(path=dst, source_model=src)
         return result.transform()

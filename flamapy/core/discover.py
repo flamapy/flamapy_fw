@@ -15,6 +15,7 @@ from flamapy.core.plugins import Operations, Plugin, Plugins
 from flamapy.core.transformations import Transformation
 from flamapy.core.transformations.text_to_model import TextToModel
 from flamapy.core.transformations.model_to_model import ModelToModel
+from flamapy.core.utils import filename_matches_extension
 from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
 
 
@@ -256,14 +257,15 @@ class DiscoverMetamodels:
 
     def __transform_to_model_from_file(self, file: str) -> VariabilityModel:
         t2m_transformations = self.get_transformations_t2m()
-        extension = file.rsplit(".", maxsplit=1)[-1]
-        t2m_filters = filter(
-            lambda t2m: t2m.get_source_extension() == extension, t2m_transformations
-        )
-
-        t2m = next(t2m_filters, None)
-        if t2m is None:
+        # Prefer the most specific matching extension (e.g. 'uvl.json' over 'json').
+        candidates = [
+            t2m
+            for t2m in t2m_transformations
+            if filename_matches_extension(file, t2m.get_source_extension())
+        ]
+        if not candidates:
             raise TransformationNotFound()
+        t2m = max(candidates, key=lambda t: len(t.get_source_extension()))
 
         return t2m(file).transform()
 
