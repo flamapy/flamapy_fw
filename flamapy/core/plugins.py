@@ -75,10 +75,7 @@ class Plugin:
         ]
         if not candidates:
             raise TransformationNotFound
-        transformation: Type[TextToModel] = cast(
-            Type[TextToModel],
-            max(candidates, key=lambda t: len(t.get_source_extension())),
-        )
+        transformation = max(candidates, key=lambda t: len(t.get_source_extension()))
         result = transformation(src)
         return result.transform()
 
@@ -92,10 +89,7 @@ class Plugin:
         ]
         if not candidates:
             raise TransformationNotFound
-        transformation: Type[ModelToText] = cast(
-            Type[ModelToText],
-            max(candidates, key=lambda t: len(t.get_destination_extension())),
-        )
+        transformation = max(candidates, key=lambda t: len(t.get_destination_extension()))
         result = transformation(path=dst, source_model=src)
         return result.transform()
 

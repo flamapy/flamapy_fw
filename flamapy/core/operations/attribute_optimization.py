@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from enum import Enum
+from typing import Any
 
 from flamapy.core.operations import Operation
 
@@ -21,9 +22,9 @@ class AttributeOptimization(Operation):
         pass
 
     @abstractmethod
-    def set_attributes(self, attributes: dict) -> None:
+    def set_attributes(self, attributes: dict[str, OptimizationGoal]) -> None:
         """Set the attributes to optimize as a mapping ``{attribute_name: OptimizationGoal}``."""
 
     @abstractmethod
-    def optimize(self) -> list:
+    def optimize(self) -> list[Any]:
         """Return the optimal configuration(s)."""
