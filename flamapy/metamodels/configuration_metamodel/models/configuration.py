@@ -30,9 +30,24 @@ class Configuration(VariabilityModel):
     def __init__(self, elements: dict[Any, Any]) -> None:
         self.elements: dict[Any, Any] = elements
         self.is_full: bool = False
+        # Optional decision provenance: element -> 'user' or 'propagated'. Empty by default
+        # and not part of the configuration's identity (equality/hash ignore it). Useful for
+        # interactive configurators that distinguish user choices from implied decisions.
+        self.provenance: dict[Any, str] = {}
 
     def set_full(self, is_full: bool) -> None:
         self.is_full = is_full
+
+    def set_provenance(self, element: Any, source: str) -> None:
+        """Record whether an element's value came from the user or from propagation."""
+        self.provenance[element] = source
+
+    def get_provenance(self, element: Any) -> str:
+        """Return 'user', 'propagated', or 'unknown' if not recorded."""
+        return self.provenance.get(element, 'unknown')
+
+    def is_user_decision(self, element: Any) -> bool:
+        return self.provenance.get(element) == 'user'
 
     def get_selected_elements(self) -> list[Any]:
         """Get the list of selected elements in the configuration."""
