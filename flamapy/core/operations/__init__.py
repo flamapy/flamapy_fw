@@ -17,9 +17,14 @@ from .variability import Variability  # pylint: disable=cyclic-import
 from .sampling import Sampling  # pylint: disable=cyclic-import
 from .atomic_sets import AtomicSets  # pylint: disable=cyclic-import
 from .metrics_operation import Metrics  # pylint: disable=cyclic-import
+from .attribute_optimization import (  # pylint: disable=cyclic-import
+    AttributeOptimization,
+    OptimizationGoal,
+)
 
 __all__ = [
     "AtomicSets",
+    "AttributeOptimization",
     "AverageBranchingFactor",
     "Commonality",
     "Configurations",
@@ -34,6 +39,7 @@ __all__ = [
     "Filter",
     "Metrics",
     "Operation",
+    "OptimizationGoal",
     "Sampling",
     "Satisfiable",
     "SatisfiableConfiguration",
