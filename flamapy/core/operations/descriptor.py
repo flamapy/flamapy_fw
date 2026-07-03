@@ -39,6 +39,7 @@ class OperationDescriptor:
     input_adapter: Optional[Callable[..., Any]] = None
     result_adapter: Optional[Callable[[Any], Any]] = None
     doc: str = ''
+    returns: str = 'Any'                          # return annotation (source text) for the stub
 
     @property
     def needs_backend(self) -> bool:

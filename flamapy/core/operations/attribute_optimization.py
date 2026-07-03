@@ -37,6 +37,17 @@ class AttributeOptimization(Operation):
     """
 
     facade = OperationDescriptor(
+        doc=(
+            'Returns the configuration(s) that optimize one or more numeric feature\n'
+            'attributes.\n'
+            '\n'
+            '``objectives`` is either a single attribute name (defaults to minimizing it)\n'
+            'or a mapping ``{attribute_name: "Minimize"|"Maximize"}``. ``backend`` selects\n'
+            'the plugin: "sat" performs single-objective MaxSAT optimization; "z3"\n'
+            'additionally supports typed attributes and multi-objective (Pareto)\n'
+            'optimization. Defaults to "sat".'
+        ),
+        returns='Union[None, List[Configuration]]',
         name='attribute_optimization', operation='AttributeOptimization', default_backend='sat',
         selectable_backend=True,
         inputs=(Input('objectives', Any, required=True),),

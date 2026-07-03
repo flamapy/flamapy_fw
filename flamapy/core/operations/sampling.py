@@ -11,6 +11,15 @@ class Sampling(Operation):
     """
 
     facade = OperationDescriptor(
+        doc=(
+            'Returns a random sample of valid configurations of the given size. When\n'
+            'with_replacement is True, the same configuration may appear more than once.\n'
+            '\n'
+            '``backend`` selects the analysis plugin; defaults to bdd. sat and bdd\n'
+            'implement (deterministic/enumerating) sampling; "sharpsat" provides almost-\n'
+            'uniform sampling via the optional flamapy-sharpsat plugin.'
+        ),
+        returns='Union[None, List[Configuration]]',
         name='sampling', operation='Sampling', default_backend='bdd',
         selectable_backend=True,
         inputs=(

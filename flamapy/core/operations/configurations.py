@@ -7,6 +7,15 @@ from flamapy.metamodels.configuration_metamodel.models.configuration import Conf
 
 class Configurations(Operation):
     facade = OperationDescriptor(
+        doc=(
+            'These are the individual outcomes that can be produced from a feature model.\n'
+            'Each product is a combination of features that satisfies all the constraints\n'
+            'and dependencies in the feature model.\n'
+            '\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3"); defaults to\n'
+            'bdd.'
+        ),
+        returns='Union[None, List[Configuration]]',
         name='configurations', operation='Configurations', default_backend='bdd',
         selectable_backend=True,
     )

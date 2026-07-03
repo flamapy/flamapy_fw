@@ -14,6 +14,16 @@ def _satisfiable_configuration_inputs(operation: Any, facade: Any, kwargs: dict[
 
 class SatisfiableConfiguration(Operation):
     facade = OperationDescriptor(
+        doc=(
+            'This is a product that is produced from a valid configuration of features. A\n'
+            'valid product satisfies all the constraints and dependencies in the feature\n'
+            'model.\n'
+            '\n'
+            '``configuration_path`` accepts a configuration file path, a ``{feature:\n'
+            'value}`` mapping, or a Configuration object. ``backend`` selects the analysis\n'
+            'plugin ("sat", "bdd" or "z3"); defaults to sat.'
+        ),
+        returns='Union[None, bool]',
         name='satisfiable_configuration', operation='SatisfiableConfiguration',
         default_backend='sat', selectable_backend=True,
         inputs=(
