@@ -30,6 +30,7 @@ class OperationDescriptor:
 
     name: str                                     # stable public (facade/CLI/REST) name
     operation: str                                # name passed to DiscoverMetamodels.use_operation
+    kind: str = 'operation'                       # 'operation' (runs on a model) | 'producer'
     default_backend: Optional[str] = None         # None => runs directly on the feature model
     backends: Optional[tuple[str, ...]] = None    # allowed backends (None => any implementer)
     selectable_backend: bool = False              # facade exposes a backend= kwarg (else fixed)
