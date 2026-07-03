@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flamapy-fw"
-version = "2.5.0"
+version = "2.6.0"
 description = "Flamapy is a Python-based AAFM framework that takes into consideration previous AAFM tool designs and enables multi-solver and multi-metamodel support for the integration of AAFM tooling on the Python ecosystem."
 readme = "README.md"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Flamapy", email = "flamapy@us.es" }]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
@@ -32,7 +32,7 @@ include = ["flamapy.*"]
 
 [tool.ruff]
 line-length = 100  # Matches max-line-length from pycodestyle
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "C", "PL", "RUF"]  # Includes pycodestyle, pylint, and McCabe complexity
