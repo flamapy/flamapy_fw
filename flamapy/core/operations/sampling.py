@@ -2,12 +2,21 @@ from abc import abstractmethod
 
 from flamapy.metamodels.configuration_metamodel.models.configuration import Configuration
 from flamapy.core.operations import Operation
+from flamapy.core.operations.descriptor import OperationDescriptor, Input
 
 
 class Sampling(Operation):
     """Sampling is the selection of a subset (i.e., a sample) of products
     (or configurations) from within a variability model.
     """
+
+    facade = OperationDescriptor(
+        name='sampling', operation='Sampling', default_backend='bdd',
+        inputs=(
+            Input('size', int, required=True, setter='set_sample_size'),
+            Input('with_replacement', bool, default=False, setter='set_with_replacement'),
+        ),
+    )
 
     @abstractmethod
     def __init__(self) -> None:

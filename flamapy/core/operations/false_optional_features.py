@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 from flamapy.core.operations import Operation
+from flamapy.core.operations.descriptor import OperationDescriptor
 from flamapy.core.models.variability_model import VariabilityElement
 
 
@@ -11,6 +12,10 @@ class FalseOptionalFeatures(Operation):
     A feature in a group can be also `false optional`.
     In general, false optional features should be marked as mandatory for maintainability purposes.
     """
+
+    facade = OperationDescriptor(
+        name='false_optional_features', operation='FalseOptionalFeatures', default_backend='sat'
+    )
 
     @abstractmethod
     def get_false_optional_features(self) -> list[VariabilityElement]:
