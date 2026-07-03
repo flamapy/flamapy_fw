@@ -7,7 +7,8 @@ from flamapy.core.models.variability_model import VariabilityElement
 
 class DeadFeatures(Operation):
     facade = OperationDescriptor(
-        name='dead_features', operation='DeadFeatures', default_backend='sat'
+        name='dead_features', operation='DeadFeatures', default_backend='sat',
+        selectable_backend=True,
     )
 
     @abstractmethod

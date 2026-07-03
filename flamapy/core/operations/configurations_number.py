@@ -6,7 +6,8 @@ from flamapy.core.operations.descriptor import OperationDescriptor
 
 class ConfigurationsNumber(Operation):
     facade = OperationDescriptor(
-        name='configurations_number', operation='ConfigurationsNumber', default_backend='bdd'
+        name='configurations_number', operation='ConfigurationsNumber', default_backend='bdd',
+        selectable_backend=True,
     )
 
     @abstractmethod

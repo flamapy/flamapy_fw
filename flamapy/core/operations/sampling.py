@@ -12,6 +12,7 @@ class Sampling(Operation):
 
     facade = OperationDescriptor(
         name='sampling', operation='Sampling', default_backend='bdd',
+        selectable_backend=True,
         inputs=(
             Input('size', int, required=True, setter='set_sample_size'),
             Input('with_replacement', bool, default=False, setter='set_with_replacement'),

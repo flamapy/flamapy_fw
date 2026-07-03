@@ -38,7 +38,8 @@ class AttributeOptimization(Operation):
 
     facade = OperationDescriptor(
         name='attribute_optimization', operation='AttributeOptimization', default_backend='sat',
-        inputs=(Input('objectives', object, required=True),),
+        selectable_backend=True,
+        inputs=(Input('objectives', Any, required=True),),
         input_adapter=_attribute_optimization_inputs,
         result_adapter=_attribute_optimization_result,
     )

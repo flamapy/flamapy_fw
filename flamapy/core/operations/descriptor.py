@@ -17,7 +17,7 @@ class Input:
     """One input of a facade operation and how to feed it to the underlying operation."""
 
     name: str
-    type: type = str
+    type: Any = str                   # a type or typing special form (e.g. Any), for CLI/REST
     default: Any = None
     required: bool = False
     setter: Optional[str] = None      # operation setter for the value, e.g. 'set_sample_size'
@@ -32,6 +32,7 @@ class OperationDescriptor:
     operation: str                                # name passed to DiscoverMetamodels.use_operation
     default_backend: Optional[str] = None         # None => runs directly on the feature model
     backends: Optional[tuple[str, ...]] = None    # allowed backends (None => any implementer)
+    selectable_backend: bool = False              # facade exposes a backend= kwarg (else fixed)
     inputs: tuple[Input, ...] = ()
     # For the ~12 non-uniform methods: custom wiring / result reshaping. When absent, the generic
     # "call each Input.setter, then execute, then get_result" path is used.

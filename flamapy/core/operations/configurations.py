@@ -7,7 +7,8 @@ from flamapy.metamodels.configuration_metamodel.models.configuration import Conf
 
 class Configurations(Operation):
     facade = OperationDescriptor(
-        name='configurations', operation='Configurations', default_backend='bdd'
+        name='configurations', operation='Configurations', default_backend='bdd',
+        selectable_backend=True,
     )
 
     @abstractmethod

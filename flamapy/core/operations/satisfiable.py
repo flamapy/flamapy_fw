@@ -6,7 +6,8 @@ from flamapy.core.operations.descriptor import OperationDescriptor
 
 class Satisfiable(Operation):
     facade = OperationDescriptor(
-        name='satisfiable', operation='Satisfiable', default_backend='sat'
+        name='satisfiable', operation='Satisfiable', default_backend='sat',
+        selectable_backend=True,
     )
 
     @abstractmethod

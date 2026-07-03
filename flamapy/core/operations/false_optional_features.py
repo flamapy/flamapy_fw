@@ -14,7 +14,8 @@ class FalseOptionalFeatures(Operation):
     """
 
     facade = OperationDescriptor(
-        name='false_optional_features', operation='FalseOptionalFeatures', default_backend='sat'
+        name='false_optional_features', operation='FalseOptionalFeatures', default_backend='sat',
+        selectable_backend=True,
     )
 
     @abstractmethod

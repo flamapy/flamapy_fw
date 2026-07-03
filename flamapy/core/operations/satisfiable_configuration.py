@@ -15,7 +15,7 @@ def _satisfiable_configuration_inputs(operation: Any, facade: Any, kwargs: dict[
 class SatisfiableConfiguration(Operation):
     facade = OperationDescriptor(
         name='satisfiable_configuration', operation='SatisfiableConfiguration',
-        default_backend='sat',
+        default_backend='sat', selectable_backend=True,
         inputs=(
             Input('configuration_path', str, required=True, kind='configuration',
                   setter='set_configuration'),
