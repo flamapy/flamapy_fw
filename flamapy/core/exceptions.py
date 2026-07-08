@@ -28,3 +28,7 @@ class DuplicatedFeature(FlamaException):
 
 class ConfigurationNotFound(FlamaException):
     pass
+
+
+class NoCompatibleBackendError(FlamaException):
+    """The planner found no installed plugin able to run an operation on a model."""
