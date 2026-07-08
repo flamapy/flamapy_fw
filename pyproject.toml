@@ -24,6 +24,9 @@ dev = [
 [project.scripts]
 flamapy = "flamapy.commands:flamapy_cli"
 
+[project.entry-points."flamapy.plugins"]
+configuration = "flamapy.metamodels.configuration_metamodel"
+
 [project.urls]
 Homepage = "https://github.com/flamapy/core"
 

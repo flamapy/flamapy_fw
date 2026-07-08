@@ -1,9 +1,11 @@
 import inspect
 import logging
+import warnings
 from importlib import import_module
+from importlib.metadata import EntryPoint, entry_points as metadata_entry_points
 from pkgutil import iter_modules
 from types import ModuleType
-from typing import Any, Optional, Protocol, Type, runtime_checkable, cast
+from typing import Any, Iterable, Optional, Protocol, Type, runtime_checkable, cast
 
 from flamapy.core.config import PLUGIN_PATHS
 from flamapy.core.exceptions import OperationNotFound
@@ -21,6 +23,12 @@ from flamapy.metamodels.configuration_metamodel.models.configuration import Conf
 
 
 LOGGER = logging.getLogger("discover")
+
+# Plugins declare themselves via an entry point in this group whose value is the metamodel
+# package (e.g. ``pysat = "flamapy.metamodels.pysat_metamodel"``). The namespace scan over
+# PLUGIN_PATHS is kept as a fallback for plugins that predate entry points; it will be removed
+# in flamapy 3.1.
+ENTRY_POINT_GROUP = "flamapy.plugins"
 
 
 @runtime_checkable
@@ -41,9 +49,28 @@ def filter_modules_from_plugin_paths() -> list[ModuleType]:
 
 
 class DiscoverMetamodels:
-    def __init__(self) -> None:
-        self.module_paths = filter_modules_from_plugin_paths()
+    """Discovers installed plugins, preferring ``flamapy.plugins`` entry points.
+
+    Plugins without an entry point are still found through the legacy namespace scan over
+    ``PLUGIN_PATHS`` (with a DeprecationWarning — the scan is removed in flamapy 3.1). Passing
+    ``entry_points`` explicitly takes full control of discovery (no scan), which is how tests
+    inject synthetic plugins.
+    """
+
+    _instance: Optional["DiscoverMetamodels"] = None
+
+    def __init__(self, entry_points: Optional[Iterable[EntryPoint]] = None) -> None:
+        self._injected_entry_points = (
+            list(entry_points) if entry_points is not None else None
+        )
         self.plugins: Plugins = self.discover()
+
+    @classmethod
+    def instance(cls) -> "DiscoverMetamodels":
+        """A process-wide shared instance, avoiding redundant discovery scans."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
     def search_classes(self, module: ModuleType) -> list[Any]:
         classes = []
@@ -60,29 +87,65 @@ class DiscoverMetamodels:
 
         return classes
 
+    def _build_plugin(self, module: ModuleType) -> Plugin:
+        plugin = Plugin(module=module)
+        for _, _class in self.search_classes(module):
+            if not _class.__module__.startswith(module.__package__):
+                continue  # Exclude modules not in current package
+            inherit = _class.mro()
+
+            if Operation in inherit:
+                plugin.append_operation(_class)
+            elif Transformation in inherit:
+                plugin.append_transformations(_class)
+            elif VariabilityModel in inherit:
+                plugin.variability_model = _class
+        return plugin
+
     def discover(self) -> Plugins:
         plugins = Plugins()
-        for pkg in self.module_paths:
+        covered_modules: set[str] = set()
+
+        if self._injected_entry_points is not None:
+            found_entry_points: list[EntryPoint] = self._injected_entry_points
+        else:
+            found_entry_points = list(metadata_entry_points(group=ENTRY_POINT_GROUP))
+
+        for entry_point in found_entry_points:
+            try:
+                module = entry_point.load()
+            except Exception:  # pylint: disable=broad-except
+                # The distribution is installed but its package is not importable in this
+                # environment (e.g. a shadowed namespace during another package's test run).
+                LOGGER.exception(
+                    "Could not load plugin entry point %s=%s", entry_point.name,
+                    entry_point.value)
+                continue
+            if module.__name__ in covered_modules:
+                continue
+            covered_modules.add(module.__name__)
+            plugins.append(self._build_plugin(module))
+
+        if self._injected_entry_points is not None:
+            return plugins
+
+        scan_only: list[str] = []
+        for pkg in filter_modules_from_plugin_paths():
             for _, plugin_name, ispkg in iter_modules(pkg.__path__, pkg.__name__ + "."):
-                if not ispkg:
+                if not ispkg or plugin_name in covered_modules:
                     continue
                 module = import_module(plugin_name)
-                plugin = Plugin(module=module)
+                covered_modules.add(plugin_name)
+                plugins.append(self._build_plugin(module))
+                scan_only.append(plugin_name)
 
-                classes = self.search_classes(module)
-
-                for _, _class in classes:
-                    if not _class.__module__.startswith(module.__package__):
-                        continue  # Exclude modules not in current package
-                    inherit = _class.mro()
-
-                    if Operation in inherit:
-                        plugin.append_operation(_class)
-                    elif Transformation in inherit:
-                        plugin.append_transformations(_class)
-                    elif VariabilityModel in inherit:
-                        plugin.variability_model = _class
-                plugins.append(plugin)
+        if scan_only:
+            warnings.warn(
+                f"Plugins discovered via the namespace scan without a '{ENTRY_POINT_GROUP}' "
+                f"entry point: {', '.join(sorted(scan_only))}. Declare the entry point in the "
+                "plugin's packaging metadata; the namespace-scan fallback will be removed in "
+                "flamapy 3.1.",
+                DeprecationWarning, stacklevel=2)
         return plugins
 
     def reload(self) -> None:

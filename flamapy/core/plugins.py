@@ -140,11 +140,20 @@ class Plugins(UserList[Plugin]):
         return self.__get_plugin_by_filter(plugin_filter)
 
     def get_plugin_by_variability_model(self, variability_model: VariabilityModel) -> Plugin:
-        def plugin_filter(plugin: Plugin) -> bool:
+        # Prefer the plugin whose model class matches exactly: model classes may subclass
+        # another plugin's (e.g. DiagnosisModel extends PySATModel), and an isinstance-only
+        # match would then depend on plugin discovery order.
+        def exact_filter(plugin: Plugin) -> bool:
+            return type(variability_model) is plugin.variability_model
+
+        def subclass_filter(plugin: Plugin) -> bool:
             return isinstance(variability_model, plugin.variability_model)  # type: ignore
             # TODO: Check if this error can be ignored
 
-        return self.__get_plugin_by_filter(plugin_filter)
+        try:
+            return self.__get_plugin_by_filter(exact_filter)
+        except PluginNotFound:
+            return self.__get_plugin_by_filter(subclass_filter)
 
     def get_plugin_by_extension(self, extension: str) -> Plugin:
         def plugin_filter(plugin: Plugin) -> bool:
