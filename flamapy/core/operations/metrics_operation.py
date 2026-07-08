@@ -64,7 +64,12 @@ class Metrics(Operation, metaclass=ABCMeta):
 
     def _search_transformations(self, orig: str, dest: str) -> Type[ModelToModel]:
         try:
-            for m_to_m in ModelToModel.__subclasses__():
+            # Walk the whole subclass tree: transformations may inherit ModelToModel
+            # indirectly (e.g. through CacheableModelToModel).
+            pending = list(ModelToModel.__subclasses__())
+            while pending:
+                m_to_m = pending.pop()
+                pending.extend(m_to_m.__subclasses__())
                 _orig = m_to_m.get_source_extension()
                 _dest = m_to_m.get_destination_extension()
                 if _orig == orig and _dest == dest:

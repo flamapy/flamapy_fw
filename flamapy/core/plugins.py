@@ -1,7 +1,10 @@
+import logging
+from collections import UserList
+from importlib.metadata import PackageNotFoundError, version as metadata_version
 from types import ModuleType
 from typing import Any, Callable, Type, cast
-from collections import UserList
 
+from flamapy.core import cache
 from flamapy.core.exceptions import (
     OperationNotFound,
     PluginNotFound,
@@ -11,6 +14,7 @@ from flamapy.core.manifest import PluginManifest, synthesized_manifest
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Operation
 from flamapy.core.transformations import (
+    CacheableModelToModel,
     TextToModel,
     Transformation,
     ModelToText,
@@ -102,11 +106,47 @@ class Plugin:
                 and transformation.get_source_extension() == src.get_extension()
             )
 
-        transformation: Type[ModelToModel] = cast(
+        transformation_class: Type[ModelToModel] = cast(
             Type[ModelToModel], self.__get_transformation(filter_transformations)
         )
-        result = transformation(src)
-        return result.transform()
+        transformation = transformation_class(src)
+        if issubclass(transformation_class, CacheableModelToModel) and cache.enabled():
+            return self.__transform_with_cache(
+                cast(CacheableModelToModel, transformation), src, dst)
+        return transformation.transform()
+
+    def __transform_with_cache(
+        self, transformation: "CacheableModelToModel", src: VariabilityModel, dst: str
+    ) -> VariabilityModel:
+        model_hash = src.canonical_hash()
+        if model_hash is None:
+            return transformation.transform()
+        key = cache.artifact_key(
+            model_hash, dst, transformation.cache_options(),
+            transformation.artifact_format_version, self.__version())
+        path = cache.artifact_path(model_hash, dst, key, transformation.artifact_suffix)
+        artifact = cache.lookup(path)
+        if artifact is not None:
+            try:
+                model = transformation.load_artifact(str(artifact), src)
+                # Read by the facade into OperationResult.cache_hit.
+                model._flamapy_cache_hit = True  # type: ignore[attr-defined]  # pylint: disable=protected-access
+                return model
+            except Exception:  # pylint: disable=broad-except
+                logging.getLogger('flamapy.cache').exception(
+                    'Corrupt cache artifact %s; recomputing', artifact)
+        model = transformation.transform()
+        cache.store(path, lambda temporary: transformation.dump_artifact(model, temporary))
+        return model
+
+    def __version(self) -> str:
+        # Best effort: flamapy plugin distributions follow flamapy-<manifest name>
+        # (flamapy-bdd, flamapy-dnnf, ...). Unknown => '0'; the artifact_format_version
+        # still guards against incompatible artifact formats.
+        try:
+            return metadata_version(f'flamapy-{self.manifest.name}')
+        except PackageNotFoundError:
+            return '0'
 
     def get_extension(self) -> str:
         return self.variability_model.get_extension()
