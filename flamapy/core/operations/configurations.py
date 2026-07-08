@@ -12,7 +12,8 @@ class Configurations(Operation):
             'Each product is a combination of features that satisfies all the constraints\n'
             'and dependencies in the feature model.\n'
             '\n'
-            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3"); defaults to\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3", plus\n'
+            '"sharpsat"/"sdd"/"dnnf" via the optional flamapy extras); defaults to\n'
             'bdd.'
         ),
         returns='Union[None, List[Configuration]]',

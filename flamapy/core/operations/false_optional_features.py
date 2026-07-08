@@ -20,7 +20,8 @@ class FalseOptionalFeatures(Operation):
             'Like dead features, false optional features are usually a sign of an error in\n'
             'the feature model.\n'
             '\n'
-            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3"); defaults to\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3", plus\n'
+            '"sharpsat"/"sdd"/"dnnf" via the optional flamapy extras); defaults to\n'
             'sat.'
         ),
         returns='Union[None, List[str]]',

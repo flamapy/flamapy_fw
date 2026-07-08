@@ -11,7 +11,8 @@ class Satisfiable(Operation):
             'model itself satisfies all the constraints and dependencies. A a valid feature\n'
             'model is one that does encodes at least a single valid product.\n'
             '\n'
-            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3"); defaults to\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3", plus\n'
+            '"sharpsat"/"sdd"/"dnnf" via the optional flamapy extras); defaults to\n'
             'sat.'
         ),
         returns='Union[None, bool]',

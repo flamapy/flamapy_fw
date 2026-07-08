@@ -12,7 +12,8 @@ class ConfigurationsNumber(Operation):
             'of features, taking into account the constraints and dependencies between\n'
             'features.\n'
             '\n'
-            '``backend`` selects the analysis plugin ("sat", "bdd", "z3", or "sharpsat" for\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd", "z3"; "sdd"/"dnnf" via the\n'
+            'optional flamapy extras, or "sharpsat" for\n'
             'a scalable approximate count via the optional flamapy-sharpsat plugin);\n'
             'defaults to bdd.'
         ),

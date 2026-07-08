@@ -12,7 +12,8 @@ class DeadFeatures(Operation):
             'feature model, cannot be included in any valid product. Dead features are\n'
             'usually a sign of an error in the feature model.\n'
             '\n'
-            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3"); defaults to\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3", plus\n'
+            '"sharpsat"/"sdd"/"dnnf" via the optional flamapy extras); defaults to\n'
             'sat.'
         ),
         returns='Union[None, List[str]]',

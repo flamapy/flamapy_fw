@@ -21,7 +21,8 @@ class SatisfiableConfiguration(Operation):
             '\n'
             '``configuration_path`` accepts a configuration file path, a ``{feature:\n'
             'value}`` mapping, or a Configuration object. ``backend`` selects the analysis\n'
-            'plugin ("sat", "bdd" or "z3"); defaults to sat.'
+            'plugin ("sat", "bdd" or "z3", plus "sharpsat"/"sdd"/"dnnf" via the optional\n'
+            'flamapy extras); defaults to sat.'
         ),
         returns='Union[None, bool]',
         name='satisfiable_configuration', operation='SatisfiableConfiguration',

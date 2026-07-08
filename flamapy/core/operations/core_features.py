@@ -12,7 +12,8 @@ class CoreFeatures(Operation):
             'a feature model, they are the features that are mandatory and not optional.\n'
             'Core features define the commonality among all products in a product line.\n'
             '\n'
-            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3"); defaults to\n'
+            '``backend`` selects the analysis plugin ("sat", "bdd" or "z3", plus\n'
+            '"sharpsat"/"sdd"/"dnnf" via the optional flamapy extras); defaults to\n'
             'sat.'
         ),
         returns='Union[None, List[str]]',
