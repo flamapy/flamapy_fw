@@ -7,6 +7,7 @@ from flamapy.core.exceptions import (
     PluginNotFound,
     TransformationNotFound,
 )
+from flamapy.core.manifest import PluginManifest, synthesized_manifest
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Operation
 from flamapy.core.transformations import (
@@ -113,6 +114,16 @@ class Plugin:
     @property
     def name(self) -> str:
         return self.module.__name__.split(".")[-1]
+
+    @property
+    def manifest(self) -> PluginManifest:
+        """The plugin's declared MANIFEST, or a conservative synthesized default."""
+        declared = getattr(self.module, "MANIFEST", None)
+        if isinstance(declared, PluginManifest):
+            return declared
+        extension = (self.variability_model.get_extension()
+                     if self.variability_model is not None else None)
+        return synthesized_manifest(self.name, extension)
 
     def get_stats(self) -> dict[str, Any]:
         return {
