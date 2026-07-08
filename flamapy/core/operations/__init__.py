@@ -22,6 +22,7 @@ from .attribute_optimization import (  # pylint: disable=cyclic-import
     OptimizationGoal,
 )
 from .descriptor import Input, OperationDescriptor, collect_descriptors
+from .result import OperationResult
 
 __all__ = [
     "AtomicSets",
@@ -42,6 +43,7 @@ __all__ = [
     "Metrics",
     "Operation",
     "OperationDescriptor",
+    "OperationResult",
     "OptimizationGoal",
     "Sampling",
     "Satisfiable",
