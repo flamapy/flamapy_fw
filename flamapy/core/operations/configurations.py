@@ -18,7 +18,7 @@ class Configurations(Operation):
         ),
         returns='Union[None, List[Configuration]]',
         name='configurations', operation='Configurations', default_backend='bdd',
-        selectable_backend=True,
+        selectable_backend=True, streaming=True,
     )
 
     @abstractmethod

@@ -32,3 +32,7 @@ class ConfigurationNotFound(FlamaException):
 
 class NoCompatibleBackendError(FlamaException):
     """The planner found no installed plugin able to run an operation on a model."""
+
+
+class OperationTimeout(FlamaException):
+    """An asynchronously executed operation exceeded its wall-clock deadline."""

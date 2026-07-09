@@ -23,6 +23,7 @@ from .attribute_optimization import (  # pylint: disable=cyclic-import
 )
 from .descriptor import Input, OperationDescriptor, collect_descriptors
 from .result import OperationResult
+from .streaming import StreamingOperation
 
 __all__ = [
     "AtomicSets",
@@ -48,6 +49,7 @@ __all__ = [
     "Sampling",
     "Satisfiable",
     "SatisfiableConfiguration",
+    "StreamingOperation",
     "Variability",
     "collect_descriptors",
 ]

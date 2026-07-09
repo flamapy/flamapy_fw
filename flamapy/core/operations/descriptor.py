@@ -34,6 +34,7 @@ class OperationDescriptor:
     default_backend: Optional[str] = None         # None => runs directly on the feature model
     backends: Optional[tuple[str, ...]] = None    # allowed backends (None => any implementer)
     selectable_backend: bool = False              # facade exposes a backend= kwarg (else fixed)
+    streaming: bool = False                       # implementation(s) can yield results lazily
     inputs: tuple[Input, ...] = ()
     # For the ~12 non-uniform methods: custom wiring / result reshaping. When absent, the generic
     # "call each Input.setter, then execute, then get_result" path is used.
