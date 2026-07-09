@@ -3,7 +3,7 @@
 Historically these lived in ``flamapy.metamodels.fm_metamodel.operations.fm_language_level``;
 they are dependency-free and now also describe plugin capability (see
 :mod:`flamapy.core.manifest`), so they belong in the framework. The fm_metamodel re-exports
-them from the old path for compatibility (shim removed in 3.1); ``calculate_language_level``
+them from the old path for compatibility (shim removed in 3.0); ``calculate_language_level``
 stays in fm_metamodel, where the feature-model knowledge lives.
 """
 from enum import Enum, auto

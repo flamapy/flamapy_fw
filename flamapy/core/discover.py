@@ -27,7 +27,7 @@ LOGGER = logging.getLogger("discover")
 # Plugins declare themselves via an entry point in this group whose value is the metamodel
 # package (e.g. ``pysat = "flamapy.metamodels.pysat_metamodel"``). The namespace scan over
 # PLUGIN_PATHS is kept as a fallback for plugins that predate entry points; it will be removed
-# in flamapy 3.1.
+# in flamapy 3.0 (breaking removals belong in the major).
 ENTRY_POINT_GROUP = "flamapy.plugins"
 
 
@@ -52,7 +52,7 @@ class DiscoverMetamodels:
     """Discovers installed plugins, preferring ``flamapy.plugins`` entry points.
 
     Plugins without an entry point are still found through the legacy namespace scan over
-    ``PLUGIN_PATHS`` (with a DeprecationWarning — the scan is removed in flamapy 3.1). Passing
+    ``PLUGIN_PATHS`` (with a DeprecationWarning — the scan is removed in flamapy 3.0). Passing
     ``entry_points`` explicitly takes full control of discovery (no scan), which is how tests
     inject synthetic plugins.
     """
@@ -144,7 +144,7 @@ class DiscoverMetamodels:
                 f"Plugins discovered via the namespace scan without a '{ENTRY_POINT_GROUP}' "
                 f"entry point: {', '.join(sorted(scan_only))}. Declare the entry point in the "
                 "plugin's packaging metadata; the namespace-scan fallback will be removed in "
-                "flamapy 3.1.",
+                "flamapy 3.0.",
                 DeprecationWarning, stacklevel=2)
         return plugins
 
