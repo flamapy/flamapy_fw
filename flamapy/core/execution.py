@@ -150,9 +150,33 @@ class ExecutionEngine:
         result_adapter: Optional[Callable[[Any], Any]] = None,
     ) -> Job:
         """Schedule ``operation`` on ``model``; returns immediately with a :class:`Job`."""
-        interrupt_event = threading.Event()
         if isinstance(operation, Interruptible):
-            operation.set_interrupt_event(interrupt_event)
+            operation_to_interrupt: Optional[Interruptible] = operation
+        else:
+            operation_to_interrupt = None
+
+        def task(interrupt_event: threading.Event) -> OperationResult[Any]:
+            if operation_to_interrupt is not None:
+                operation_to_interrupt.set_interrupt_event(interrupt_event)
+            return run_and_wrap(operation, model, operation_name=operation_name,
+                                plugin=plugin, model_hash=model_hash)
+
+        return self.submit_call(task, result_adapter=result_adapter)
+
+    def submit_call(
+        self,
+        task: Callable[[threading.Event], OperationResult[Any]],
+        *,
+        result_adapter: Optional[Callable[[Any], Any]] = None,
+    ) -> Job:
+        """Schedule an arbitrary unit of work that produces an envelope; returns a :class:`Job`.
+
+        ``task`` runs on a worker thread and receives the job's interrupt event, so it can
+        do expensive preparation (e.g. transforming a feature model into a solver model)
+        *inside* the job — covered by ``Job.result(timeout)`` — and then hand the event to
+        the :class:`Interruptible` operation it builds before running it.
+        """
+        interrupt_event = threading.Event()
         future: 'Future[OperationResult[Any]]' = Future()
 
         def runner() -> None:
@@ -160,9 +184,7 @@ class ExecutionEngine:
                 if not future.set_running_or_notify_cancel():
                     return  # cancelled while queued
                 try:
-                    future.set_result(run_and_wrap(
-                        operation, model, operation_name=operation_name,
-                        plugin=plugin, model_hash=model_hash))
+                    future.set_result(task(interrupt_event))
                 except BaseException as error:  # pylint: disable=broad-except
                     future.set_exception(error)
 

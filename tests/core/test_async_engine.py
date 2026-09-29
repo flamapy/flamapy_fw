@@ -4,7 +4,7 @@ import time
 import pytest
 
 from flamapy.core.exceptions import OperationTimeout
-from flamapy.core.execution import ExecutionEngine, Interruptible, JobStatus
+from flamapy.core.execution import ExecutionEngine, Interruptible, JobStatus, run_and_wrap
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Operation
 
@@ -117,3 +117,39 @@ def test_queued_job_can_be_cancelled_before_running():
         first.cancel()
     finally:
         engine.shutdown(wait=False)
+
+
+def test_submit_call_runs_the_whole_task_inside_the_job(engine):
+    # Preparation done by the task (e.g. a slow model transformation) happens on the
+    # worker thread: submission returns at once and the deadline covers the task.
+    def slow_task(interrupt_event):
+        time.sleep(2)
+        return run_and_wrap(QuickOperation(), FakeModel())
+
+    start = time.perf_counter()
+    job = engine.submit_call(slow_task)
+    assert time.perf_counter() - start < 1
+    with pytest.raises(OperationTimeout):
+        job.result(timeout=0.2)
+
+
+def test_submit_call_hands_the_interrupt_event_to_the_task(engine):
+    received = []
+
+    def task(interrupt_event):
+        received.append(interrupt_event)
+        return run_and_wrap(QuickOperation(7), FakeModel(), operation_name='quick')
+
+    job = engine.submit_call(task, result_adapter=lambda value: value + 1)
+    assert job.result(timeout=5) == 8
+    assert isinstance(received[0], threading.Event) and not received[0].is_set()
+
+
+def test_submit_call_propagates_task_errors(engine):
+    def failing_task(interrupt_event):
+        raise ValueError('preparation failed')
+
+    job = engine.submit_call(failing_task)
+    with pytest.raises(ValueError, match='preparation failed'):
+        job.result(timeout=5)
+    assert job.status is JobStatus.FAILED
