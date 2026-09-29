@@ -96,7 +96,7 @@ class Metrics(Operation, metaclass=ABCMeta):
         return float(round(len(collection1) / len(collection2), precision))
 
     @staticmethod
-    def construct_result( # noqa: PLR0913
+    def construct_result(  # noqa: PLR0913, PLR0917
         name: str,
         doc: str,
         result: Any,
