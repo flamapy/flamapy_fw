@@ -67,10 +67,11 @@ def _shortest_chains(
 
 
 def _implements(plugin: Plugin, operation_name: str) -> bool:
-    return any(
-        getattr(operation, 'facade', None) is not None
-        and operation.facade.name == operation_name
-        for operation in plugin.operations)
+    for operation in plugin.operations:
+        descriptor = getattr(operation, 'facade', None)
+        if descriptor is not None and descriptor.name == operation_name:
+            return True
+    return False
 
 
 def _descriptor_default_backend(plugins: Plugins, operation_name: str) -> Optional[str]:
