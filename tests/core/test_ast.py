@@ -145,3 +145,33 @@ def test_tseytin_is_linear_where_distributive_explodes() -> None:
     assert len(tseytin) <= 6 * len(variables)
     assert len(tseytin) < len(distributive)
     assert _feature_vars(tseytin) == variables
+
+
+def _sample_ast() -> AST:
+    # A IMPLIES (B OR NOT C)
+    return AST(Node(ASTOperation.IMPLIES, Node('A'),
+                    Node(ASTOperation.OR, Node('B'), Node(ASTOperation.NOT, Node('C')))))
+
+
+def test_pretty_str_default_is_unchanged():
+    assert _sample_ast().pretty_str() == 'A IMPLIES (B OR NOT C)'
+
+
+def test_pretty_str_with_operator_symbols():
+    symbols = {ASTOperation.IMPLIES: '=>', ASTOperation.OR: '|', ASTOperation.NOT: '!'}
+    assert _sample_ast().pretty_str(symbols) == 'A => (B | ! C)'
+
+
+def test_pretty_str_operator_without_symbol_keeps_its_name():
+    assert _sample_ast().pretty_str({ASTOperation.OR: '|'}) == 'A IMPLIES (B | NOT C)'
+
+
+def test_pretty_str_feature_named_like_an_operator_is_not_replaced():
+    ast = AST(Node(ASTOperation.OR, Node('OR'), Node('AND')))
+    assert ast.pretty_str({ASTOperation.OR: '|', ASTOperation.AND: '&'}) == 'OR | AND'
+
+
+def test_pretty_str_with_term_formatter():
+    quote = lambda node: f'"{node.data}"' if ' ' in str(node.data) else str(node.data)  # noqa: E731
+    ast = AST(Node(ASTOperation.AND, Node('5 MP'), Node(ASTOperation.SUM, Node('Price'), Node('x'))))
+    assert ast.pretty_str({ASTOperation.AND: '&', ASTOperation.SUM: 'sum'}, quote) == '"5 MP" & sum(Price, x)'

@@ -1,3 +1,4 @@
+from collections.abc import Callable, Mapping
 from typing import Any, Optional
 from enum import Enum
 
@@ -133,20 +134,44 @@ class Node:
         return str(data)
 
     @staticmethod
-    def _get_pretty_str_node(node: "Node") -> str:
+    def _get_pretty_str_node(
+        node: "Node",
+        operators: Optional[Mapping["ASTOperation", str]] = None,
+        term_formatter: Optional[Callable[["Node"], str]] = None,
+    ) -> str:
         res = ""
         if node.is_op():
-            res = f"{node.pretty_str()}"
+            res = f"{node.pretty_str(operators, term_formatter)}"
             if node.is_binary_op():
                 res = f"({res})"
         else:
-            res = str(node)
+            res = term_formatter(node) if term_formatter is not None else str(node)
         return res
 
-    def pretty_str(self) -> str:
-        data = self.data.value if self.is_op() else str(self.data)
-        left = Node._get_pretty_str_node(self.left) if self.left is not None else ""
-        right = Node._get_pretty_str_node(self.right) if self.right is not None else ""
+    def pretty_str(
+        self,
+        operators: Optional[Mapping["ASTOperation", str]] = None,
+        term_formatter: Optional[Callable[["Node"], str]] = None,
+    ) -> str:
+        """Infix text of the expression rooted at this node.
+
+        Operands that are binary operations are written in parentheses. By default operators
+        are written as their ASTOperation value (e.g. ``IMPLIES``) and terms with ``str``.
+
+        Args:
+            operators: text to write for each operator (e.g. ``{ASTOperation.AND: "&"}``);
+                operators not in the mapping keep their default text.
+            term_formatter: writes each term (leaf) node, e.g. to quote feature names.
+        """
+        if self.is_op():
+            data = (operators.get(self.data, self.data.value) if operators is not None
+                    else self.data.value)
+        else:
+            data = term_formatter(self) if term_formatter is not None else str(self.data)
+        left = (Node._get_pretty_str_node(self.left, operators, term_formatter)
+                if self.left is not None else "")
+        right = (Node._get_pretty_str_node(self.right, operators, term_formatter)
+                 if self.right is not None else "")
 
         if self.is_unique_term():
             res = f"{data}"
@@ -247,8 +272,13 @@ class AST:
     def __str__(self) -> str:
         return str(self.root)
 
-    def pretty_str(self) -> str:
-        return self.root.pretty_str()
+    def pretty_str(
+        self,
+        operators: Optional[Mapping[ASTOperation, str]] = None,
+        term_formatter: Optional[Callable[[Node], str]] = None,
+    ) -> str:
+        """Infix text of the expression; see Node.pretty_str for the arguments."""
+        return self.root.pretty_str(operators, term_formatter)
 
 
 def convert_into_nnf(ast: AST) -> AST:
