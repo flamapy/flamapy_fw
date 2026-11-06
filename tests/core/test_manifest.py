@@ -77,3 +77,34 @@ class TestPluginManifestDiscovery:
             assert plugin.manifest is declared
         finally:
             del plugin.module.MANIFEST
+
+
+class TestCostsAndLimits:
+    def test_cost_curve_bins_and_extrapolation(self):
+        capability = OperationCapability(cost=7, cost_curve=((50, 1), (500, 20)))
+        assert capability.cost_at(10) == 1
+        assert capability.cost_at(50) == 1
+        assert capability.cost_at(51) == 20
+        assert capability.cost_at(10_000) == 20
+        assert OperationCapability(cost=7).cost_at(10_000) == 7
+
+    def test_plugin_wide_max_features_applies_to_undeclared_and_unlimited_operations(self):
+        manifest = PluginManifest(
+            name='x', max_features=300,
+            operations={'sampling': OperationCapability(cost=5),
+                        'configurations': OperationCapability(max_features=30)})
+        assert manifest.capability('anything').max_features == 300
+        assert manifest.capability('sampling') == OperationCapability(cost=5, max_features=300)
+        assert manifest.capability('configurations').max_features == 30
+
+    def test_transformation_cost_curve(self):
+        manifest = PluginManifest(name='x', transformation_cost=10,
+                                  transformation_cost_curve=((100, 5), (1000, 500)))
+        assert manifest.transformation_cost_at(10) == 5
+        assert manifest.transformation_cost_at(1000) == 500
+        assert PluginManifest(name='y').transformation_cost_at(1000) == 100
+
+    def test_availability_defaults(self):
+        assert PluginManifest(name='x').available
+        manifest = PluginManifest(name='x', available=False, unavailable_reason='no binary')
+        assert not manifest.available and manifest.unavailable_reason == 'no binary'
