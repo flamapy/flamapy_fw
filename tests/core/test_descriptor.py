@@ -56,3 +56,22 @@ def test_collect_dedupes_by_public_name_across_backends():
 
 def test_operations_without_a_descriptor_are_ignored():
     assert collect_descriptors([_NoDescriptor]) == {}
+
+
+def test_commonality_and_atomic_sets_descriptors_live_on_the_interfaces():
+    from flamapy.core.operations import AtomicSets, Commonality
+
+    assert Commonality.facade.name == 'commonality'
+    assert Commonality.facade.operation == 'Commonality'
+    assert Commonality.facade.default_backend == 'sat' and Commonality.facade.selectable_backend
+    assert [i.name for i in Commonality.facade.inputs] == ['configuration_path']
+    assert AtomicSets.facade.name == 'atomic_sets'
+    assert AtomicSets.facade.default_backend is None and AtomicSets.facade.selectable_backend
+
+    class Feature:
+        def __init__(self, name):
+            self.name = name
+
+    adapter = AtomicSets.facade.result_adapter
+    assert adapter([{Feature('A')}, [Feature('B'), Feature('C')]]) == [['A'], ['B', 'C']]
+    assert adapter([{'A'}, ['B', 'C']]) == [['A'], ['B', 'C']]
