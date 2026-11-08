@@ -56,7 +56,7 @@ class TestDiscover:
 
 
 class TestDiscoverWithPlugin:
-    # Plugins are injected as entry points — the canonical registration since 2.7.
+    # Plugins are injected as entry points — the canonical registration since 2.9.
 
     def test_discover_one_plugin(self):
         search = DiscoverMetamodels(

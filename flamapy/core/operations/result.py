@@ -1,6 +1,6 @@
 """The typed result envelope: an operation's value plus its provenance.
 
-In 2.7 this is opt-in machinery — the facade and CLI still return bare values by default
+In 2.9 this is opt-in machinery — the facade and CLI still return bare values by default
 (the CLI's ``-v`` flag prints the provenance, and consumers like the benchmark harness use
 :func:`flamapy.core.execution.run_and_wrap` directly). In 3.0 the envelope becomes the
 facade/CLI return type.

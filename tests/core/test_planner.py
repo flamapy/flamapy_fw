@@ -223,19 +223,7 @@ def test_unavailable_plugin_is_rejected_with_its_reason():
         _plan(plugins)
 
 
-# --- 2.8 compatibility and calibration -------------------------------------------------------
-
-
-def test_plan_keeps_the_2_8_positional_fields():
-    old_style = Plan('p', 'pysat', (), 'why', 3, ('bdd',))
-    assert old_style.alternatives == ('bdd',) and old_style.estimated_cost == 0
-
-
-def test_artifact_bonus_is_accepted_but_deprecated():
-    from flamapy.core.planner import ARTIFACT_BONUS  # still importable from 2.8 code
-    assert PlannerPolicy().artifact_bonus == ARTIFACT_BONUS
-    with pytest.warns(DeprecationWarning, match='artifact_bonus'):
-        PlannerPolicy(artifact_bonus=500)
+# --- calibration ------------------------------------------------------------------------------
 
 
 def test_uncalibrated_manifests_rank_after_calibrated_ones():

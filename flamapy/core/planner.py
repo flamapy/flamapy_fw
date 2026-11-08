@@ -1,6 +1,6 @@
 """The query planner: pick the best backend for an operation on a given model.
 
-Opt-in in 2.8 (the facade engages it only under ``backend='auto'`` /
+Opt-in in 2.9 (the facade engages it only under ``backend='auto'`` /
 ``FLAMAPY_BACKEND=auto``); in 3.0 it becomes the default router. Candidates are filtered by
 the plugins' capability manifests (availability, language level, scale, exactness) and
 ranked by their estimated cost: the cost of building the backend model (the plugin's
@@ -10,7 +10,6 @@ size. Plugins whose manifest declares no ``calibration`` are ranked after the ca
 The operation's historical ``default_backend`` gets a bonus so that, on plain Boolean
 models, the planner reproduces today's routing where the estimates are close; 3.0 drops it.
 """
-import warnings
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable, Optional
@@ -25,10 +24,6 @@ from flamapy.core.plugins import Plugin, Plugins
 # historical default backend is worth DEFAULT_BACKEND_BONUS.
 CHAIN_STEP_WEIGHT = 100
 DEFAULT_BACKEND_BONUS = 150
-# Deprecated since 2.9 and ignored: a cached artifact now waives the transformation cost
-# instead of earning a bonus. Kept so 2.8 code that imports it or passes it keeps working;
-# removed in 3.0.
-ARTIFACT_BONUS = 100
 
 # Descriptor default_backend values are facade backend names; 'sat' is the one name that
 # differs from its model extension.
@@ -39,14 +34,6 @@ DEFAULT_BACKEND_EXTENSIONS = {'sat': 'pysat'}
 class PlannerPolicy:
     chain_step_weight: int = CHAIN_STEP_WEIGHT
     default_backend_bonus: int = DEFAULT_BACKEND_BONUS
-    artifact_bonus: int = ARTIFACT_BONUS  # deprecated and ignored, see ARTIFACT_BONUS
-
-    def __post_init__(self) -> None:
-        if self.artifact_bonus != ARTIFACT_BONUS:
-            warnings.warn(
-                'PlannerPolicy.artifact_bonus is ignored since flamapy 2.9 (a cached artifact '
-                'waives the transformation cost) and will be removed in 3.0.',
-                DeprecationWarning, stacklevel=3)
 
 
 DEFAULT_POLICY = PlannerPolicy()
@@ -60,9 +47,9 @@ class Plan:
     rationale: str
     score: int = 0
     alternatives: tuple[str, ...] = field(default=())
-    # Added in 2.9, last so that 2.8 positional construction keeps working: the transformation
-    # + operation estimate in ms, before the bonus. A heuristic from the calibration machine,
-    # useful to compare candidates, not a prediction of the wall time on yours.
+    # The transformation + operation estimate in ms, before the bonus. A heuristic from the
+    # calibration machine, useful to compare candidates, not a prediction of the wall time on
+    # yours.
     estimated_cost: int = 0
 
     def to_dict(self, source_extension: str = 'fm') -> dict[str, Any]:

@@ -16,11 +16,10 @@ to each other: the planner adds the transformation and the operation estimates o
 and takes the smallest. A constant ``cost`` describes an operation whose time barely depends on
 the model; a ``cost_curve`` gives the estimate per size bin for the ones that do.
 
-Changed in 2.9: in 2.8 costs were relative weights. A manifest names the run its costs come
-from in ``calibration``; the planner ranks manifests without one (including the synthesized
-default and 2.8-style manifests) after every calibrated candidate, so an unmeasured number never
-looks cheaper than a measured one. ``exact=False`` capabilities are only chosen with
-``allow_approximate``.
+A manifest names the run its costs come from in ``calibration``; the planner ranks manifests
+without one (including the synthesized default) after every calibrated candidate, so an
+unmeasured number never looks cheaper than a measured one. ``exact=False`` capabilities are
+only chosen with ``allow_approximate``.
 """
 from dataclasses import dataclass, field, replace
 from typing import Optional

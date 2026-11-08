@@ -1,6 +1,6 @@
 """Compilation-artifact cache: compile once, reuse across operations and sessions.
 
-Opt-in in 2.8: nothing is written unless ``FLAMAPY_CACHE=1`` (3.0 flips this to an opt-out
+Opt-in in 2.9: nothing is written unless ``FLAMAPY_CACHE=1`` (3.0 flips this to an opt-out
 ``FLAMAPY_NO_CACHE``). Cache directory precedence: ``FLAMAPY_CACHE_DIR`` >
 ``$XDG_CACHE_HOME/flamapy`` > ``~/.flamapy/cache``. Artifacts are keyed by the model's
 canonical hash, the target extension, the transformation's options and format version, and

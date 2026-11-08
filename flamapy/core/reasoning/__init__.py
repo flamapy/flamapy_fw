@@ -1,4 +1,4 @@
-"""Solver-agnostic diagnosis/explanation algorithms (moved from pysat_diagnosis in 2.8).
+"""Solver-agnostic diagnosis/explanation algorithms (moved from pysat_diagnosis in 2.9).
 
 The algorithms take a :class:`ConsistencyChecker` protocol; solver plugins provide the
 concrete checker. The old import paths under
