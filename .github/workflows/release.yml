@@ -13,6 +13,18 @@ jobs:
       - name: Checkout git repo
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Publish nothing until the flamapy packages this one depends on are installable from
+      # PyPI at this version, so the uploads land in dependency order even when every repo is
+      # tagged at once.
+      - name: Wait for the flamapy dependencies on PyPI
+        timeout-minutes: 60
+        run: python .github/workflows/wait_for_pypi.py
+
       - name: Automated Version Bump
         id: changelog
         uses: Requarks/changelog-action@v1
@@ -34,11 +46,6 @@ jobs:
           prerelease: ${{ steps.get_variables.outputs.IS_PRERELEASE }}
           tag_name: ${{ steps.get_variables.outputs.VERSION }}
           body: ${{ steps.changelog.outputs.changes }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
       - name: Install dependencies
         run: |
