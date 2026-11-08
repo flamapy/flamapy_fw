@@ -15,6 +15,12 @@ on the calibration models (see each plugin's ``__init__``). They only have to be
 to each other: the planner adds the transformation and the operation estimates of each candidate
 and takes the smallest. A constant ``cost`` describes an operation whose time barely depends on
 the model; a ``cost_curve`` gives the estimate per size bin for the ones that do.
+
+Changed in 2.9: in 2.8 costs were relative weights. A manifest names the run its costs come
+from in ``calibration``; the planner ranks manifests without one (including the synthesized
+default and 2.8-style manifests) after every calibrated candidate, so an unmeasured number never
+looks cheaper than a measured one. ``exact=False`` capabilities are only chosen with
+``allow_approximate``.
 """
 from dataclasses import dataclass, field, replace
 from typing import Optional
@@ -25,8 +31,9 @@ DEFAULT_COST = 100
 DEFAULT_TRANSFORMATION_COST = 100
 
 # ((features, cost), ...) in increasing order of features: the cost applies to models with at
-# most that many features; models beyond the last entry get its cost (the plugin's
-# max_features is the place to stop them).
+# most that many features. Beyond the last entry the cost grows in proportion to the size, so a
+# curve measured on small models never makes a larger one look as cheap (the plugin's
+# max_features is the place to stop them altogether).
 CostCurve = tuple[tuple[int, int], ...]
 
 
@@ -37,7 +44,8 @@ def cost_at(curve: CostCurve, n_features: int, default: int) -> int:
     for bound, cost in curve:
         if n_features <= bound:
             return cost
-    return curve[-1][1]
+    last_bound, last_cost = curve[-1]
+    return -(-last_cost * n_features // max(last_bound, 1))  # ceiling of the linear growth
 
 
 @dataclass(frozen=True)
@@ -73,6 +81,9 @@ class PluginManifest:
     # a backend that would fail.
     available: bool = True
     unavailable_reason: str = ''
+    # The calibration run the costs come from (e.g. '2026-11-06'); None for estimates that were
+    # never measured, which the planner ranks after calibrated ones.
+    calibration: Optional[str] = None
     operations: dict[str, OperationCapability] = field(default_factory=dict)
 
     def supports(self, model_level: LanguageLevel) -> bool:

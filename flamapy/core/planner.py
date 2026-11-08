@@ -6,12 +6,14 @@ the plugins' capability manifests (availability, language level, scale, exactnes
 ranked by their estimated cost: the cost of building the backend model (the plugin's
 ``transformation_cost`` for each step of the shortest model-to-model chain, waived for a model
 the caller already holds or has cached as an artifact) plus the operation's cost at the model's
-size. The operation's historical ``default_backend`` gets a bonus so that, on plain Boolean
+size. Plugins whose manifest declares no ``calibration`` are ranked after the calibrated ones.
+The operation's historical ``default_backend`` gets a bonus so that, on plain Boolean
 models, the planner reproduces today's routing where the estimates are close; 3.0 drops it.
 """
+import warnings
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Optional
 
 from flamapy.core.exceptions import NoCompatibleBackendError
 from flamapy.core.manifest import OperationCapability, PluginManifest
@@ -23,6 +25,10 @@ from flamapy.core.plugins import Plugin, Plugins
 # historical default backend is worth DEFAULT_BACKEND_BONUS.
 CHAIN_STEP_WEIGHT = 100
 DEFAULT_BACKEND_BONUS = 150
+# Deprecated since 2.9 and ignored: a cached artifact now waives the transformation cost
+# instead of earning a bonus. Kept so 2.8 code that imports it or passes it keeps working;
+# removed in 3.0.
+ARTIFACT_BONUS = 100
 
 # Descriptor default_backend values are facade backend names; 'sat' is the one name that
 # differs from its model extension.
@@ -33,6 +39,14 @@ DEFAULT_BACKEND_EXTENSIONS = {'sat': 'pysat'}
 class PlannerPolicy:
     chain_step_weight: int = CHAIN_STEP_WEIGHT
     default_backend_bonus: int = DEFAULT_BACKEND_BONUS
+    artifact_bonus: int = ARTIFACT_BONUS  # deprecated and ignored, see ARTIFACT_BONUS
+
+    def __post_init__(self) -> None:
+        if self.artifact_bonus != ARTIFACT_BONUS:
+            warnings.warn(
+                'PlannerPolicy.artifact_bonus is ignored since flamapy 2.9 (a cached artifact '
+                'waives the transformation cost) and will be removed in 3.0.',
+                DeprecationWarning, stacklevel=3)
 
 
 DEFAULT_POLICY = PlannerPolicy()
@@ -45,8 +59,24 @@ class Plan:
     transformation_chain: tuple[tuple[str, str], ...]  # (source_ext, destination_ext) steps
     rationale: str
     score: int = 0
-    estimated_cost: int = 0  # transformation + operation estimate, before the bonus
     alternatives: tuple[str, ...] = field(default=())
+    # Added in 2.9, last so that 2.8 positional construction keeps working: the transformation
+    # + operation estimate in ms, before the bonus. A heuristic from the calibration machine,
+    # useful to compare candidates, not a prediction of the wall time on yours.
+    estimated_cost: int = 0
+
+    def to_dict(self, source_extension: str = 'fm') -> dict[str, Any]:
+        """The plan as plain data, in the vocabulary of the result envelope (used by the CLI
+        and the REST API)."""
+        return {
+            'plugin': self.plugin_name,
+            'backend': self.target_extension,
+            'transformation_chain': [source_extension,
+                                     *(dst for _, dst in self.transformation_chain)],
+            'estimated_cost_ms': self.estimated_cost,
+            'rationale': self.rationale,
+            'alternatives': list(self.alternatives),
+        }
 
 
 def _shortest_chains(
@@ -123,7 +153,6 @@ def _route(  # noqa: PLR0913 — one keyword per input of the estimate
     return _Route(cost, tuple(reasons))
 
 
-
 def _rejection(  # noqa: PLR0913 — one check per manifest field
     manifest: PluginManifest,
     *,
@@ -179,7 +208,7 @@ def plan(  # noqa: PLR0913 — keyword-only planning inputs are the documented A
     by_extension = {_plugin_extension(plugin, source_extension): plugin for plugin in plugins}
     built = frozenset(available_models)
 
-    scored: list[tuple[int, str, Plan]] = []
+    scored: list[tuple[bool, int, str, Plan]] = []
     rejected: list[str] = []
     for plugin in plugins:
         if not _implements(plugin, operation_name):
@@ -208,7 +237,10 @@ def plan(  # noqa: PLR0913 — keyword-only planning inputs are the documented A
             reasons.append('historical default backend')
         if not capability.exact:
             reasons.append('approximate')
-        scored.append((score, manifest.name, Plan(
+        uncalibrated = manifest.calibration is None
+        if uncalibrated:
+            reasons.append('uncalibrated estimate, ranked after calibrated plugins')
+        scored.append((uncalibrated, score, manifest.name, Plan(
             plugin_name=plugin.name,
             target_extension=extension,
             transformation_chain=chain,
@@ -223,9 +255,10 @@ def plan(  # noqa: PLR0913 — keyword-only planning inputs are the documented A
             f"No installed backend can run '{operation_name}' on this model "
             f'({model_level}, {n_features} features): {details}')
 
-    scored.sort(key=lambda item: (item[0], item[1]))  # deterministic: score, then name
-    best = scored[0][2]
-    alternatives = tuple(entry[2].plugin_name for entry in scored[1:])
+    # Calibrated estimates first, then by score, then by name (deterministic).
+    scored.sort(key=lambda item: (item[0], item[1], item[2]))
+    best = scored[0][3]
+    alternatives = tuple(entry[3].plugin_name for entry in scored[1:])
     return Plan(
         plugin_name=best.plugin_name,
         target_extension=best.target_extension,

@@ -85,7 +85,9 @@ class TestCostsAndLimits:
         assert capability.cost_at(10) == 1
         assert capability.cost_at(50) == 1
         assert capability.cost_at(51) == 20
-        assert capability.cost_at(10_000) == 20
+        # Beyond the last bin the cost grows with the size instead of staying flat.
+        assert capability.cost_at(1_000) == 40
+        assert capability.cost_at(10_000) == 400
         assert OperationCapability(cost=7).cost_at(10_000) == 7
 
     def test_plugin_wide_max_features_applies_to_undeclared_and_unlimited_operations(self):

@@ -141,7 +141,7 @@ def test_cost_curve_picks_the_size_bin():
     plugins = [_manifest_plugin('bdd', 'bdd', curve), _manifest_plugin('pysat', 'pysat', flat)]
     assert _plan(plugins, n_features=50).plugin_name == 'bdd'      # 1 < 10
     assert _plan(plugins, n_features=500).plugin_name == 'pysat'   # 50 > 10
-    assert _plan(plugins, n_features=5000).plugin_name == 'pysat'  # beyond the curve: last bin
+    assert _plan(plugins, n_features=5000).plugin_name == 'pysat'  # beyond the curve: grows
 
 
 def test_plugin_wide_max_features_applies_to_undeclared_operations():
@@ -221,3 +221,45 @@ def test_unavailable_plugin_is_rejected_with_its_reason():
     plugins = [_manifest_plugin('dnnf', 'dnnf', missing)]
     with pytest.raises(NoCompatibleBackendError, match='d4 binary'):
         _plan(plugins)
+
+
+# --- 2.8 compatibility and calibration -------------------------------------------------------
+
+
+def test_plan_keeps_the_2_8_positional_fields():
+    old_style = Plan('p', 'pysat', (), 'why', 3, ('bdd',))
+    assert old_style.alternatives == ('bdd',) and old_style.estimated_cost == 0
+
+
+def test_artifact_bonus_is_accepted_but_deprecated():
+    from flamapy.core.planner import ARTIFACT_BONUS  # still importable from 2.8 code
+    assert PlannerPolicy().artifact_bonus == ARTIFACT_BONUS
+    with pytest.warns(DeprecationWarning, match='artifact_bonus'):
+        PlannerPolicy(artifact_bonus=500)
+
+
+def test_uncalibrated_manifests_rank_after_calibrated_ones():
+    measured = PluginManifest(name='sdd', extension='sdd', supported_level=BOOLEAN,
+                              calibration='2026-11-06', transformation_cost=1000,
+                              operations={'satisfiable': OperationCapability(cost=1000)})
+    unmeasured = PluginManifest(name='dnnf', extension='dnnf', supported_level=BOOLEAN,
+                                transformation_cost=1,
+                                operations={'satisfiable': OperationCapability(cost=1)})
+    plugins = [_manifest_plugin('sdd', 'sdd', measured),
+               _manifest_plugin('dnnf', 'dnnf', unmeasured)]
+    EDGES.append(('fm', 'sdd'))
+    try:
+        result = _plan(plugins)
+    finally:
+        EDGES.remove(('fm', 'sdd'))
+    assert result.plugin_name == 'sdd'
+    assert result.alternatives == ('dnnf',)
+    only_unmeasured = _plan([_manifest_plugin('dnnf', 'dnnf', unmeasured)])
+    assert 'uncalibrated' in only_unmeasured.rationale
+
+
+def test_plan_to_dict():
+    data = Plan('bdd_metamodel', 'bdd', (('fm', 'bdd'),), 'cheap', 1, ('pysat',), 12).to_dict()
+    assert data == {'plugin': 'bdd_metamodel', 'backend': 'bdd',
+                    'transformation_chain': ['fm', 'bdd'], 'estimated_cost_ms': 12,
+                    'rationale': 'cheap', 'alternatives': ['pysat']}
