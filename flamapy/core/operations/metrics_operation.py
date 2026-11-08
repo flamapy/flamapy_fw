@@ -1,9 +1,11 @@
 from abc import abstractmethod, ABCMeta
+import importlib
 import logging
 import json
 
 from typing import Any, Optional, Collection, Type
 
+from flamapy.core.manifest import PluginManifest
 from flamapy.core.transformations.model_to_model import ModelToModel
 from flamapy.core.operations import Operation
 from flamapy.core.models import VariabilityModel
@@ -22,6 +24,8 @@ class Metrics(Operation, metaclass=ABCMeta):
     def __init__(self) -> None:
         self.model: Optional[VariabilityModel] = None
         self.result: list[dict[str, Any]] = []
+        # Metamodel extension -> why its metrics were not computed.
+        self.skipped: dict[str, str] = {}
 
     @abstractmethod
     def calculate_metamodel_metrics(self, model: VariabilityModel) -> list[dict[str, Any]]:
@@ -42,37 +46,75 @@ class Metrics(Operation, metaclass=ABCMeta):
         it already is of that metamodel, through its source model (the ``original_model`` a
         transformation attaches) when that is, or through a model-to-model transformation from
         either; so executing a backend's metrics (e.g. on a SAT model) reports the same set as
-        executing them on the source feature model. Metamodels with no route are skipped with
-        a warning.
+        executing them on the source feature model.
+
+        A metamodel is skipped, with a warning and its reason in :attr:`skipped`, when there is
+        no route to it or when building its model would go against its plugin's manifest (the
+        plugin is unavailable, or the model is larger than its declared ``max_features``), so a
+        metrics call never starts a compilation the planner would refuse.
         """
         self.model = model
+        self.skipped = {}
         for subclass in Metrics.__subclasses__():
             sub_metric = subclass()
             sub_metric.filter = self.filter
-            dest_model = self._model_for(model, sub_metric.model_type_extension)
+            extension = sub_metric.model_type_extension
+            dest_model, reason = self._model_for(model, extension)
             if dest_model is None:
-                LOGGER.warning("No transformation from %r to %r: its metrics are skipped",
-                               model.__class__.get_extension(), sub_metric.model_type_extension)
+                self.skipped[extension] = reason
+                LOGGER.warning("Metrics of %r skipped: %s", extension, reason)
                 continue
             self.result.extend(sub_metric.calculate_metamodel_metrics(dest_model))
         return self
 
+    def get_skipped(self) -> dict[str, str]:
+        """Metamodel extension -> why its metrics were not computed in the last execution."""
+        return self.skipped
+
     @classmethod
-    def _model_for(cls, model: VariabilityModel, extension: str) -> Optional[VariabilityModel]:
-        """The model as the given metamodel: itself, its source model, or a transformation of
-        either; None when there is no route."""
+    def _model_for(
+        cls, model: VariabilityModel, extension: str
+    ) -> tuple[Optional[VariabilityModel], str]:
+        """The model as the given metamodel (itself, its source model, or a transformation of
+        either) and an empty reason, or None and why it cannot be built."""
         candidates = [model]
         original = getattr(model, 'original_model', None)
         if isinstance(original, VariabilityModel):
             candidates.append(original)
         for candidate in candidates:
             if candidate.__class__.get_extension() == extension:
-                return candidate
+                return candidate, ''
         for candidate in candidates:
             m_to_m = cls._search_transformations(candidate.__class__.get_extension(), extension)
-            if m_to_m is not None:
-                return m_to_m(candidate).transform()
-        return None
+            if m_to_m is None:
+                continue
+            refusal = cls._manifest_refusal(m_to_m, candidate)
+            if refusal:
+                return None, refusal
+            return m_to_m(candidate).transform(), ''
+        return None, (f'no transformation from {model.__class__.get_extension()!r} '
+                      f'to {extension!r}')
+
+    @staticmethod
+    def _manifest_refusal(m_to_m: Type[ModelToModel], source: VariabilityModel) -> str:
+        """Why the destination plugin's manifest refuses to build its model, or ''."""
+        package = '.'.join(m_to_m.__module__.split('.')[:3])
+        try:
+            manifest = getattr(importlib.import_module(package), 'MANIFEST', None)
+        except ImportError:
+            return ''
+        if not isinstance(manifest, PluginManifest):
+            return ''
+        if not manifest.available:
+            return manifest.unavailable_reason or f'{manifest.name} is unavailable'
+        limit = manifest.capability('metrics').max_features
+        get_features = getattr(source, 'get_features', None)
+        if limit is not None and callable(get_features):
+            n_features = len(get_features())
+            if n_features > limit:
+                return (f'model has {n_features} features, {manifest.name} declares a limit '
+                        f'of {limit}')
+        return ''
 
     @staticmethod
     def _search_transformations(orig: str, dest: str) -> Optional[Type[ModelToModel]]:
