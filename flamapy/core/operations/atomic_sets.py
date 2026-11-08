@@ -29,9 +29,8 @@ class AtomicSets(Operation):
 
     facade = OperationDescriptor(
         doc=(
-            'This operation is used to find the atomic sets in a model: It returns the\n'
-            'atomic sets if they are found in the model. If the model does not follow the\n'
-            'UVL specification, an exception is raised and the operation returns False.\n'
+            'This operation is used to find the atomic sets in a model: it returns them as\n'
+            'lists of feature names.\n'
             '\n'
             'By default the sets are read from the feature tree (mandatory features with\n'
             'their parents), ignoring the cross-tree constraints; ``backend="sat"`` computes\n'
